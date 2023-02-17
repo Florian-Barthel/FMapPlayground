@@ -6,8 +6,10 @@ from torchvision.transforms import transforms
 from sanitize_graph import remove_inplace_relu
 
 net = alexnet()
+net.eval()
 params = dict(net.named_parameters())
 param_map = {id(v): k for k, v in params.items()}
+
 
 
 def get_back(var_grad_fn):
@@ -17,7 +19,7 @@ def get_back(var_grad_fn):
         if n[0]:
             try:
                 tensor = getattr(n[0], 'variable')
-                print()
+                print(tensor.shape)
             except AttributeError as e:
                 get_back(n[0])
 

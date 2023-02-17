@@ -1,18 +1,22 @@
 import os
-import numpy as np
 import torch
-import matplotlib.pyplot as plt
 from PIL import Image
 from torchvision.models import resnet50, alexnet, convnext_tiny
 from timm.models import hrnet_w32
-
-
 from torchvision.transforms import transforms
+
+from backward_graph import BackwardGraph
 
 
 def intersection(lst1, lst2):
     lst3 = [value for value in lst1 if value in lst2]
     return lst3
+
+
+def diff(list1, list2):
+    c = set(list1).union(set(list2))
+    d = set(list1).intersection(set(list2))
+    return list(c - d)
 
 
 class VerboseExecution(torch.nn.Module):
@@ -26,7 +30,7 @@ class VerboseExecution(torch.nn.Module):
         self.output_f_maps = {}
         self.f_map_gradients = {}
 
-        self.variable_id_layer_info = {}
+        self.weight_id_layer = {}
         self.recursively_register_hooks(model, self.model._get_name())
 
     def recursively_register_hooks(self, module, parent_name):
@@ -36,26 +40,17 @@ class VerboseExecution(torch.nn.Module):
             os.mkdir(parent_name)
         for name, layer in children_layer:
             layer.__name__ = parent_name + '/' + str(order_counter) + '-' + layer._get_name() + '-' + name
-            # layer.register_backward_hook(self.backward_hook)
             layer.register_forward_hook(self.forward_hook)
             self.recursively_register_hooks(layer, layer.__name__)
             order_counter += 1
 
-    def backward_hook(self, layer, grad_input, grad_output):
-        grad_output = grad_output[0]
-        print(grad_output.shape)
-
-        layer_name = layer.__name__
-        if isinstance(grad_output, list):
-            for i in range(len(grad_output)):
-                self.save_layer(layer_name, f'_list_{i}_grad.png', grad_output[i])
-            return
-
-        self.save_layer(layer_name, '_grad.png', grad_output)
-
     def forward_hook(self, layer, input_list, output_tensor):
         if hasattr(layer, 'weight'):
-            self.variable_id_layer_info[id(layer.weight)] = (layer, input_list, output_tensor)
+            self.weight_id_layer[id(layer.weight)] = {
+                'layer': layer,
+                'input': input_list,
+                'output': output_tensor
+            }
 
         layer_name = layer.__name__
         if isinstance(output_tensor, list):
@@ -70,16 +65,17 @@ class VerboseExecution(torch.nn.Module):
 
     @staticmethod
     def save_layer(name, file_ending, output):
-        output_np = output.detach().numpy()
-        current_shape = output_np.shape
-        print(name)
-        print(current_shape)
-        if len(current_shape) == 2:
-            plt.imsave(name + file_ending, output_np[0, None, :])
-        if len(current_shape) == 3:
-            plt.imsave(name + file_ending, output_np[0])
-        elif len(current_shape) == 4:
-            plt.imsave(name + file_ending, np.mean(output_np.transpose(0, 2, 3, 1)[0], axis=-1))
+        pass
+        # output_np = output.detach().numpy()
+        # current_shape = output_np.shape
+        # print(name)
+        # print(current_shape)
+        # if len(current_shape) == 2:
+        #     plt.imsave(name + file_ending, output_np[0, None, :])
+        # if len(current_shape) == 3:
+        #     plt.imsave(name + file_ending, output_np[0])
+        # elif len(current_shape) == 4:
+        #     plt.imsave(name + file_ending, np.mean(output_np.transpose(0, 2, 3, 1)[0], axis=-1))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x.requires_grad_()
@@ -98,8 +94,9 @@ class VerboseExecution(torch.nn.Module):
 if __name__ == '__main__':
     img_pil = Image.open('images/elefant.jpg').convert('RGB')
     img = transforms.ToTensor()(img_pil)[None, ...]
-
-    net = VerboseExecution(alexnet())
+    net = hrnet_w32()
+    net.eval()
+    net = VerboseExecution(net)
 
     cross_entropy_function = torch.nn.CrossEntropyLoss()
 
@@ -107,5 +104,7 @@ if __name__ == '__main__':
     target_label = torch.tensor([386])
     loss = cross_entropy_function(input=out, target=target_label)
     loss.backward(retain_graph=True) # , create_graph=True)
+    backGraph = BackwardGraph()
+    backGraph.iterate_graph(loss)
     print()
 
