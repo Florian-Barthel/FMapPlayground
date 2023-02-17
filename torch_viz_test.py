@@ -2,6 +2,7 @@ import torch
 import torchviz
 from PIL import Image
 from timm.models import hrnet_w32
+from torchvision.models import alexnet, resnet50
 from torchvision.transforms import transforms
 
 if __name__ == '__main__':

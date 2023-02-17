@@ -24,6 +24,6 @@ if __name__ == '__main__':
     loss.backward(retain_graph=True) # , create_graph=True)
     backGraph = BackwardGraph()
     backGraph.iterate_graph(loss)
-    # backGraph.reduce_accumulate_nodes()
+    backGraph.reduce_nodes(['AccumulateGrad', 'TBackward0'])
     backGraph.create_graph_png()
     print()
