@@ -1,7 +1,8 @@
 
-circle = 'circle'
+ellipse = 'ellipse'
 box = 'box'
 diamond = 'diamond'
+point = 'point'
 
 red = 'crimson'
 blue = 'deepskyblue2'
@@ -21,12 +22,27 @@ default_node_attr = dict(
 
 
 shapes = {
-    '+': circle,
-    'Relu': diamond
+    '+': ellipse,
+    'Relu': diamond,
+    'Input': point,
+    'Output': point
 }
+
+
+def get_shape(node_name: str):
+    for key, shape in shapes.items():
+        if node_name.startswith(key):
+            return shape
+
 
 colors = {
     'Convolution': blue,
     'Relu': light_blue,
     'Linear': blue
 }
+
+
+def get_color(node_name: str):
+    for key, color in colors.items():
+        if node_name.startswith(key):
+            return color

@@ -10,6 +10,7 @@ class VerboseExecution(torch.nn.Module):
         self.grad_fn_id_dict = []
         self.param_map = {str(id(v)): k for k, v in dict(self.model.named_parameters()).items()}
         self.recursively_register_hooks(model)
+        self.original_name: str = self.model._get_name()
 
     def recursively_register_hooks(self, module, current_name=None, parent_name=None):
         children_layer = list(module.named_children())

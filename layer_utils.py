@@ -30,7 +30,7 @@ def gather_layer_info(grad_fn_layer):
     return info
 
 
-def get_function_description(backward_layer, graph_description, param_map):
+def get_function_description(backward_layer, param_map):
     name = backward_layer.name
     if name.endswith('Backward0'):
         name = name[:-len('Backward0')]
@@ -49,17 +49,13 @@ def append_info(layer: [BackwardLayer, ResultLayer], param_map) -> str:
         for node in layer.weight_nodes:
             if 'variable' in node.layer_backwards_info.keys():
                 var = node.layer_backwards_info['variable']
-                var_name = param_map.get(str(id(var)))
+                var_name = param_map.get(str(id(var))).split('.')[-1]
                 if var_name is not None:
                     result_string += '\n'
                     result_string += var_name
                     result_string += str(var.data.numpy().shape)
 
-    if isinstance(layer, ResultLayer):
-        result_string += '\n'
-        result_string += 'scopes: ' + layer.scopes
+        if len(layer.possible_scopes) == 0:
+            print(f'warning: no scope was found for {layer.name}')
+
     return result_string
-
-
-def find_matching_layer(backward_layer, graph_description):
-    ...

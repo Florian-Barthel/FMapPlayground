@@ -8,7 +8,7 @@ from torchvision.transforms import transforms
 if __name__ == '__main__':
     img_pil = Image.open('images/elefant.jpg').convert('RGB').resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
-    net = vision_transformer.vit_small_patch16_36x1_224()
+    net = convnext_tiny() # vision_transformer.vit_small_patch16_36x1_224()
     net.eval()
     cross_entropy_function = torch.nn.CrossEntropyLoss()
     out = net(img)
