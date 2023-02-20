@@ -18,15 +18,11 @@ class VerboseExecution(torch.nn.Module):
         children_layer = list(module.named_children())
 
         if parent_name is not None:
-            if not os.path.exists(parent_name):
-                os.mkdir(parent_name)
             module.__name__ = f'{parent_name}/{current_name}({module._get_name()})' + '?!module_id:' + str(uuid.uuid4().hex)
-            if not os.path.exists(module.__name__):
-                os.mkdir(module.__name__)
         else:
             module.__name__ = module._get_name()
-        if hasattr(module, 'weight'):
-            module.__name__ += self.param_map[str(id(module.weight))]
+        # if hasattr(module, 'weight'):
+        #     module.__name__ += self.param_map[str(id(module.weight))]
 
         if len(children_layer) == 0:
             module.__name__ += '_leaf'

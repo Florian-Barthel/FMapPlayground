@@ -58,10 +58,7 @@ class BackwardGraph:
         for inputs, current_module, outputs in tqdm(module_input_output):
             current_scopes: str = current_module.__name__
             if current_scopes.endswith('_leaf'):
-                # current_module.__name__ += str(uuid.uuid4().hex)
                 current_scopes += str(uuid.uuid4().hex)
-                # if current_scopes in self.all_scopes.values():
-                #     current_scopes += str(uuid.uuid4().hex)
             self.all_scopes[(id(inputs[0]), id(current_module), id(outputs))] = current_scopes
 
             if check_equal(inputs[0], outputs):
@@ -78,8 +75,6 @@ class BackwardGraph:
                 self.input_result_list.append(input_node)
 
         for inputs, current_module, outputs in tqdm(module_input_output[::-1]):
-            # current_scopes: str = current_module.__name__
-            # if current_scopes.endswith('_leaf'):
             current_scopes = self.all_scopes[(id(inputs[0]), id(current_module), id(outputs))]
             if check_equal(inputs[0], outputs):
                 continue
@@ -177,7 +172,16 @@ class BackwardGraph:
 
         for current_layer, next_layer in connections_to_add:
             self.add_connections(current_layer, next_layer)
-        self.remove_deleted_nodes()
+        self.remove_deleted_connections()
+
+    def remove_duplicate_result_nodes(self):
+        for node_id in self.all_layers.keys():
+            current_node = self.all_layers[node_id]
+            if isinstance(current_node, ResultLayer):
+                for other_node_id in self.all_layers.keys():
+                    other_node = self.all_layers[other_node_id]
+                    if isinstance(current_node, ResultLayer):
+                        current_node.scope
 
     def create_graph_png(self, param_map, out_folder='graph_viz_out'):
         modules = self.split_into_modules()
@@ -236,7 +240,7 @@ class BackwardGraph:
             next_layers = new_found_layers
         return False
 
-    def remove_deleted_nodes(self):
+    def remove_deleted_connections(self):
         all_layers = self.all_layers.keys()
         for connection_from_name in self.connections.keys():
             connections_to_delete = set()

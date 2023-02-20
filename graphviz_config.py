@@ -24,8 +24,8 @@ default_node_attr = dict(
 shapes = {
     '+': ellipse,
     'Relu': diamond,
-    'Input': point,
-    'Output': point
+    'Input': box,
+    'Output': box
 }
 
 

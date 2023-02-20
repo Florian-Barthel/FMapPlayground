@@ -17,7 +17,7 @@ from verbose_execution import VerboseExecution
 if __name__ == '__main__':
     img_pil = Image.open('images/elefant.jpg').convert('RGB').resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
-    net = hrnet_w32() # vision_transformer.vit_small_patch16_36x1_224()
+    net = resnet50() # vision_transformer.vit_small_patch16_36x1_224()
     net.eval()
     net = VerboseExecution(net)
 
@@ -37,5 +37,4 @@ if __name__ == '__main__':
     backGraph.update_scopes(network_name=net.original_name)
     print('Draw Graph')
     backGraph.create_graph_png(param_map=net.param_map)
-    modules = backGraph.split_into_modules()
     print()
