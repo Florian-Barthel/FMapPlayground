@@ -18,7 +18,7 @@ class VerboseExecution(torch.nn.Module):
         if parent_name is not None:
             if len(children_layer) > 0 and not os.path.exists(parent_name):
                 os.mkdir(parent_name)
-            module.__name__ = parent_name + '/' + current_name + '(' + module._get_name() + ')'
+            module.__name__ = f'{parent_name}/{current_name}({module._get_name()})'
         else:
             module.__name__ = module._get_name()
         for name, layer in children_layer:

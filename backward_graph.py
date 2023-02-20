@@ -12,13 +12,15 @@ from pytorch_utils import check_equal
 
 
 class BackwardGraph:
-    def __init__(self, input_tensor: torch.Tensor, loss):
+    def __init__(self, input_tensor: torch.Tensor, loss, param_map):
         self.all_layers: dict[object, [BackwardLayer, ResultLayer]] = {}
         self.seen_layers = set()
         self.connections: dict[object, Set[object]] = {}
         self._iterate_graph(loss.grad_fn)
         self.input_layer_grad_fn = self._find_input_layer_grad_fn(input_tensor)
         self.input_result_list: List[ResultLayer] = []
+        self.all_scopes = {}
+        self.param_map = param_map
 
         self._input_node_name = 'Input'
         self._output_node_name = 'Output'
@@ -56,7 +58,11 @@ class BackwardGraph:
     def insert_result_nodes(self, module_input_output):
         for inputs, current_module, outputs in tqdm(module_input_output):
             current_scopes: str = current_module.__name__
-            if check_equal(inputs[0], outputs): # if current_scopes.endswith('(Identity)'):
+            if current_scopes in self.all_scopes.values():
+                current_scopes += str(uuid.uuid4().hex)
+            self.all_scopes[(inputs, current_module, outputs)] = current_scopes
+
+            if check_equal(inputs[0], outputs):
                 continue
             inputs = inputs[0]
             if isinstance(inputs, list):
@@ -69,10 +75,8 @@ class BackwardGraph:
                 self._insert_result_node_after(inputs.grad_fn, input_node, is_output_node=False)
                 self.input_result_list.append(input_node)
 
-
-        # graph_descriptions = module_input_output[::-1] # sorted(module_input_output, key=lambda descriptions: len(descriptions[1].__name__.split('/')))[::]
         for inputs, current_module, outputs in tqdm(module_input_output[::-1]):
-            current_scopes = current_module.__name__
+            current_scopes = self.all_scopes[(inputs, current_module, outputs)]
             if check_equal(inputs[0], outputs):
                 continue
             if isinstance(outputs, list):
@@ -177,13 +181,6 @@ class BackwardGraph:
         graph = Digraph(node_attr=graphviz_config.default_node_attr)
         self._add_modules_to_graph_rec(graph, modules, param_map)
 
-        # for layer_id in self.all_layers.keys():
-        #     current_layer = self.all_layers[layer_id]
-        #     node_name = get_function_description(current_layer, param_map)
-        #     shape = graphviz_config.get_shape(node_name)
-        #     color = graphviz_config.get_color(node_name)
-        #     graph.node(str(layer_id), node_name, shape=shape, fillcolor=color)
-
         for from_id in self.all_layers.keys():
             to_ids = self.connections.get(from_id)
             if to_ids is not None:
@@ -197,7 +194,7 @@ class BackwardGraph:
             with graph.subgraph(name='cluster' + str(uuid.uuid4().hex)) as sg:
                 sg.attr(color='black')
                 sg.attr(label=scope_name)
-                sg.attr(rankdir="LR")
+                sg.graph_attr['rank'] = 'same'
                 if len(module['next_scopes'].keys()) > 0:
                     self._add_modules_to_graph_rec(sg, module['next_scopes'], param_map)
 
@@ -210,7 +207,6 @@ class BackwardGraph:
 
                     elif isinstance(node, ResultLayer):
                         sg.node(str(node.node_id), node_name, shape=shape, fillcolor=color)
-
 
     def scope_is_closed(self, node: ResultLayer, next_layer_id):
         next_layers = set()
@@ -225,8 +221,6 @@ class BackwardGraph:
                 if isinstance(current_layer_node, ResultLayer):
                     if current_layer_node.scope == node.scope:
                         return True
-                    # if len(current_layer_node.scope.split('/')) < len(node.scope.split('/')) and node.name == self._input_node_name:
-                    #     ... # continue
                 new_layers = self.connections.get(current_layer)
                 if new_layers is not None:
                     for new_layer in new_layers:
@@ -295,12 +289,6 @@ class BackwardGraph:
                 'next_scopes': {},
                 'layers': []
             }
-        # counter = 0
-        # s = scopes[0]
-        # while scopes[0] in [l.name for l in module[scopes[0]]['next_scopes']]:
-        #     new_layer_name = layer.name + str(counter)
-        #     counter += 1
-        # layer.name = new_layer_name
         if len(scopes) == 1:
             module[scopes[0]]['layers'].append(layer)
             return
