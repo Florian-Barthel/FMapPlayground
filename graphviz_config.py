@@ -15,8 +15,8 @@ default_node_attr = dict(
     align='center',
     shape='box',
     fontsize='10',
-    ranksep='0.05',
-    height='0.1',
+    ranksep='0.01',
+    height='0.2',
     fontname='monospace'
 )
 

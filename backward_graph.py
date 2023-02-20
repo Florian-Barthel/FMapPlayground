@@ -12,7 +12,7 @@ from pytorch_utils import check_equal
 
 
 class BackwardGraph:
-    def __init__(self, input_tensor: torch.Tensor, loss, param_map):
+    def __init__(self, input_tensor: torch.Tensor, loss):
         self.all_layers: dict[object, [BackwardLayer, ResultLayer]] = {}
         self.seen_layers = set()
         self.connections: dict[object, Set[object]] = {}
@@ -20,7 +20,6 @@ class BackwardGraph:
         self.input_layer_grad_fn = self._find_input_layer_grad_fn(input_tensor)
         self.input_result_list: List[ResultLayer] = []
         self.all_scopes = {}
-        self.param_map = param_map
 
         self._input_node_name = 'Input'
         self._output_node_name = 'Output'
@@ -58,9 +57,12 @@ class BackwardGraph:
     def insert_result_nodes(self, module_input_output):
         for inputs, current_module, outputs in tqdm(module_input_output):
             current_scopes: str = current_module.__name__
-            if current_scopes in self.all_scopes.values():
+            if current_scopes.endswith('_leaf'):
+                # current_module.__name__ += str(uuid.uuid4().hex)
                 current_scopes += str(uuid.uuid4().hex)
-            self.all_scopes[(inputs, current_module, outputs)] = current_scopes
+                # if current_scopes in self.all_scopes.values():
+                #     current_scopes += str(uuid.uuid4().hex)
+            self.all_scopes[(id(inputs[0]), id(current_module), id(outputs))] = current_scopes
 
             if check_equal(inputs[0], outputs):
                 continue
@@ -76,7 +78,9 @@ class BackwardGraph:
                 self.input_result_list.append(input_node)
 
         for inputs, current_module, outputs in tqdm(module_input_output[::-1]):
-            current_scopes = self.all_scopes[(inputs, current_module, outputs)]
+            # current_scopes: str = current_module.__name__
+            # if current_scopes.endswith('_leaf'):
+            current_scopes = self.all_scopes[(id(inputs[0]), id(current_module), id(outputs))]
             if check_equal(inputs[0], outputs):
                 continue
             if isinstance(outputs, list):
@@ -88,7 +92,6 @@ class BackwardGraph:
                 self._insert_result_node_after(outputs.grad_fn, output_node, is_output_node=True)
 
         self.remove_unused_edges()
-
 
     def remove_unused_edges(self):
         for input_result_node in self.input_result_list:
@@ -148,8 +151,8 @@ class BackwardGraph:
     def _reduce_nodes(self, skip_layer):
         assert len(self.connections.keys()) > 0 or len(self.all_layers.keys()) > 0
 
-        connections_to_add = []
-        layers_to_delete = []
+        connections_to_add = set()
+        layers_to_delete = set()
 
         for layer_id in self.all_layers.keys():
             current_layer: [BackwardLayer, ResultLayer] = self.all_layers[layer_id]
@@ -164,8 +167,8 @@ class BackwardGraph:
                     next_layer.weight_nodes.append(current_layer)
                     next_layer.weight_nodes.extend(current_layer.weight_nodes)
                     current_layer.weight_nodes = []
-                    layers_to_delete.append(current_layer.grad_fn)
-                    connections_to_add.append((current_layer.grad_fn, next_layer.grad_fn))
+                    layers_to_delete.add(current_layer.grad_fn)
+                    connections_to_add.add((current_layer.grad_fn, next_layer.grad_fn))
 
         # remove
         for delete_grad_fn in layers_to_delete:
@@ -179,7 +182,7 @@ class BackwardGraph:
     def create_graph_png(self, param_map, out_folder='graph_viz_out'):
         modules = self.split_into_modules()
         graph = Digraph(node_attr=graphviz_config.default_node_attr)
-        self._add_modules_to_graph_rec(graph, modules, param_map)
+        self._add_modules_to_graph_rec(graph, modules, param_map, 1)
 
         for from_id in self.all_layers.keys():
             to_ids = self.connections.get(from_id)
@@ -188,15 +191,19 @@ class BackwardGraph:
                     graph.edge(str(from_id), str(to_id))
         graph.render(directory=out_folder, view=True)
 
-    def _add_modules_to_graph_rec(self, graph: Digraph, modules: dict, param_map):
+    def _add_modules_to_graph_rec(self, graph: Digraph, modules: dict, param_map, color_counter: int):
         for scope_name in modules.keys():
             module = modules[scope_name]
             with graph.subgraph(name='cluster' + str(uuid.uuid4().hex)) as sg:
                 sg.attr(color='black')
+                sg.attr(colorscheme='oranges9') # ylgn9
+                sg.attr(bgcolor=str(color_counter))
+                sg.attr(style=str('rounded'))
+                if '?!module_id:' in scope_name:
+                    scope_name = scope_name.split('?!module_id:')[0]
                 sg.attr(label=scope_name)
-                sg.graph_attr['rank'] = 'same'
                 if len(module['next_scopes'].keys()) > 0:
-                    self._add_modules_to_graph_rec(sg, module['next_scopes'], param_map)
+                    self._add_modules_to_graph_rec(sg, module['next_scopes'], param_map, color_counter + 1)
 
                 for node in module['layers']:
                     node_name = get_function_description(node, param_map)
@@ -255,7 +262,11 @@ class BackwardGraph:
                 if isinstance(current_layer, ResultLayer):
                     pbar.update()
                     if current_layer.name == self._input_node_name:
+                        # remove all scopes that are equally or more specific
+                        current_scope_stack = [scope for scope in current_scope_stack
+                                               if len(scope.split('/')) < len(current_layer.scope.split('/'))]
                         current_scope_stack.append(current_layer.scope)
+
                     elif current_layer.name == self._output_node_name:
                         if current_layer.scope in current_scope_stack:
                             current_scope_stack.remove(current_layer.scope)

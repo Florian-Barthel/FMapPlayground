@@ -1,9 +1,12 @@
 import torch
 from PIL import Image
 
-from torchvision.models import resnet50, alexnet, convnext_tiny, convnext_large, efficientnet_b4, mobilenet_v2
-from timm.models import hrnet_w32, vision_transformer
+from torchvision.models import resnet50, alexnet, convnext_tiny, convnext_large, efficientnet_b4, mobilenet_v2, vgg16, inception_v3
+from timm.models import vision_transformer, nest_small, crossvit_tiny_240
 from network_baseline import SegmentationNetBaseline
+
+# todo fix those:
+from timm.models import convit_small, hrnet_w32
 
 from torchvision.transforms import transforms
 
@@ -14,7 +17,7 @@ from verbose_execution import VerboseExecution
 if __name__ == '__main__':
     img_pil = Image.open('images/elefant.jpg').convert('RGB').resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
-    net = mobilenet_v2()# vision_transformer.vit_small_patch16_36x1_224()
+    net = hrnet_w32() # vision_transformer.vit_small_patch16_36x1_224()
     net.eval()
     net = VerboseExecution(net)
 
@@ -25,7 +28,7 @@ if __name__ == '__main__':
     # loss = cross_entropy_function(input=out, target=target_label)
     loss = torch.sum(out)
     loss.backward(retain_graph=True)
-    backGraph = BackwardGraph(img, loss, net.param_map)
+    backGraph = BackwardGraph(img, loss)
     print('Insert Result Nodes')
     backGraph.insert_result_nodes(net.grad_fn_id_dict)
     print('Reduce Nodes')
