@@ -3,6 +3,8 @@ from PIL import Image
 
 from torchvision.models import resnet50, alexnet, convnext_tiny, convnext_large, efficientnet_b4, mobilenet_v2, vgg16, inception_v3
 from timm.models import vision_transformer, nest_small, crossvit_tiny_240
+
+from generate_graphviz_graph import create_graph_png
 from network_baseline import SegmentationNetBaseline
 
 # todo fix those:
@@ -10,7 +12,7 @@ from timm.models import convit_small, hrnet_w32
 
 from torchvision.transforms import transforms
 
-from backward_graph import BackwardGraph
+from backward_graph_new import BackwardGraph
 from verbose_execution import VerboseExecution
 
 
@@ -30,11 +32,12 @@ if __name__ == '__main__':
     loss.backward(retain_graph=True)
     backGraph = BackwardGraph(img, loss)
     print('Insert Result Nodes')
-    backGraph.insert_result_nodes(net.grad_fn_id_dict)
+    backGraph.insert_result_nodes(net.grad_fns)
     print('Reduce Nodes')
     backGraph.reduce_nodes(['AccumulateGrad', 'TBackward0'])
     print('Update Scopes')
     backGraph.update_scopes(network_name=net.original_name)
     print('Draw Graph')
-    backGraph.create_graph_png(param_map=net.param_map)
+    # backGraph.create_graph_png(net.param_map)
+    create_graph_png(connections=backGraph.connections, modules=backGraph.split_into_modules(), param_map=net.param_map)
     print()

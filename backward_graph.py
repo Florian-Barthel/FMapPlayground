@@ -254,11 +254,15 @@ class BackwardGraph:
         next_layers = set()
         next_layers.add((self.input_layer_grad_fn, tuple([network_name])))
         pbar = tqdm(total=len(self.all_layers))
+        seen_layers = set()
 
         while len(next_layers) > 0:
             new_found_layers = set()
 
             for current_layer_id, current_scope_stack in next_layers:
+                if current_layer_id in seen_layers:
+                    continue
+                seen_layers.add(current_layer_id)
                 current_scope_stack = list(current_scope_stack)
                 current_layer = self.all_layers[current_layer_id]
                 new_layers = self.connections.get(current_layer_id)

@@ -9,7 +9,7 @@ class VerboseExecution(torch.nn.Module):
         super().__init__()
         self.model = model
         self.model = self.remove_inplace_relu(model)
-        self.grad_fn_id_dict = []
+        self.grad_fns = []
         self.param_map = {str(id(v)): k for k, v in dict(self.model.named_parameters()).items()}
         self.recursively_register_hooks(model)
         self.original_name: str = self.model._get_name()
@@ -21,22 +21,21 @@ class VerboseExecution(torch.nn.Module):
             module.__name__ = f'{parent_name}/{current_name}({module._get_name()})' + '?!module_id:' + str(uuid.uuid4().hex)
         else:
             module.__name__ = module._get_name()
-        # if hasattr(module, 'weight'):
-        #     module.__name__ += self.param_map[str(id(module.weight))]
 
         if len(children_layer) == 0:
             module.__name__ += '_leaf'
         for name, layer in children_layer:
-            layer.register_forward_hook(self.forward_hook)
             self.recursively_register_hooks(layer, name, module.__name__)
+            layer.register_forward_hook(self.forward_hook)
+
 
     def forward_hook(self, layer, input_list, output_tensor):
         if isinstance(output_tensor, list):
             for i in range(len(output_tensor)):
-                self.grad_fn_id_dict.append((input_list, layer, output_tensor[i]))
+                self.grad_fns.append((input_list, layer, output_tensor[i]))
             return
         else:
-            self.grad_fn_id_dict.append((input_list, layer, output_tensor))
+            self.grad_fns.append((input_list, layer, output_tensor))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x.requires_grad_()

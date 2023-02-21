@@ -16,40 +16,32 @@ class GraphConnections:
             self.forward_connections[origin] = set()
 
         for target in targets:
-            if target is not None:
-                self.forward_connections[origin].add(target)
-                if target not in self.backward_connections.keys():
-                    self.backward_connections[target] = set()
-                self.backward_connections[target].add(origin)
+            self.forward_connections[origin].add(target)
+            if target not in self.backward_connections.keys():
+                self.backward_connections[target] = set()
+            self.backward_connections[target].add(origin)
 
     def add_connections_multiple_origins(self, origins: Iterable, target) -> None:
         if target not in self.backward_connections.keys():
             self.backward_connections[target] = set()
 
         for origin in origins:
-            if origin is not None:
-                self.backward_connections[target].add(origin)
-                if origin not in self.forward_connections.keys():
-                    self.forward_connections[target] = set()
-                self.forward_connections[origin].add(target)
+            self.backward_connections[target].add(origin)
+            if origin not in self.forward_connections.keys():
+                self.forward_connections[origin] = set()
+            self.forward_connections[origin].add(target)
 
-    def remove_connection(self, origin, target, parents_inherit) -> None:
+    def remove_connection(self, origin, target) -> None:
         """
         Removes an edge described by origin node and target node.
         :param origin: origin node of edge to delete
         :param target: target node of edge to delete
-        :param parents_inherit: If True, all previous nodes inherit get connected to the target node.
-
         """
-        saved_backward_nodes = self.backward_connections[target]
-        next_nodes = self.forward_connections[origin].copy()
-
-        for next_node in next_nodes:
+        saved_backward_nodes = self.get_previous_nodes(target)
+        for next_node in self.get_next_nodes(origin):
             if next_node == target:
-                self.forward_connections[origin].remove(next_node)
-
-        if parents_inherit:
-            self.add_connections_multiple_origins(saved_backward_nodes, target)
+                self.forward_connections[origin].remove(target)
+                self.backward_connections[target].remove(origin)
 
         self.remove_empty_connections()
 
@@ -63,7 +55,7 @@ class GraphConnections:
         saved_forward_connections = self.get_next_nodes(delete_node)
         saved_backward_connections = self.get_previous_nodes(delete_node)
 
-        if delete_node in self.forward_connections:
+        if delete_node in self.forward_connections.keys():
             del self.forward_connections[delete_node]
         # remove all connections where the target node is the node to delete
         for node_id in self.forward_connections.keys():
@@ -71,7 +63,7 @@ class GraphConnections:
             if delete_node in next_nodes:
                 next_nodes.remove(delete_node)
 
-        if delete_node in self.backward_connections:
+        if delete_node in self.backward_connections.keys():
             del self.backward_connections[delete_node]
         # remove all connections where the origin node is the node to delete
         for node_id in self.backward_connections.keys():
@@ -79,7 +71,7 @@ class GraphConnections:
             if delete_node in prev_nodes:
                 prev_nodes.remove(delete_node)
 
-        if fix_graph and saved_backward_connections is not None and saved_forward_connections is not None:
+        if fix_graph:
             for backward_connection in saved_backward_connections:
                 self.add_connections_multiple_targets(backward_connection, saved_forward_connections)
 
@@ -100,7 +92,7 @@ class GraphConnections:
     def insert_node_inbetween(self, node_before, node_to_insert, node_after):
         self.add_connection(node_before, node_to_insert)
         self.add_connection(node_to_insert, node_after)
-        self.remove_connection(node_before, node_after, parents_inherit=False)
+        self.remove_connection(node_before, node_after)
 
     def remove_empty_connections(self):
         forward_connections_to_delete = set()
@@ -118,3 +110,7 @@ class GraphConnections:
 
         for delete_connection in backward_connections_to_delete:
             del self.backward_connections[delete_connection]
+
+    def get_all_nodes(self):
+        self.remove_empty_connections()
+        return list(self.forward_connections.keys())

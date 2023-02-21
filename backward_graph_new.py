@@ -1,13 +1,10 @@
 import uuid
-from typing import Set, List
-
+from typing import List
 from tqdm import tqdm
 import torch
-from graphviz import Digraph
 
-import graphviz_config
 from custom_layer import BackwardLayer, ResultLayer
-from layer_utils import get_function_description, gather_layer_info
+from layer_utils import gather_layer_info
 from pytorch_utils import check_equal
 from graph_connections import GraphConnections
 
@@ -46,7 +43,8 @@ class BackwardGraph:
                         return layer_grad_fn
 
     def insert_result_nodes(self, module_input_output):
-        for inputs, current_module, outputs in tqdm(module_input_output):
+        module_input_output = self.reorder_model_input_output(module_input_output)
+        for inputs, current_module, outputs in tqdm(module_input_output[::-1]):
             current_scopes: str = current_module.__name__
             if current_scopes.endswith('_leaf'):
                 current_scopes += str(uuid.uuid4().hex)
@@ -65,10 +63,11 @@ class BackwardGraph:
                 self._insert_result_node_after(inputs.grad_fn, input_node)
                 self.input_result_list.append(input_node)
 
-        for inputs, current_module, outputs in tqdm(module_input_output[::-1]):
+        for inputs, current_module, outputs in tqdm(module_input_output):
             current_scopes = self.all_scopes[(id(inputs[0]), id(current_module), id(outputs))]
-            if check_equal(inputs[0], outputs):
-                continue
+            # remove operations that do not change the output (i.e. Identity())
+            # if check_equal(inputs[0], outputs):
+            #     continue
             if isinstance(outputs, list):
                 for output_tensor in outputs:
                     output_node = ResultLayer(current_scopes, output_tensor, self._output_node_name)
@@ -89,9 +88,9 @@ class BackwardGraph:
             after_grad_fn = self.input_layer_grad_fn
             next_nodes = self.connections.get_next_nodes(self.input_layer_grad_fn)
 
-        if next_nodes is not None:
-            for next_node in next_nodes:
-                self.connections.insert_node_inbetween(after_grad_fn, node.node_id, next_node)
+        # if next_nodes is not None:
+        for next_node in next_nodes:
+            self.connections.insert_node_inbetween(after_grad_fn, node.node_id, next_node)
 
     def remove_unused_edges(self):
         """
@@ -100,14 +99,14 @@ class BackwardGraph:
         """
         for input_result_node in self.input_result_list:
             output_connections = self.connections.get_next_nodes(input_result_node.node_id)
-            if output_connections is None:
-                continue
             if len(output_connections) == 1:
                 continue
 
+            prev_nodes = self.connections.get_previous_nodes(input_result_node.node_id)
             for next_node in output_connections:
                 if not self._scope_is_closed(input_result_node, next_node):
-                    self.connections.remove_connection(input_result_node.node_id, next_node, parents_inherit=True)
+                    self.connections.remove_connection(input_result_node.node_id, next_node)
+                    self.connections.add_connections_multiple_origins(prev_nodes, next_node)
 
     def reduce_nodes(self, skip_layers: List[str]):
         """
@@ -173,22 +172,24 @@ class BackwardGraph:
             for current_layer_id, current_scope_stack in next_layers:
                 current_scope_stack = list(current_scope_stack)
                 current_layer = self.all_layers[current_layer_id]
+                new_layers = self.connections.get_next_nodes(current_layer_id)
 
                 if isinstance(current_layer, ResultLayer):
                     if current_layer.name == self._input_node_name:
-                        # remove all scopes that are more specific if we find a new input node
+                        # only keep scopes that are more general than the current scope
                         current_scope_stack = [scope for scope in current_scope_stack
                                                if len(scope.split('/')) < len(current_layer.scope.split('/'))]
                         current_scope_stack.append(current_layer.scope)
+
                     elif current_layer.name == self._output_node_name:
                         if current_layer.scope in current_scope_stack:
                             current_scope_stack.remove(current_layer.scope)
                         else:
                             continue
+
                 elif isinstance(current_layer, BackwardLayer):
                     current_layer.possible_scopes.add(current_scope_stack[-1])
 
-                new_layers = self.connections.get_next_nodes(current_layer_id)
                 if new_layers is not None:
                     for new_layer in new_layers:
                         new_found_layers.add((new_layer, tuple(current_scope_stack.copy())))
@@ -199,7 +200,7 @@ class BackwardGraph:
             if isinstance(layer, BackwardLayer):
                 layer.set_most_specific_scope()
 
-    def _split_into_modules(self):
+    def split_into_modules(self):
         modules = {}
         for layer_id in self.all_layers.keys():
             layer = self.all_layers[layer_id]
@@ -219,43 +220,27 @@ class BackwardGraph:
 
         self._create_module_rec(layer, scopes[1:], module[scopes[0]]['next_scopes'])
 
-    def create_graph_png(self, param_map, out_folder='graph_viz_out'):
-        """
-        Creates a graphviz graph of the current state and saves it in the out_folder
-        :param param_map: named dict of the networks parameters
-        :param out_folder: target location for the graph pdf
-        """
-        modules = self._split_into_modules()
-        graph = Digraph(node_attr=graphviz_config.default_node_attr)
-        self._add_modules_to_graph_rec(graph, modules, param_map, 1)
+    def reorder_model_input_output(self, module_input_output):
+        scope_dict = {}
+        for input_output in module_input_output:
+            scope = input_output[1].__name__.split('/')
+            scope_len = len(scope)
+            if scope_len not in scope_dict.keys():
+                scope_dict[scope_len] = []
+            scope_dict[scope_len].append(input_output)
 
-        for from_id in self.all_layers.keys():
-            to_ids = self.connections.get_next_nodes(from_id)
-            if to_ids is not None:
-                for to_id in to_ids:
-                    graph.edge(str(from_id), str(to_id))
-        graph.render(directory=out_folder, view=True)
+        scope_list = []
+        input_output_list = []
+        sorted_keys = sorted(scope_dict.keys())
+        for key in sorted_keys:
+            for input_output in scope_dict[key][::-1]:
+                scope = input_output[1].__name__.split('/')
+                if key > 2:
+                    insert_index = scope_list.index(scope[:-1]) + 1
+                    scope_list.insert(insert_index, scope)
+                    input_output_list.insert(insert_index, input_output)
+                else:
+                    scope_list.append(scope)
+                    input_output_list.append(input_output)
 
-    def _add_modules_to_graph_rec(self, graph: Digraph, modules: dict, param_map, color_counter: int):
-        for scope_name in modules.keys():
-            module = modules[scope_name]
-            with graph.subgraph(name='cluster' + str(uuid.uuid4().hex)) as sg:
-                sg.attr(color='black')
-                sg.attr(colorscheme='oranges9') # ylgn9
-                sg.attr(bgcolor=str(color_counter))
-                sg.attr(style=str('rounded'))
-                if '?!module_id:' in scope_name:
-                    scope_name = scope_name.split('?!module_id:')[0]
-                sg.attr(label=scope_name)
-                if len(module['next_scopes'].keys()) > 0:
-                    self._add_modules_to_graph_rec(sg, module['next_scopes'], param_map, color_counter + 1)
-
-                for node in module['layers']:
-                    node_name = get_function_description(node, param_map)
-                    shape = graphviz_config.get_shape(node_name)
-                    color = graphviz_config.get_color(node_name)
-                    if isinstance(node, BackwardLayer):
-                        sg.node(str(node.grad_fn), node_name, shape=shape, fillcolor=color)
-
-                    elif isinstance(node, ResultLayer):
-                        sg.node(str(node.node_id), node_name, shape=shape, fillcolor=color)
+        return input_output_list
