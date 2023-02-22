@@ -1,7 +1,6 @@
 from custom_layer import BackwardLayer, ResultLayer
 
 translate_dict = {
-    'Add': '+',
     'Addmm': 'Linear'
 }
 
@@ -30,14 +29,18 @@ def gather_layer_info(grad_fn_layer):
     return info
 
 
-def get_function_description(backward_layer, param_map):
-    name = backward_layer.name
-    if name.endswith('Backward0'):
-        name = name[:-len('Backward0')]
-    if translate_dict.get(name) is not None:
-        name = translate_dict.get(name)
+def get_function_description(layer, param_map):
+    name = ''
+    if isinstance(layer, BackwardLayer):
+        name = layer.name
+        if name.endswith('Backward0'):
+            name = name[:-len('Backward0')]
+        if translate_dict.get(name) is not None:
+            name = translate_dict.get(name)
+    elif isinstance(layer, ResultLayer):
+        name = layer.layer_type.value
 
-    info = append_info(backward_layer, param_map)
+    info = append_info(layer, param_map)
     description = name + info
     return description
 

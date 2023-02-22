@@ -81,13 +81,13 @@ class GraphConnections:
         result = self.forward_connections.get(node)
         if result is not None:
             return result.copy()
-        return None
+        return set()
 
     def get_previous_nodes(self, node):
         result = self.backward_connections.get(node)
         if result is not None:
             return result.copy()
-        return None
+        return set()
 
     def insert_node_inbetween(self, node_before, node_to_insert, node_after):
         self.add_connection(node_before, node_to_insert)

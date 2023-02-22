@@ -1,4 +1,3 @@
-import os
 import uuid
 
 import torch
@@ -8,7 +7,7 @@ class VerboseExecution(torch.nn.Module):
     def __init__(self, model: torch.nn.Module):
         super().__init__()
         self.model = model
-        self.model = self.remove_inplace_relu(model)
+        self.model = self.remove_inplace(model)
         self.grad_fns = []
         self.param_map = {str(id(v)): k for k, v in dict(self.model.named_parameters()).items()}
         self.recursively_register_hooks(model)
@@ -42,10 +41,11 @@ class VerboseExecution(torch.nn.Module):
         return self.model(x)
 
     @staticmethod
-    def remove_inplace_relu(model):
+    def remove_inplace(model):
         for child_name, child in model.named_children():
             if isinstance(child, torch.nn.ReLU):
                 setattr(model, child_name, torch.nn.ReLU(inplace=False))
-            else:
-                VerboseExecution.remove_inplace_relu(child)
+            if isinstance(child, torch.nn.Dropout):
+                setattr(model, child_name, torch.nn.Dropout(inplace=False))
+            VerboseExecution.remove_inplace(child)
         return model

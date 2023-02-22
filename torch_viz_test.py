@@ -4,11 +4,13 @@ from PIL import Image
 from timm.models import hrnet_w32, vision_transformer
 from torchvision.models import alexnet, resnet50, convnext_tiny, DenseNet
 from torchvision.transforms import transforms
+from network_baseline import SegmentationNetBaseline
+
 
 if __name__ == '__main__':
     img_pil = Image.open('images/elefant.jpg').convert('RGB').resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
-    net = resnet50() # vision_transformer.vit_small_patch16_36x1_224()
+    net = SegmentationNetBaseline() # vision_transformer.vit_small_patch16_36x1_224()
     net.eval()
     cross_entropy_function = torch.nn.CrossEntropyLoss()
     out = net(img)

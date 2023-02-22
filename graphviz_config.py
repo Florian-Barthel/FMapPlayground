@@ -3,6 +3,8 @@ ellipse = 'ellipse'
 box = 'box'
 diamond = 'diamond'
 point = 'point'
+triangle = 'triangle'
+invtriangle = 'invtriangle'
 
 red = 'crimson'
 blue = 'deepskyblue2'
@@ -22,10 +24,11 @@ default_node_attr = dict(
 
 
 shapes = {
-    '+': ellipse,
-    'Relu': diamond,
-    'Input': point,
-    'Output': point
+    'Add': ellipse,
+    'Relu': box,
+    'Input': invtriangle,
+    'Intermediate': diamond,
+    'Output': triangle
 }
 
 
