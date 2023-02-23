@@ -24,29 +24,31 @@ from verbose_execution import VerboseExecution
 if __name__ == '__main__':
     img_pil = Image.open('images/elefant.jpg').convert('RGB').resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
-    net = vision_transformer.vit_small_patch16_36x1_224()
+    net = hrnet_w32()# vision_transformer.vit_small_patch16_36x1_224()
     net.eval()
     net = VerboseExecution(net)
 
     cross_entropy_function = torch.nn.CrossEntropyLoss()
 
     out = net(img)
-    # target_label = torch.tensor([386])
-    # loss = cross_entropy_function(input=out, target=target_label)
     loss = torch.sum(out)
     loss.backward(retain_graph=True)
     backGraph = BackwardGraph(img, loss)
+
     print('Insert Result Nodes')
     backGraph.insert_result_nodes(net.grad_fns)
+
     print('Reduce Nodes')
     backGraph.reduce_nodes(['AccumulateGrad'])
+
     print('Update Scopes')
     backGraph.update_scopes(net.original_name)
-    print('Remove Duplicates')
-    backGraph.remove_duplicate_result_layers()
+
     print('Specify Scopes')
     backGraph.specify_scopes()
+
+    print('Remove Duplicates')
+    backGraph.remove_duplicate_result_layers()
+
     print('Draw Graph')
-    # backGraph.create_graph_png(net.param_map)
     create_graph_png(connections=backGraph.connections, modules=backGraph.split_into_modules(), param_map=net.param_map)
-    print()

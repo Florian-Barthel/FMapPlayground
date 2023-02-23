@@ -1,4 +1,5 @@
 import uuid
+import warnings
 from typing import List
 from tqdm import tqdm
 import torch
@@ -43,35 +44,31 @@ class BackwardGraph:
         module_input_output = self.reorder_model_input_output(module_input_output)
         for inputs, current_module, outputs in tqdm(module_input_output[::-1]):
             # remove operations that do not change the output (i.e. Identity())
-            # if check_equal(inputs[0], outputs):
-            #     # self.connections.remove_connection(inputs[0].grad_fn, outputs.grad_fn)
-            #     continue
             if check_equal(inputs[0], outputs):
-                node_type = ResultLayerType.INTERMEDIATE
-            else:
-                node_type = ResultLayerType.INPUT
+                continue
             current_scopes: str = current_module.__name__
+
             if current_scopes.endswith('_leaf'):
                 current_scopes += str(uuid.uuid4().hex)
             self.all_scopes[(id(inputs[0]), id(current_module), id(outputs))] = current_scopes
 
-            if check_equal(inputs[0], outputs):
-                continue
             inputs = inputs[0]
             if isinstance(inputs, list):
                 for input_tensor in inputs:
-                    input_node = ResultLayer(current_scopes, input_tensor, node_type)
+                    input_node = ResultLayer(current_scopes, input_tensor, ResultLayerType.INPUT)
+                    # create one result node that is connected to all tensors in the list
                     self._insert_result_node_after(input_tensor.grad_fn, input_node)
                     self.input_result_list.append(input_node)
             elif isinstance(inputs, torch.Tensor):
-                input_node = ResultLayer(current_scopes, inputs, node_type)
+                input_node = ResultLayer(current_scopes, inputs, ResultLayerType.INPUT)
                 self._insert_result_node_after(inputs.grad_fn, input_node)
                 self.input_result_list.append(input_node)
+            else:
+                warnings.warn(f'Unknown type {type(outputs)}')
 
         for inputs, current_module, outputs in tqdm(module_input_output):
             # remove operations that do not change the output (i.e. Identity())
             if check_equal(inputs[0], outputs):
-                # self.connections.remove_connection(inputs[0].grad_fn, outputs.grad_fn)
                 continue
             current_scopes = self.all_scopes[(id(inputs[0]), id(current_module), id(outputs))]
             if isinstance(outputs, list):
@@ -81,6 +78,8 @@ class BackwardGraph:
             elif isinstance(outputs, torch.Tensor):
                 output_node = ResultLayer(current_scopes, outputs, ResultLayerType.OUTPUT)
                 self._insert_result_node_after(outputs.grad_fn, output_node, is_output_node=True)
+            else:
+                warnings.warn(f'Unknown type {type(outputs)}')
 
         self.remove_unused_edges()
 
@@ -94,7 +93,6 @@ class BackwardGraph:
             after_grad_fn = self.input_layer_grad_fn
             next_nodes = self.connections.get_next_nodes(self.input_layer_grad_fn)
 
-        # if next_nodes is not None:
         for next_node in next_nodes:
             self.connections.insert_node_inbetween(after_grad_fn, node.node_id, next_node)
 
@@ -201,12 +199,7 @@ class BackwardGraph:
 
                     elif current_layer.layer_type == ResultLayerType.OUTPUT:
                         if current_layer.scope in current_scope_stack:
-                            # current_scope_stack.remove(current_layer.scope)
                             current_scope_stack = current_scope_stack[:current_scope_stack.index(current_layer.scope)]
-                        else:
-                            print(current_layer.scope, 'not in scope stack', current_scope_stack)
-                            # this is the case if two connections meet
-                            # continue
 
                 elif isinstance(current_layer, BackwardLayer):
                     if current_scope_stack[-1] in current_layer.possible_scopes:
@@ -311,6 +304,8 @@ class BackwardGraph:
             elif layer.layer_type == ResultLayerType.OUTPUT:
                 next_layer_ids = self.connections.get_previous_nodes(layer_key)
 
+            # if len(next_layer_ids) == 1:
+            #     continue
             current_scopes = []
             for i, next_layer_id in enumerate(next_layer_ids):
                 next_layer = self.all_layers[next_layer_id]
@@ -319,8 +314,12 @@ class BackwardGraph:
                     current_scopes = next_scopes
                 else:
                     current_scopes = set(current_scopes).intersection(next_scopes)
-            max_scope = max(current_scopes, key=lambda s: len(s.split('/')))
-            layer.scope = max_scope
+
+            if len(current_scopes) > 0:
+                max_scope = max(current_scopes, key=lambda s: len(s.split('/')))
+                layer.scope = max_scope
+            else:
+                print()
 
 
 def see_scope(mod):

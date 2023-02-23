@@ -24,6 +24,7 @@ def _add_modules_to_graph_rec(graph: Digraph, modules: dict, param_map, color_co
     for scope_name in modules.keys():
         module = modules[scope_name]
         with graph.subgraph(name='cluster' + str(uuid.uuid4().hex)) as sg:
+            sg.attr(margin=str(max(60 - color_counter * 10, 5)))
             sg.attr(color='black')
             sg.attr(colorscheme='oranges9') # ylgn9
             sg.attr(bgcolor=str(color_counter))

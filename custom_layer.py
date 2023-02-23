@@ -34,8 +34,8 @@ class BackwardLayer(Layer):
 
 
 class ResultLayerType(Enum):
-    INPUT = 'Input'
-    OUTPUT = 'Output'
+    INPUT = 'In'
+    OUTPUT = 'Out'
     INTERMEDIATE = 'Intermediate'
 
 

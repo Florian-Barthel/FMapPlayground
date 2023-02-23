@@ -25,10 +25,12 @@ default_node_attr = dict(
 
 shapes = {
     'Add': ellipse,
-    'Relu': box,
-    'Input': invtriangle,
-    'Intermediate': diamond,
-    'Output': triangle
+
+    'Relu': diamond,
+    'Sigmoid': diamond,
+
+    'In': invtriangle,
+    'Out': triangle
 }
 
 
@@ -40,12 +42,15 @@ def get_shape(node_name: str):
 
 colors = {
     'Convolution': blue,
+
     'Relu': light_blue,
+    'Sigmoid': light_blue,
+
     'Linear': green
 }
 
 
 def get_color(node_name: str):
     for key, color in colors.items():
-        if node_name.startswith(key):
+        if node_name.lower().startswith(key.lower()):
             return color

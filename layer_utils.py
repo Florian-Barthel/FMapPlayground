@@ -58,8 +58,6 @@ def append_info(layer: [BackwardLayer, ResultLayer], param_map) -> str:
                     result_string += var_name
                     result_string += str(var.data.numpy().shape)
 
-        if len(layer.possible_scopes) == 0:
-            print(f'warning: no scope was found for {layer.name}')
     # result_string += '\n'
     # result_string += layer.scope
 
