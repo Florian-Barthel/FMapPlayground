@@ -29,8 +29,8 @@ shapes = {
     'Relu': diamond,
     'Sigmoid': diamond,
 
-    'In': invtriangle,
-    'Out': triangle
+    'In': point,
+    'Out': point
 }
 
 

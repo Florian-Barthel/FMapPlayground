@@ -15,10 +15,13 @@ class BackwardGraph:
         self.all_layers: dict[object, [BackwardLayer, ResultLayer]] = {}
         self.seen_layers = set()
         self.connections: GraphConnections = GraphConnections()
-        self._iterate_graph(loss.grad_fn)
-        self.input_layer_grad_fn = self._find_input_layer_grad_fn(input_tensor)
         self.input_result_list: List[ResultLayer] = []
         self.all_scopes = {}
+        self._iterate_graph(loss.grad_fn)
+
+        # this has to be called after iterate graph
+        self.input_layer_grad_fn = self._find_input_layer_grad_fn(input_tensor)
+
 
     def _iterate_graph(self, grad_fn):
         if grad_fn in self.seen_layers:
@@ -43,16 +46,17 @@ class BackwardGraph:
     def insert_result_nodes(self, module_input_output):
         module_input_output = self.reorder_model_input_output(module_input_output)
         for inputs, current_module, outputs in tqdm(module_input_output[::-1]):
-            # remove operations that do not change the output (i.e. Identity())
-            if check_equal(inputs[0], outputs):
-                continue
+            inputs = inputs[0]
             current_scopes: str = current_module.__name__
+
+            # remove operations that do not change the output (i.e. Identity())
+            if check_equal(inputs, outputs):
+                continue
 
             if current_scopes.endswith('_leaf'):
                 current_scopes += str(uuid.uuid4().hex)
-            self.all_scopes[(id(inputs[0]), id(current_module), id(outputs))] = current_scopes
+            self.all_scopes[(id(inputs), id(current_module), id(outputs))] = current_scopes
 
-            inputs = inputs[0]
             if isinstance(inputs, list):
                 for input_tensor in inputs:
                     input_node = ResultLayer(current_scopes, input_tensor, ResultLayerType.INPUT)
@@ -84,14 +88,14 @@ class BackwardGraph:
         self.remove_unused_edges()
 
     def _insert_result_node_after(self, after_grad_fn, node: ResultLayer, is_output_node: bool = False):
-        next_nodes = self.connections.get_next_nodes(after_grad_fn)
-
         self.all_layers[node.node_id] = node
 
-        if next_nodes is None and not is_output_node:
+        if after_grad_fn is None and not is_output_node:
             # this only happens for the network input
             after_grad_fn = self.input_layer_grad_fn
             next_nodes = self.connections.get_next_nodes(self.input_layer_grad_fn)
+        else:
+            next_nodes = self.connections.get_next_nodes(after_grad_fn)
 
         for next_node in next_nodes:
             self.connections.insert_node_inbetween(after_grad_fn, node.node_id, next_node)
@@ -118,12 +122,11 @@ class BackwardGraph:
         :param skip_layers: A list of strings for nodes to ignore (i.e. AccumulateGrad).
         """
         for skip_layer in skip_layers:
-            self._reduce_nodes(skip_layer)
+            for layer_id in list(self.all_layers.keys()).copy():
+                current_layer: [BackwardLayer, ResultLayer] = self.all_layers[layer_id]
+                if not isinstance(current_layer, BackwardLayer):
+                    continue
 
-    def _reduce_nodes(self, skip_layer):
-        for layer_id in list(self.all_layers.keys()).copy():
-            current_layer: [BackwardLayer, ResultLayer] = self.all_layers[layer_id]
-            if isinstance(current_layer, BackwardLayer):
                 # keep the first layer as input layer
                 if current_layer.grad_fn == self.input_layer_grad_fn:
                     continue
@@ -137,9 +140,6 @@ class BackwardGraph:
                         next_layer.weight_nodes.extend(current_layer.weight_nodes)
                         current_layer.weight_nodes = []
                         self.connections.remove_node(current_layer.grad_fn, fix_graph=False)
-
-    def remove_duplicate_result_nodes(self):
-        pass
 
     def _scope_is_closed(self, node: ResultLayer, next_layer_id):
         next_layers = set()
@@ -272,17 +272,18 @@ class BackwardGraph:
             layer = self.all_layers[layer_id]
             if not isinstance(layer, ResultLayer):
                 continue
-            next_layer_keys = self.connections.get_next_nodes(layer.node_id)
-            if len(next_layer_keys) != 1:
-                continue
-            next_layer = self.all_layers[next_layer_keys.pop()]
-            if not isinstance(next_layer, ResultLayer):
-                continue
-            if next_layer.layer_type == layer.layer_type: # and next_layer.scope == layer.scope:
-                if len(layer.scope.split('/')) < len(next_layer.scope.split('/')):
-                    self.connections.remove_node(layer.node_id, fix_graph=True)
-                else:
-                    self.connections.remove_node(next_layer.node_id, fix_graph=True)
+            next_layer = self.connections.get_next_nodes(layer.node_id)
+            prev_layers = self.connections.get_previous_nodes(layer.node_id)
+            if len(next_layer) == 1 and len(prev_layers) == 1:
+                self.connections.remove_node(layer.node_id, fix_graph=True)
+            # next_layer = self.all_layers[next_layer_keys.pop()]
+            # if not isinstance(next_layer, ResultLayer):
+            #     continue
+            # if next_layer.layer_type == layer.layer_type: # and next_layer.scope == layer.scope:
+            #     if len(layer.scope.split('/')) < len(next_layer.scope.split('/')):
+            #         self.connections.remove_node(layer.node_id, fix_graph=True)
+            #     else:
+            #         self.connections.remove_node(next_layer.node_id, fix_graph=True)
 
         # remove all result layers that are no longer connected to anything
         delete_nodes = set()
@@ -304,8 +305,6 @@ class BackwardGraph:
             elif layer.layer_type == ResultLayerType.OUTPUT:
                 next_layer_ids = self.connections.get_previous_nodes(layer_key)
 
-            # if len(next_layer_ids) == 1:
-            #     continue
             current_scopes = []
             for i, next_layer_id in enumerate(next_layer_ids):
                 next_layer = self.all_layers[next_layer_id]
@@ -313,13 +312,11 @@ class BackwardGraph:
                 if i == 0:
                     current_scopes = next_scopes
                 else:
-                    current_scopes = set(current_scopes).intersection(next_scopes)
+                    current_scopes = list(set(current_scopes) & set(next_scopes))
 
             if len(current_scopes) > 0:
                 max_scope = max(current_scopes, key=lambda s: len(s.split('/')))
                 layer.scope = max_scope
-            else:
-                print()
 
 
 def see_scope(mod):
