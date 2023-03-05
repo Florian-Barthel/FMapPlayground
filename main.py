@@ -4,7 +4,7 @@ from torchvision.transforms import transforms
 
 
 from torchvision.models import resnet50, alexnet, convnext_tiny, convnext_large
-from torchvision.models import efficientnet_b4, mobilenet_v2, vgg16, inception_v3, googlenet
+from torchvision.models import efficientnet_b4, mobilenet_v2, vgg16, inception_v3, googlenet, squeezenet
 from timm.models import vision_transformer, nest_small, crossvit_tiny_240, mobilenetv3
 
 
@@ -16,7 +16,7 @@ from network import Net
 from timm.models import convit_small, hrnet_w32
 from torchvision.models import densenet121
 
-from generate_graphviz_graph import create_graph_png
+from generate_graphviz_graph import create_graph
 from backward_graph_new import BackwardGraph
 from verbose_execution import VerboseExecution
 
@@ -24,13 +24,14 @@ from verbose_execution import VerboseExecution
 if __name__ == '__main__':
     img_pil = Image.open('images/elefant.jpg').convert('RGB').resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
-    net = hrnet_w32() # vision_transformer.vit_small_patch16_36x1_224()
+    net = squeezenet.squeezenet1_0() # vision_transformer.vit_small_patch16_36x1_224()
     net.eval()
+
+    print('Forward Pass')
     net = VerboseExecution(net)
-
-    cross_entropy_function = torch.nn.CrossEntropyLoss()
-
     out = net(img)
+
+    print('Backward Pass')
     loss = torch.sum(out)
     loss.backward(retain_graph=True)
     backGraph = BackwardGraph(img, loss)
@@ -51,4 +52,10 @@ if __name__ == '__main__':
     backGraph.specify_scopes()
 
     print('Draw Graph')
-    create_graph_png(connections=backGraph.connections, modules=backGraph.split_into_modules(), param_map=net.param_map)
+    create_graph(
+        connections=backGraph.connections,
+        modules=backGraph.split_into_modules(),
+        param_map=net.param_map,
+        out_folder='./frontend/frontend_custom/src/assets',
+        out_format='png'
+    )
