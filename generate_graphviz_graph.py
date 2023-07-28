@@ -44,7 +44,7 @@ def create_graph(
 
 
 def _create_graph(graph: Digraph, connections: GraphConnections, modules: dict, param_map: dict):
-    graph.graph_attr.update({'rankdir': 'TD', 'nodesep':'0.1', 'splines': 'ortho'})
+    graph.graph_attr.update({'rankdir': 'TD', 'nodesep':'0.1'}) #, 'splines': 'ortho'})
     _add_modules_to_graph_rec(graph, modules, param_map, 1)
     for from_id in connections.get_all_nodes():
         to_ids = connections.get_next_nodes(from_id)

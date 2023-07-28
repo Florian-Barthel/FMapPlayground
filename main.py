@@ -1,30 +1,38 @@
+import pprint
+
 import torch
 from PIL import Image
 from torchvision.transforms import transforms
 
-
-from torchvision.models import resnet50, alexnet, convnext_tiny, convnext_large
-from torchvision.models import efficientnet_b4, mobilenet_v2, vgg16, inception_v3, googlenet, squeezenet
+# from LTVRR.lib.utils import logging
+# from torchvision.models import resnet50, alexnet, convnext_tiny, convnext_large
+# from torchvision.models import efficientnet_b4, mobilenet_v2, vgg16, inception_v3, googlenet, squeezenet
 from timm.models import vision_transformer, nest_small, crossvit_tiny_240, mobilenetv3
 
 
 # custom networks
 from network_baseline import SegmentationNetBaseline
 from network import Net
+# from scene_graph.model import BoxesOnlyTransformer
+# from scene_graph.model.multi import HRNetBackbone
+# from scene_graph.model.vit_timm import KatjaAttention
+# from LTVRR.lib.modeling.model_builder import Generalized_RCNN, cfg, assert_and_infer_cfg, merge_cfg_from_file
 
 # todo fix those:
 from timm.models import convit_small, hrnet_w32
 from torchvision.models import densenet121
 
+
 from generate_graphviz_graph import create_graph
-from backward_graph_new import BackwardGraph
+from backward_graph_clean import BackwardGraph
 from verbose_execution import VerboseExecution
 
 
 if __name__ == '__main__':
     img_pil = Image.open('images/elefant.jpg').convert('RGB').resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
-    net = squeezenet.squeezenet1_0() # vision_transformer.vit_small_patch16_36x1_224()
+    net = convit_small() # hrnet_w32() #squeezenet.squeezenet1_0() # vision_transformer.vit_small_patch16_36x1_224()
+    # net = vision_transformer.vit_small_patch16_36x1_224()
     net.eval()
 
     print('Forward Pass')
@@ -34,22 +42,16 @@ if __name__ == '__main__':
     print('Backward Pass')
     loss = torch.sum(out)
     loss.backward(retain_graph=True)
-    backGraph = BackwardGraph(img, loss)
+    backGraph = BackwardGraph(img, loss, net.original_name)
 
     print('Insert Result Nodes')
-    backGraph.insert_result_nodes(net.grad_fns)
+    backGraph.insert_result_nodes(net.input_layer_output_list)
 
     print('Reduce Nodes')
     backGraph.reduce_nodes(['AccumulateGrad'])
 
     print('Update Scopes')
-    backGraph.update_scopes(net.original_name)
-
-    print('Remove Duplicates')
-    backGraph.remove_duplicate_result_layers()
-
-    print('Specify Scopes')
-    backGraph.specify_scopes()
+    backGraph.update_scopes()
 
     print('Draw Graph')
     create_graph(
@@ -57,5 +59,5 @@ if __name__ == '__main__':
         modules=backGraph.split_into_modules(),
         param_map=net.param_map,
         out_folder='./frontend/frontend_custom/src/assets',
-        out_format='png'
+        out_format='svg'
     )

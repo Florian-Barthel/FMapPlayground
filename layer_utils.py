@@ -33,8 +33,8 @@ def get_function_description(layer, param_map):
     name = ''
     if isinstance(layer, BackwardLayer):
         name = layer.name
-        if name.endswith('Backward0'):
-            name = name[:-len('Backward0')]
+        if 'Backward0' in name:
+            name = name[:name.index('Backward0')]
         if translate_dict.get(name) is not None:
             name = translate_dict.get(name)
     elif isinstance(layer, ResultLayer):

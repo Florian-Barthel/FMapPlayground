@@ -21,16 +21,23 @@ class Layer:
 class BackwardLayer(Layer):
     def __init__(self, grad_fn, layer_backwards_info):
         super().__init__('')
-        self.name = str(type(grad_fn).__name__)
+        if isinstance(grad_fn, str):
+            self.name = layer_backwards_info['name']
+            self.next_functions = None
+        else:
+            self.name = str(type(grad_fn).__name__)
+            self.next_functions = grad_fn.next_functions
+
         self.grad_fn = grad_fn
         self.weight_nodes = []
         self.layer_backwards_info = layer_backwards_info
-        self.next_functions = grad_fn.next_functions
         self.possible_scopes: set = set()
 
     def set_most_specific_scope(self):
         if len(self.possible_scopes) > 0:
             self.scope = max(self.possible_scopes, key=lambda s: len(s.split('/')))
+        else:
+            print('no scope')
 
 
 class ResultLayerType(Enum):
@@ -44,6 +51,7 @@ class ResultLayer(Layer):
         super().__init__(scope)
         self.data = data
         self.layer_type = layer_type
+        self.weight_nodes = []
         self.node_id = 'new_node_' + str(uuid.uuid4().int)
 
 

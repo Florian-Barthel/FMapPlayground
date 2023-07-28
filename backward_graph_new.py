@@ -1,5 +1,4 @@
 import uuid
-import warnings
 from typing import List
 from tqdm import tqdm
 import torch
@@ -11,91 +10,117 @@ from graph_connections import GraphConnections
 
 
 class BackwardGraph:
-    def __init__(self, input_tensor: torch.Tensor, loss):
+    def __init__(self, input_tensor: torch.Tensor, loss, name):
         self.all_layers: dict[object, [BackwardLayer, ResultLayer]] = {}
-        self.seen_layers = set()
+        self._seen_layers = set()
         self.connections: GraphConnections = GraphConnections()
         self.input_result_list: List[ResultLayer] = []
         self.all_scopes = {}
         self._iterate_graph(loss.grad_fn)
+        self.model_name = name
 
         # this has to be called after iterate graph
-        self.input_layer_grad_fn = self._find_input_layer_grad_fn(input_tensor)
+        self.input_layer_grad_fn = None
+        self._set_input_layer_grad_fn(input_tensor)
 
+        # TODO: call all relevant functions to create the graph
 
     def _iterate_graph(self, grad_fn):
-        if grad_fn in self.seen_layers:
-            return
-        self.seen_layers.add(grad_fn)
-        layer_info = gather_layer_info(grad_fn)
+        """
+        Recursive function that iterates through all graph layers and saves all connections / layers.
+        :param grad_fn: Gradient function that points to the previous backpropagation layer.
+        This should start with the last layer.
+        """
 
+        if grad_fn in self._seen_layers:
+            return
+
+        self._seen_layers.add(grad_fn)
+        layer_info = gather_layer_info(grad_fn)
         self.all_layers[grad_fn] = BackwardLayer(grad_fn, layer_info)
         for next_function, _ in grad_fn.next_functions:
             if next_function is not None:
                 self.connections.add_connection(origin=next_function, target=grad_fn)
                 self._iterate_graph(next_function)
+            else:
+                constant_id = uuid.uuid4().hex
+                self.all_layers[grad_fn] = BackwardLayer(constant_id, {'name': 'Constant Input'})
+                self.connections.add_connection(origin=constant_id, target=grad_fn)
 
-    def _find_input_layer_grad_fn(self, input_tensor):
+    def _set_input_layer_grad_fn(self, input_tensor):
+        """
+        Sets the class parameter input_layer_grad_fn, which is the key for the input layer.
+        :param input_tensor: The input tensor that was used to create the networks output.
+        """
         for layer_grad_fn in self.all_layers.keys():
             current_layer: [ResultLayer, BackwardLayer] = self.all_layers[layer_grad_fn]
             if isinstance(current_layer, BackwardLayer):
                 if 'variable' in current_layer.layer_backwards_info.keys():
-                    if check_equal(current_layer.layer_backwards_info['variable'], input_tensor):
-                        return layer_grad_fn
+                    if id(current_layer.layer_backwards_info['variable']) == id(input_tensor):
+                        self.input_layer_grad_fn = layer_grad_fn
+                        print('input layer found')
+                        return
+        print('no input layer found')
 
     def insert_result_nodes(self, module_input_output):
-        module_input_output = self.reorder_model_input_output(module_input_output)
+        """
+        This function iterates the module_input_output and adds new result nodes before and after each backward layer.
+        The order of the modules in module_input_output is not relevant, as this function determines the correct order.
+        All modules are iterated twice:
+
+        First iteration:
+            Places all input result layers before the backward layers, starting from the most general layer (the lowest
+            scope).
+
+        Second iteration:
+            Places all output result layers after the backward layers, starting from the most specific layer (the
+            highest scope)
+
+        :param module_input_output: List of (input, function, output) tuples.
+        """
+        module_input_output, input_output_list_2 = self.reorder_model_input_output(module_input_output)
+
         for inputs, current_module, outputs in tqdm(module_input_output[::-1]):
-            inputs = inputs[0]
             current_scopes: str = current_module.__name__
-
-            # remove operations that do not change the output (i.e. Identity())
-            if check_equal(inputs, outputs):
-                continue
-
             if current_scopes.endswith('_leaf'):
                 current_scopes += str(uuid.uuid4().hex)
+
             self.all_scopes[(id(inputs), id(current_module), id(outputs))] = current_scopes
 
-            if isinstance(inputs, list):
-                for input_tensor in inputs:
-                    input_node = ResultLayer(current_scopes, input_tensor, ResultLayerType.INPUT)
-                    # create one result node that is connected to all tensors in the list
-                    self._insert_result_node_after(input_tensor.grad_fn, input_node)
-                    self.input_result_list.append(input_node)
-            elif isinstance(inputs, torch.Tensor):
-                input_node = ResultLayer(current_scopes, inputs, ResultLayerType.INPUT)
-                self._insert_result_node_after(inputs.grad_fn, input_node)
-                self.input_result_list.append(input_node)
-            else:
-                warnings.warn(f'Unknown type {type(outputs)}')
-
-        for inputs, current_module, outputs in tqdm(module_input_output):
-            # remove operations that do not change the output (i.e. Identity())
-            if check_equal(inputs[0], outputs):
+            if check_equal(inputs, outputs) and id(inputs) == id(outputs):
                 continue
-            current_scopes = self.all_scopes[(id(inputs[0]), id(current_module), id(outputs))]
-            if isinstance(outputs, list):
-                for output_tensor in outputs:
-                    output_node = ResultLayer(current_scopes, output_tensor, ResultLayerType.OUTPUT)
-                    self._insert_result_node_after(output_tensor.grad_fn, output_node, is_output_node=True)
-            elif isinstance(outputs, torch.Tensor):
+
+            input_node = ResultLayer(current_scopes, inputs, ResultLayerType.INPUT)
+            self._insert_result_node_after(inputs.grad_fn, input_node)
+            self.input_result_list.append(input_node)
+
+        for inputs, current_module, outputs in tqdm(input_output_list_2[::-1]):
+            current_scopes = self.all_scopes[(id(inputs), id(current_module), id(outputs))]
+
+            if check_equal(inputs, outputs) and id(inputs) == id(outputs):
                 output_node = ResultLayer(current_scopes, outputs, ResultLayerType.OUTPUT)
                 self._insert_result_node_after(outputs.grad_fn, output_node, is_output_node=True)
-            else:
-                warnings.warn(f'Unknown type {type(outputs)}')
+                input_node = ResultLayer(current_scopes, inputs, ResultLayerType.INPUT)
+                self._insert_result_node_after(outputs.grad_fn, input_node)
+                continue
+
+            output_node = ResultLayer(current_scopes, outputs, ResultLayerType.OUTPUT)
+            self._insert_result_node_after(outputs.grad_fn, output_node, is_output_node=True)
 
         self.remove_unused_edges()
 
     def _insert_result_node_after(self, after_grad_fn, node: ResultLayer, is_output_node: bool = False):
-        self.all_layers[node.node_id] = node
 
         if after_grad_fn is None and not is_output_node:
+            return
             # this only happens for the network input
+            print('asdf')
             after_grad_fn = self.input_layer_grad_fn
             next_nodes = self.connections.get_next_nodes(self.input_layer_grad_fn)
+
         else:
             next_nodes = self.connections.get_next_nodes(after_grad_fn)
+        self.all_layers[node.node_id] = node
 
         for next_node in next_nodes:
             self.connections.insert_node_inbetween(after_grad_fn, node.node_id, next_node)
@@ -162,18 +187,20 @@ class BackwardGraph:
             next_layers = new_found_layers
         return False
 
-    def update_scopes(self, network_name: str):
+    def update_scopes(self):
         """
-        Updates all BackwardsLayers using the scope of the last ResultLayer
+        Updates all BackwardLayers using the scope of the last ResultLayer.
+
+        This is implemented using a while loop since this function breaks the recursive stack.
         """
         next_layers = set()
-        next_layers.add((self.input_layer_grad_fn, tuple([network_name])))
+        next_layers.add((self.input_layer_grad_fn, tuple([self.model_name])))
 
+        # for each layer, find all possible scopes
         while len(next_layers) > 0:
             new_found_layers = set()
 
             for current_layer_id, current_scope_stack in next_layers:
-
                 current_scope_stack = list(current_scope_stack)
                 current_layer = self.all_layers[current_layer_id]
                 new_layers = self.connections.get_next_nodes(current_layer_id)
@@ -183,7 +210,6 @@ class BackwardGraph:
                         # only keep scopes that are more general than the current scope
                         current_scope_stack = [scope for scope in current_scope_stack
                                                if len(scope.split('/')) < len(current_layer.scope.split('/'))]
-                        # current_scope_stack.append(current_layer.scope)
 
                         scope = ''
                         scope_variations = []
@@ -192,7 +218,6 @@ class BackwardGraph:
                                 scope += '/'
                             scope += scope_segment
                             scope_variations.append(scope)
-
                         for scope_variation in scope_variations:
                             if scope_variation not in current_scope_stack:
                                 current_scope_stack.append(scope_variation)
@@ -216,13 +241,18 @@ class BackwardGraph:
             if isinstance(layer, BackwardLayer):
                 layer.set_most_specific_scope()
 
+                # if no scope was found, iterate to the next node that has a scope
                 current_search_layer = layer.grad_fn
                 while layer.scope == '':
-                    prev_layer = list(self.connections.get_next_nodes(current_search_layer))[0]
-                    layer.scope = self.all_layers[prev_layer].scope
-                    current_search_layer = prev_layer
+                    next_layer = list(self.connections.get_next_nodes(current_search_layer))[0]
+                    layer.scope = self.all_layers[next_layer].scope
+                    current_search_layer = next_layer
 
     def split_into_modules(self):
+        """
+        Creates a dictionary representation of all modules and submodules.
+        """
+
         modules = {}
         for layer_id in self.all_layers.keys():
             layer = self.all_layers[layer_id]
@@ -251,21 +281,37 @@ class BackwardGraph:
                 scope_dict[scope_len] = []
             scope_dict[scope_len].append(input_output)
 
-        scope_list = []
+        scope_list = [[self.model_name]]
         input_output_list = []
         sorted_keys = sorted(scope_dict.keys())
         for key in sorted_keys:
             for input_output in scope_dict[key][::-1]:
                 scope = input_output[1].__name__.split('/')
-                if key > 2 and scope[:-1] in scope_list:
-                    insert_index = scope_list.index(scope[:-1]) + 1
-                    scope_list.insert(insert_index, scope)
-                    input_output_list.insert(insert_index, input_output)
-                else:
-                    scope_list.append(scope)
-                    input_output_list.append(input_output)
+                for i in range(1, len(scope)):
+                    if scope[:-i] in scope_list:
+                        scope_list.reverse()
+                        insert_index = scope_list.index(scope[:-i])
+                        insert_index = len(scope_list) - insert_index - 1 + 1
+                        scope_list.reverse()
+                        scope_list.insert(insert_index, scope)
+                        input_output_list.insert(insert_index, input_output)
+                        break
 
-        return input_output_list
+
+        scope_list = [[self.model_name]]
+        input_output_list_2 = []
+        sorted_keys = sorted(scope_dict.keys())
+        for key in sorted_keys:
+            for input_output in scope_dict[key]:
+                scope = input_output[1].__name__.split('/')
+                for i in range(1, len(scope)):
+                    if scope[:-i] in scope_list:
+                        insert_index = scope_list.index(scope[:-i])
+                        scope_list.insert(insert_index, scope)
+                        input_output_list_2.insert(insert_index, input_output)
+                        break
+
+        return input_output_list, input_output_list_2
 
     def remove_duplicate_result_layers(self):
         for layer_id in self.all_layers.keys():
@@ -321,6 +367,3 @@ class BackwardGraph:
 
 def see_scope(mod):
     return [m[1].__name__ for m in mod]
-
-
-

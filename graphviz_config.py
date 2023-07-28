@@ -31,6 +31,8 @@ shapes = {
 
     'In': point,
     'Out': point
+    # 'In': invtriangle,
+    # 'Out': triangle
 }
 
 
