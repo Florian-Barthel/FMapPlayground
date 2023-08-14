@@ -32,7 +32,7 @@ from module_list import ModuleList
 if __name__ == '__main__':
     img_pil = Image.open('images/elefant.jpg').convert('RGB').resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
-    net = inception_v3() # hrnet_w32() #squeezenet.squeezenet1_0() # vision_transformer.vit_small_patch16_36x1_224()
+    net = hrnet_w32()# TestNet() # hrnet_w32() #squeezenet.squeezenet1_0() # vision_transformer.vit_small_patch16_36x1_224()
     # net = vision_transformer.vit_small_patch16_36x1_224()
     net.eval()
 
@@ -55,6 +55,7 @@ if __name__ == '__main__':
     print('Update Scopes')
     backGraph.update_scopes()
 
+    print('Skip Duplicates')
     backGraph.skip_duplicate_results()
 
     print('Draw Graph')

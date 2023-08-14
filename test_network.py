@@ -4,19 +4,12 @@ import torch
 class TestNet(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        self.conv1 = torch.nn.Conv2d(3, 3, kernel_size=3)
-        self.conv2 = torch.nn.Conv2d(3, 3, kernel_size=3)
-        self.conv3 = torch.nn.Conv2d(3, 3, kernel_size=3)
-        self.combine = CombineNet()
+        self.conv1 = torch.nn.Conv2d(3, 3, kernel_size=1)
+        self.cat = CatNet()
 
     def forward(self, x):
         x = self.conv1(x)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        x1, x2 = self.combine(x)
-        return x1 + x2
+        return self.cat(x)
 
 
 class CombineNet(torch.nn.Module):
@@ -26,22 +19,32 @@ class CombineNet(torch.nn.Module):
         self.sub_net2 = SubNet()
 
     def forward(self, x):
+        x = torch.cat(x)
         x1 = self.sub_net1(x)
         x2 = self.sub_net2(x)
-        return x1, x2
+        return x1 + x2
 
 
 class SubNet(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        self.conv1 = torch.nn.Conv2d(3, 3, kernel_size=3)
-        self.conv2 = torch.nn.Conv2d(3, 3, kernel_size=3)
-        self.conv3 = torch.nn.Conv2d(3, 3, kernel_size=3)
+        self.conv1 = torch.nn.Conv2d(3, 3, kernel_size=1)
         self.ident = torch.nn.Identity()
 
     def forward(self, x):
         x = self.ident(x)
         x = self.conv1(x)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        return x + 3
+        return x
+
+
+class CatNet(torch.nn.ModuleDict):
+    def __init__(self):
+        super().__init__()
+        for i in range(2):
+            self.add_module("combine%d" % (i + 1), CombineNet())
+
+    def forward(self, x):
+        results = [x]
+        for name, layer in self.items():
+            results.append(layer(results))
+        return torch.cat(results, dim=0)

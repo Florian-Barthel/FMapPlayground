@@ -24,8 +24,6 @@ class BackwardGraph:
         self.input_layer_grad_fn = None
         self._set_input_layer_grad_fn()
 
-        # TODO: call all relevant functions to create the graph
-
     def _iterate_graph(self, grad_fn):
         """
         Recursive function that iterates through all graph layers and saves all connections / layers.
@@ -273,5 +271,3 @@ class BackwardGraph:
 
 
 
-def see_scope(mod):
-    return [m[1].__name__ for m in mod]

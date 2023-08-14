@@ -33,10 +33,10 @@ class ModuleList:
             scope_dict[scope_len].append(module)
 
         scope_list = [[self.model_name]]
-        input_output_list = []
+        input_output_list = [Placeholder()]
         sorted_keys = sorted(scope_dict.keys())
         for key in sorted_keys:
-            for input_output in scope_dict[key][::-1]:
+            for input_output in scope_dict[key]:
                 scope = input_output.scope.split('/')
                 for i in range(1, len(scope)):
                     if scope[:-i] in scope_list:
@@ -48,7 +48,7 @@ class ModuleList:
                         input_output_list.insert(insert_index, input_output)
                         break
 
-        return input_output_list
+        return input_output_list[1:] # remove first element, which was used as a placeholder
 
     def get_output_nodes(self) -> list[Module]:
         scope_dict = {}
@@ -60,7 +60,7 @@ class ModuleList:
             scope_dict[scope_len].append(module)
 
         scope_list = [[self.model_name]]
-        input_output_list = []
+        input_output_list = [Placeholder()]
         sorted_keys = sorted(scope_dict.keys())
         for key in sorted_keys:
             for input_output in scope_dict[key]:
@@ -72,4 +72,11 @@ class ModuleList:
                         input_output_list.insert(insert_index, input_output)
                         break
 
-        return input_output_list
+        return input_output_list[:-1]
+
+
+class Placeholder:
+    def __init__(self):
+        self.scope = "placeholder"
+def see_scope(mod):
+    return [m[1].__name__ for m in mod]
