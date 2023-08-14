@@ -35,31 +35,24 @@ class VerboseExecution(torch.nn.Module):
     def forward_hook(self, layer, input_list, output_tensor):
         input_tensor = input_list[0]
 
+        # convert to list
         if isinstance(output_tensor, tuple):
             output_tensor = list(output_tensor)
-
         if isinstance(input_tensor, tuple):
             input_tensor = list(input_tensor)
-
         if isinstance(input_tensor, dict):
             input_tensor = list(input_tensor.items())
-
         if isinstance(output_tensor, dict):
             output_tensor = list(output_tensor.items())
 
-        if not isinstance(output_tensor, list):
-            output_tensor.requires_grad_()
+        if isinstance(output_tensor, torch.Tensor):
             output_tensor = [output_tensor]
-        if not isinstance(input_tensor, list):
-            input_tensor.requires_grad_()
+        if isinstance(input_tensor, torch.Tensor):
             input_tensor = [input_tensor]
 
         for current_input_tensor in input_tensor:
             for current_output_tensor in output_tensor:
                 self.input_layer_output_list.append((current_input_tensor, layer, current_output_tensor))
-                break
-            break # todo
-
 
     def forward(self, x: torch.Tensor, *args) -> torch.Tensor:
         x.requires_grad_()

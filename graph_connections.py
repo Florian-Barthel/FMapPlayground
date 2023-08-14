@@ -114,3 +114,6 @@ class GraphConnections:
     def get_all_nodes(self):
         self.remove_empty_connections()
         return list(self.forward_connections.keys())
+
+    def iterate_connections(self):
+        return self.forward_connections.items()

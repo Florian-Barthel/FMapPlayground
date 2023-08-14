@@ -1,0 +1,3676 @@
+digraph {
+	graph [nodesep=0.1 rankdir=LR]
+	node [align=center fontname=monospace fontsize=10 height=0.2 ranksep=0.01 shape=box style=filled]
+	subgraph cluster77732bf008ea49f1a1fc0b49182e5212 {
+		margin=45
+		fontsize=68
+		color=lightgrey
+		colorscheme=oranges9
+		bgcolor=1
+		style=rounded
+		label=Inception3
+		subgraph clusterad6203c3a2e8407aa05f4605b5c0ecfe {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="fc(Linear)"
+			<AddmmBackward0 object at 0x00000180E4C1C5B0> [label="Linear
+bias(1000,)" fillcolor=chartreuse2 id=f084627930714df2ba31d0996c209529]
+			<TBackward0 object at 0x00000180E4C1C670> [label="T
+weight(1000, 2048)" id=a015d2d442a2481ba94d5faf5dab053e]
+		}
+		subgraph cluster3684a3a105da4e65a8e3505587974813 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="dropout(Dropout)"
+			<MulBackward0 object at 0x00000180E4C1C730> [label=Mul id="793fc039e0c34f4a9fe9132dc7b2b2ac"]
+		}
+		subgraph clusterb03e923b1cc443f084eb16847e07d9d0 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="avgpool(AdaptiveAvgPool2d)"
+			<MeanBackward1 object at 0x00000180E4C1C7C0> [label=MeanBackward1 id=bf0c4d77096e47a5861b39fa56c3739d]
+		}
+		subgraph cluster82994d49fcf54a91a4ae283c21e3a96b {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Mixed_7c(InceptionE)"
+			subgraph clusterd970c1dbbd394949806414d08cad10bb {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch1x1(BasicConv2d)"
+				subgraph clusterf5ba867ce9c94e0baba52cf06511dd8e {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C1C940> [label=Relu fillcolor=aliceblue id=bbceae12c83c45e6b444e0812461453b shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C1CA60> [label="NativeBatchNorm
+weight(320,)
+bias(320,)" id=b14fe56bfdad45f386fcace9a1cb4669]
+				}
+				subgraph clusterd58884ad771a472683f9f4e1e6396ce3 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E4C1CB50> [label="Convolution
+weight(320, 2048, 1, 1)" fillcolor=deepskyblue2 id="8383e59eee074e0eab6d87b20f7728f7"]
+				}
+			}
+			subgraph cluster602686733912417e820afe5abc013da4 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3_2a(BasicConv2d)"
+				subgraph cluster83a94a4d76b74a018c3c189d60aff615 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C1CBE0> [label=Relu fillcolor=aliceblue id=df9b6674d4244f55bfc671b5ba024dc5 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E82C10> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id=f1a73c8044c146da94c1a426e4f0adae]
+				}
+				subgraph clusterf45c4629a9f64bd6b8d1c0f6f4ed76b6 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E82CA0> [label="Convolution
+weight(384, 384, 1, 3)" fillcolor=deepskyblue2 id="6307491240404425aa329d654cae28a7"]
+				}
+			}
+			subgraph clusterd2dd38bfab1244d8b07f2bfb5047890f {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3_1(BasicConv2d)"
+				subgraph clusterd82661ffb4814495b9f9df459829068b {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E82D90> [label=Relu fillcolor=aliceblue id="3f563442e62249389734bab9c6a8d8c2" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E82E50> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id="896b6cf02fc54100a6d7f9d677075318"]
+					new_node_277790034176600963752219919334886978576 [label=Out id="571c585e426d4ed99097844a4361fe46" shape=point]
+				}
+				subgraph cluster42d6915d15794fb8b5742a685e1d346c {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E82F40> [label="Convolution
+weight(384, 2048, 1, 1)" fillcolor=deepskyblue2 id=f2d2a1a171444ca7811c0618f6e05ac3]
+				}
+			}
+			subgraph cluster0ae2e0ba7fbf4312b5242fd87d3ebd10 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3_2b(BasicConv2d)"
+				subgraph clusterc1d36fd4b12f43b0b8244a0d1bf45a9d {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E82A00> [label=Relu fillcolor=aliceblue id=dd0a6103447847389f41833ea3b7657b shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E82D30> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id=fb2d830e1ff34888ac202ff7cbfd9ec1]
+				}
+				subgraph cluster4d890b267bfd48f7a8909529d77f5e1b {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E90190> [label="Convolution
+weight(384, 384, 3, 1)" fillcolor=deepskyblue2 id="7c91cbc3ecef45e9839d4aba48848d1c"]
+				}
+			}
+			subgraph cluster2f37290b2e9c44cc9c1a1261b1c10432 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_3a(BasicConv2d)"
+				subgraph cluster614e9c3d279d45fd99456bea78a18fa4 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E90130> [label=Relu fillcolor=aliceblue id=ef8e50f42c8141a48d899782e8db02d4 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E903A0> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id="33bfc6492b5e47449e2737c155ef8ea4"]
+				}
+				subgraph clusterdc55dfb075dd44148f16ccc5b259c37d {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E90460> [label="Convolution
+weight(384, 384, 1, 3)" fillcolor=deepskyblue2 id="124bc829d3ff41429390eec3bf350448"]
+				}
+			}
+			subgraph cluster1c1263f07c404bc3b186006b923c5de9 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_2(BasicConv2d)"
+				subgraph cluster691a4066ccc748d9a17075764a1a5859 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E90550> [label=Relu fillcolor=aliceblue id="2afa304b39b04a549c98e1e37c129d5b" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E90610> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id="4494de99108443838193669a596da777"]
+					new_node_164737899734100240762695365793708572511 [label=Out id=c2473f62f5764f599535e1efe68f7f65 shape=point]
+				}
+				subgraph cluster2b5447ef9c72456fa06fd25419cfea4e {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E90700> [label="Convolution
+weight(384, 448, 3, 3)" fillcolor=deepskyblue2 id="724120a4cd8d48a49b0b933efc233740"]
+				}
+			}
+			subgraph clusterf7725ce033894feabf1f810ea749cfa6 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_1(BasicConv2d)"
+				subgraph cluster93395d021a6d4dc1ac31fa992f716b67 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E907F0> [label=Relu fillcolor=aliceblue id="0d3a611aa33e4a35aafafe053f64b4ee" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E908B0> [label="NativeBatchNorm
+weight(448,)
+bias(448,)" id="1ae20a4179a140159b03b5b6c04b6e1c"]
+				}
+				subgraph clusterd8df9714818a4194b120184b69c6dfe0 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E909A0> [label="Convolution
+weight(448, 2048, 1, 1)" fillcolor=deepskyblue2 id="94fdb3a966794748a842e383ff500011"]
+				}
+			}
+			subgraph cluster74dd68f2dfe24974af60e36d3ab02487 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_3b(BasicConv2d)"
+				subgraph cluster2e46609a50524422b960e12a2333a76c {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E90220> [label=Relu fillcolor=aliceblue id="71f9d0bfe52c471d808936d9d5d00192" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E904F0> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id="3451039d3e744c36bbdfe356f785c1a5"]
+				}
+				subgraph clusterbe3ba7cee5134c3a953f146ca7d9d9c0 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E90BB0> [label="Convolution
+weight(384, 384, 3, 1)" fillcolor=deepskyblue2 id="5eeafd213a134451b4d45cc36c9104fb"]
+				}
+			}
+			subgraph clusterd1a6cbebffc24938822d6bb5b05244a2 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch_pool(BasicConv2d)"
+				subgraph clusterbc0ae783befb4282bdcad59cbc69839c {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C1C9D0> [label=Relu fillcolor=aliceblue id="5d4b5f6ee1004e1a9ad062b7810d2648" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E90B50> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="887e4b09cd974f1d9fb634f4fb75bf04"]
+				}
+				subgraph clusterb779dafac5ef4454ab74d6539f0da996 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E90D90> [label="Convolution
+weight(192, 2048, 1, 1)" fillcolor=deepskyblue2 id=b38f60d3487f4ae2ba0377b489708696]
+				}
+			}
+			<CatBackward0 object at 0x00000180E4C1C850> [label=Cat id="53d9245af1d946c5b890e9bcf4189175"]
+			<CatBackward0 object at 0x00000180E4C1C970> [label=Cat id=e1fcf04862e7409482f94e52558f138c]
+			<CatBackward0 object at 0x00000180E4C1C9A0> [label=Cat id=ab23deb36f3943c89e6a3bb7e8dcfe43]
+			<AvgPool2DBackward0 object at 0x00000180E6E90E80> [label=AvgPool2D id="368d21c8e9b14020b3d00e0c589c621d"]
+			new_node_315352218373891003511379228325747272115 [label=In id="569d9ac4fbbf41f194bcc2e86930217c" shape=point]
+		}
+		subgraph cluster6bfc7c32d021484aa9e866690ef6f16c {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Mixed_7b(InceptionE)"
+			subgraph cluster5f527a1631b84183bfbbad058031cf15 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch1x1(BasicConv2d)"
+				subgraph clusterd8b7e4336de2446f990e59bda022842e {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C1CD00> [label=Relu fillcolor=aliceblue id="077c018d3b0642b6bee18e23be3c46e3" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C1CE20> [label="NativeBatchNorm
+weight(320,)
+bias(320,)" id=c607ef84a7594d64b139e2bfcf2127d7]
+				}
+				subgraph cluster121eefcc832e441886aa037e7a0ce6a2 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E4C1CF10> [label="Convolution
+weight(320, 1280, 1, 1)" fillcolor=deepskyblue2 id=efc1c8d674a34540b13268f47912e6c7]
+				}
+			}
+			subgraph cluster0f86edb2043c496a902d2ff00dec5175 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3_2a(BasicConv2d)"
+				subgraph cluster4463789ed4ed4658a388da882560e78d {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C1CFA0> [label=Relu fillcolor=aliceblue id=df0595fa35644941a3d5ce731645ad9d shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E74850> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id=e73d71ade3e043ebb42f6375f3d7df50]
+				}
+				subgraph clusterbc27bf54cd674c6fa6f80e7b740d9e49 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E748E0> [label="Convolution
+weight(384, 384, 1, 3)" fillcolor=deepskyblue2 id="8933704bf58a4c1db507020a3a2eff4e"]
+				}
+			}
+			subgraph cluster8174c74e83de4a799ed00b4d93bda39c {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3_1(BasicConv2d)"
+				subgraph cluster21e475488dda438cb163f1dce366f153 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E749D0> [label=Relu fillcolor=aliceblue id="30160b5e35d6420f9b7d60572d99a312" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E74A90> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id="6c10e3bd03df413da896ba6c0f6ee8a2"]
+					new_node_314386473653144369815384181981073033981 [label=Out id="2a12694418e942b6b11b3afa663c56e5" shape=point]
+				}
+				subgraph cluster1015f6d409b14c10b3efca26ac2928ee {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E74B20> [label="Convolution
+weight(384, 1280, 1, 1)" fillcolor=deepskyblue2 id=b33a716d605f4587add437ec9cae2ab3]
+				}
+			}
+			subgraph clusterbe43dce389384390a403b6fb47043c5c {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3_2b(BasicConv2d)"
+				subgraph cluster84a80b749db5425d8e6a584669d2b599 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E747C0> [label=Relu fillcolor=aliceblue id=bc841e4b2ff34e52963c48ea6aa734dc shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E74970> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id="999ff9d1383241fdb70c36ac7e0387a3"]
+				}
+				subgraph cluster55c329dc153b416a8da311ba3b7de39f {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E74D30> [label="Convolution
+weight(384, 384, 3, 1)" fillcolor=deepskyblue2 id="8c7018d95a914a2097a55113d4d3cd95"]
+				}
+			}
+			subgraph cluster2dd3ec87d7654a61aaefe7f6e1297bbf {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_3a(BasicConv2d)"
+				subgraph cluster3746d879ca304f3f8a3a15274f86ebc0 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E74CD0> [label=Relu fillcolor=aliceblue id="722f39b4e586468d9dd97bbfb7f9fdc4" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E74F40> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id=b8153f8a10ad4a29a9d4f46cb3e4066a]
+				}
+				subgraph clusterc1a343fb210d4dd3a10842fe05aebf48 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E82040> [label="Convolution
+weight(384, 384, 1, 3)" fillcolor=deepskyblue2 id=e63f9c203bcc4e26a6c328a09dd0f037]
+				}
+			}
+			subgraph cluster8a3fc3aa607b4f25947e7ae345d41227 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_2(BasicConv2d)"
+				subgraph cluster998b088f446540719543edd3cc26af22 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E82130> [label=Relu fillcolor=aliceblue id=aadf1095de584bba91a0ffb1557fa593 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E821F0> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id="4fecf94dc0ba41ab96c671b7f9640dcd"]
+					new_node_28035819749494647364142575002192874222 [label=Out id="57a999b578fd47ec80f5188156802a6a" shape=point]
+				}
+				subgraph cluster4d9b072289a1405eb8e5636d6fde4942 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E822E0> [label="Convolution
+weight(384, 448, 3, 3)" fillcolor=deepskyblue2 id=a220cfe0fab840b5ad8e44da3e03a3b8]
+				}
+			}
+			subgraph cluster123ba3f9d5b345129126caf0d6b53de2 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_1(BasicConv2d)"
+				subgraph clusterbbd89a8da4cd492cad70fca735940d75 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E823D0> [label=Relu fillcolor=aliceblue id="206d0953bf454e1b971cb50235adfc99" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E82490> [label="NativeBatchNorm
+weight(448,)
+bias(448,)" id=c7e704c821bd4138975246f16e7670e4]
+				}
+				subgraph cluster1e80b769e78b464b887b7d4e2ef137b4 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E82580> [label="Convolution
+weight(448, 1280, 1, 1)" fillcolor=deepskyblue2 id="5f4b06cf548d4af1b9bddb4130fcfc80"]
+				}
+			}
+			subgraph clusterf45cc414452b49b09f5d6e5582ac2139 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_3b(BasicConv2d)"
+				subgraph clustere8953c048f3d4dcb9c8641e139bd4b8f {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E74DC0> [label=Relu fillcolor=aliceblue id="881f86d9aab940c0a95acd3d0b137047" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E820D0> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id="17d2ada3071f4dc0b16386275447719f"]
+				}
+				subgraph clustere64be91a8ab24f7d898910fa835ff67c {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E82790> [label="Convolution
+weight(384, 384, 3, 1)" fillcolor=deepskyblue2 id=f5eb2c8b31a74668aaac2394687ed4ce]
+				}
+			}
+			subgraph clusterf5d199b7f0754c149d684888d09df99f {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch_pool(BasicConv2d)"
+				subgraph clusterdd0faaba355749a48d6c64b332bfff57 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C1CD90> [label=Relu fillcolor=aliceblue id=b7a7cdd10e3e41b399c1b1719b766677 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E82730> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="8e20c5290176414a909215222dcdcd79"]
+				}
+				subgraph cluster0d70e6e093c84efdbd22370c16b552fc {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E82970> [label="Convolution
+weight(192, 1280, 1, 1)" fillcolor=deepskyblue2 id="92642271be644a158d162b49b2dbaa00"]
+				}
+			}
+			<CatBackward0 object at 0x00000180E4C1CC40> [label=Cat id="8a1b2b3972ea4af2a201252d049efefc"]
+			<CatBackward0 object at 0x00000180E4C1CD30> [label=Cat id="03acc6ab65cc4333ae7c9966c50f55c0"]
+			<CatBackward0 object at 0x00000180E4C1CD60> [label=Cat id=a7fd60ea90e546c2b898878abe322155]
+			<AvgPool2DBackward0 object at 0x00000180E6E82A60> [label=AvgPool2D id=ac3a8db8293b40cf90656d230a1e4ade]
+			new_node_51650642768583225056784385497938031414 [label=In id="58ffb5c10df343268e3d6da0f94796a6" shape=point]
+		}
+		subgraph cluster673e2d3a9a614f31bbffbc75d8424ad9 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Mixed_7a(InceptionD)"
+			subgraph cluster38e6168812024142a1eab4a16a6164bc {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3_2(BasicConv2d)"
+				subgraph clusterb8dcd209abca40d5959599f81432f711 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26100> [label=Relu fillcolor=aliceblue id="1ef167602e9247ffbb79f4278cbb78ed" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C261F0> [label="NativeBatchNorm
+weight(320,)
+bias(320,)" id="013331c59f16465094d184977e325347"]
+				}
+				subgraph clusterf236c6f3bad94820b13e65d0a7b8d82d {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E4C262E0> [label="Convolution
+weight(320, 192, 3, 3)" fillcolor=deepskyblue2 id="56d0606c40a44fbb97233b61b4d73a5e"]
+				}
+			}
+			subgraph cluster07ee41b20f324efe8ac2460eb9139cbb {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3_1(BasicConv2d)"
+				subgraph cluster7ef7edf8afad4ab0b4e15d5104bf1384 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C263D0> [label=Relu fillcolor=aliceblue id=c9002119f1fb47ecb53ccf430de1bc48 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C26490> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="62797aef55f5414f9e2f01f379053161"]
+				}
+				subgraph cluster32d8b9e9bd594619a2f6cf275530deee {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E4C26580> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id="05f7f19a32f344ceafdef9fa689eb9d8"]
+				}
+			}
+			subgraph cluster664ced4d3f584463820517432859679e {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7x3_4(BasicConv2d)"
+				subgraph clustera274954184a041cabc3d489bfb354df3 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26130> [label=Relu fillcolor=aliceblue id="9b70b2060dc141ab8fa0bf0a1d3b8cae" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C26370> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=eccb6599b6484fcc847db3728f6e3f63]
+				}
+				subgraph cluster28ebf5691c304c6e8e01f0192dd282ab {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E65E80> [label="Convolution
+weight(192, 192, 3, 3)" fillcolor=deepskyblue2 id=f663fb7d312c4c5f92448ba71b6b7956]
+				}
+			}
+			subgraph cluster929a8009e27f4dcd8f466d849e155553 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7x3_3(BasicConv2d)"
+				subgraph cluster0606301983f246b18d6c929124989ce8 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E65F70> [label=Relu fillcolor=aliceblue id=b1282a2fbf824e6ebfe1d0ba752d5758 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E74070> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=f6e7cd3a64d1415f89d2176a77a296f0]
+				}
+				subgraph cluster2af93a98daba439889b08086f5743ad0 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E74100> [label="Convolution
+weight(192, 192, 7, 1)" fillcolor=deepskyblue2 id="6f9217b0ca1d46a180d11e2a7b98577c"]
+				}
+			}
+			subgraph cluster2c9560a5d1094eabbf5d3cac90d38dbf {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7x3_2(BasicConv2d)"
+				subgraph clustera6800e654dc54fc8b8ac17fc6743cc75 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E741F0> [label=Relu fillcolor=aliceblue id="0d8a7c9f6d164d359d854ff5a6a22939" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E742B0> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="7995c2e046ad47e5befa37a906386080"]
+				}
+				subgraph cluster9be59fd0febb4c6ab5cbaeb6b587cd2c {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E74370> [label="Convolution
+weight(192, 192, 1, 7)" fillcolor=deepskyblue2 id=d43f392443474d86a6f3494e031d6d5f]
+				}
+			}
+			subgraph cluster28e142c62a1d4de08d38dd3d213e8363 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7x3_1(BasicConv2d)"
+				subgraph cluster1cba5c4c9a774217a266983cb9deca7d {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E74460> [label=Relu fillcolor=aliceblue id="59ed6871edcd433f95e281d037fb8551" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E74520> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="3572e2c70283426484c1d112ca8e51cf"]
+				}
+				subgraph cluster1a06b9ad4f1849e19f0573cbb55c34ea {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E74610> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id="83240eb46a8f40528d47989a1e27d8a6"]
+				}
+			}
+			<CatBackward0 object at 0x00000180E4C26040> [label=Cat id=e333bc42692348af82969b82bf303540]
+			<MaxPool2DWithIndicesBackward0 object at 0x00000180E4C26160> [label=MaxPool2DWithIndices id="007d080ebd7f4cc5a88d08e3b090a8f2"]
+			new_node_238704943620827803252912446340505674310 [label=In id="552d7b1ad43e476fae5c7b668ac0f475" shape=point]
+		}
+		subgraph cluster8460c74e94e94c26928ee9667ba79ba1 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Mixed_6e(InceptionC)"
+			subgraph clusterbb6d19f20c354b33b502f61ad45a73b4 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch1x1(BasicConv2d)"
+				subgraph cluster4da24e63392646d1af2fd570bd7859ee {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26730> [label=Relu fillcolor=aliceblue id="1721907bb197415ea99418ea59d7959d" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C26850> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=d31687c23d4944f38c501c120f9bdb24]
+				}
+				subgraph cluster65dbdad20e134a5f99d2c6da12236e6a {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E4C26940> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id="0198e4f2ed5449668ee89e8a751b9ff3"]
+				}
+			}
+			subgraph clustera752e55798bb48e096d2686d8d4045f9 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_3(BasicConv2d)"
+				subgraph cluster9250a98cfc1e416ab4c64bff6d6f9178 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26760> [label=Relu fillcolor=aliceblue id="1e758556650246679064026ca471f4c8" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C269D0> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="09e610ea08574b00a13f2b2f4104fc61"]
+				}
+				subgraph cluster98221d8b436f43e0986164e6bc90e1ce {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E558B0> [label="Convolution
+weight(192, 192, 7, 1)" fillcolor=deepskyblue2 id=ae8e2b4c19b043e197b383c330f96d70]
+				}
+			}
+			subgraph clusterca5bacd56b6f4e729e74df69a3e6c59e {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_2(BasicConv2d)"
+				subgraph cluster83c09ef34d564009a5a0f5775057d66b {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E559A0> [label=Relu fillcolor=aliceblue id="840f1ca401d043989862dfbd0c46d5c6" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E55A60> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="8b84cb45759747c8a1069fa32c7be820"]
+				}
+				subgraph clusterc7fb436447d24229b5b7fb9f2b98deb4 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E55AF0> [label="Convolution
+weight(192, 192, 1, 7)" fillcolor=deepskyblue2 id="39730e92be9f4cb7a42006915104a802"]
+				}
+			}
+			subgraph cluster3ec6784f85434301ae63ac8dbf46784a {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_1(BasicConv2d)"
+				subgraph cluster25ce2baefb6c42e5902c01cba04e527b {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E55BE0> [label=Relu fillcolor=aliceblue id="2a45e42efa8748bd8b821de2aec8460f" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E55CA0> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=fdcc25c6f86b4a8d98867b11900e90d6]
+				}
+				subgraph clusterf0661c4bb9c84cffb5a126d2f07ce6e8 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E55D90> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id="60f8929238a8406cbfdc4bd2a77fc26b"]
+				}
+			}
+			subgraph cluster5fec31142fbc418c9191106fe9ddd490 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_5(BasicConv2d)"
+				subgraph cluster74d5f4f0780943adb9ed767172730317 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26790> [label=Relu fillcolor=aliceblue id="9c6e9ecaabf84e2293552ff7c37ef8cf" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E55940> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=ed46f5cc13494867958d01b17c0edd2d]
+				}
+				subgraph clusterf0d50ad424534086bfca037e602d64e9 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E55FA0> [label="Convolution
+weight(192, 192, 1, 7)" fillcolor=deepskyblue2 id=f2e53ac9c76a493f8a5d54383e324665]
+				}
+			}
+			subgraph cluster716aed4a459140e9ba438eb7b32e624a {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_4(BasicConv2d)"
+				subgraph clusterc2999b0d324248c3b0c7b2e77bebd84a {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E650D0> [label=Relu fillcolor=aliceblue id="63713c6cb3bb4632a601599547a74ff0" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E65190> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=be10e6ca4cab46059e011bdca76cb691]
+				}
+				subgraph cluster8c8948c79fcd4f938f1f0a7f9939f7b6 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E65250> [label="Convolution
+weight(192, 192, 7, 1)" fillcolor=deepskyblue2 id=d9e65ac41ca841738abda1aee6441049]
+				}
+			}
+			subgraph cluster64a640d732e54203b7e41661bf88bf30 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_3(BasicConv2d)"
+				subgraph cluster85b5048da7ac42fe8911ac95d2980455 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E65340> [label=Relu fillcolor=aliceblue id="63e84e3b6403431ba0ab7cc5e2479ed2" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E65400> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="7532faecc3f048bfa349774e8ccc90d6"]
+				}
+				subgraph cluster94c7f36390024dfca8d69966bb7a5005 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E654F0> [label="Convolution
+weight(192, 192, 1, 7)" fillcolor=deepskyblue2 id=aea75309f5114a9095621476aff13840]
+				}
+			}
+			subgraph clusterabd05195cacd41598a9d31c5a0f4dc19 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_2(BasicConv2d)"
+				subgraph cluster10f5e2c0b31c4fb0897c05e9626af252 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E655E0> [label=Relu fillcolor=aliceblue id="29e0b863c4cb4fd288e363bb8e53579d" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E656A0> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=bd474b6460c24421ad8d8563715ff030]
+				}
+				subgraph cluster19013567342f465389a25b7c6d2dffa1 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E65790> [label="Convolution
+weight(192, 192, 7, 1)" fillcolor=deepskyblue2 id=f8cb47777c8e40c38358f7204d767865]
+				}
+			}
+			subgraph cluster71da7269b92644039570121769bf6021 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_1(BasicConv2d)"
+				subgraph clusterfa306a3b51fe4f55a930c72e5f62cdb5 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E65880> [label=Relu fillcolor=aliceblue id="6df0217bd55349b4b6ce26a3b8b79828" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E65940> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="784b478b5fc9436e898eb740929f2d42"]
+				}
+				subgraph cluster1bba9db31104460cad0575c0a2830908 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E65A30> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id=d32c2588bf5c40a5886390fc53016a45]
+				}
+			}
+			subgraph cluster025b71899ade4d828603829fb9a27c38 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch_pool(BasicConv2d)"
+				subgraph cluster1529374f3c274cc2bf786c98a77d1d79 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C267C0> [label=Relu fillcolor=aliceblue id="5f9cae8625954ae7960ea919c1ad9180" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E65070> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=e3a4e406d4d343d1ae591f7c27e65ad8]
+				}
+				subgraph cluster3a6a91479ad84c38b7df213a282c76f2 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E65C40> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id=f12aaa60b6764d4b82b7b1edb7496289]
+				}
+			}
+			<CatBackward0 object at 0x00000180E4C26670> [label=Cat id=d0cbc4600d8d4085b46fb03b46dca0df]
+			<AvgPool2DBackward0 object at 0x00000180E6E65D30> [label=AvgPool2D id=d9c23ca57f794734b6258b755cc52f4a]
+			new_node_74231627236634396971093216767895916656 [label=In id=a81baf8bff3e4af9bffda8a5bb72c642 shape=point]
+		}
+		subgraph cluster761b061c5ee44a3ba3ed5adf129aa372 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Mixed_6d(InceptionC)"
+			subgraph clusterb50f62f5201a4f3ebdbedc1d6954abb6 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch1x1(BasicConv2d)"
+				subgraph cluster6baff08228c14c59ae39498a72f0b106 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26AF0> [label=Relu fillcolor=aliceblue id="7d3446d82ee94405b27f94e751086fa3" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C26C10> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="8e711a803d904dfc8cf4c98f333596fa"]
+				}
+				subgraph clusterdb47f7dd84844c49afb6153f703dd3a8 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E4C26D00> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id="18f90763fe0242f8a6b1818ea0c84305"]
+				}
+			}
+			subgraph clustera00bfa70bb264c7885d0a17d27e6eab6 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_3(BasicConv2d)"
+				subgraph cluster4b551c384b734a07bf72b33246e0566b {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26B20> [label=Relu fillcolor=aliceblue id="4c2a5ba6993243bba9d102a85c1c5fa0" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C26D90> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=f178a530e7c2474f833055967c977864]
+				}
+				subgraph cluster317dacdc5bd14aca82c937d0aee94b66 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E482E0> [label="Convolution
+weight(192, 160, 7, 1)" fillcolor=deepskyblue2 id=f68b2c82ce704eb4b9a2dce0c9f4e76d]
+				}
+			}
+			subgraph cluster716571b8704d492f847e6c2dd675094b {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_2(BasicConv2d)"
+				subgraph cluster8f027a67f8b341f5b9a8ccb49217d294 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E483D0> [label=Relu fillcolor=aliceblue id="24b120180de54f62bb5b13846cf37776" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E48490> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id="3bf4018fda54445c90f300f24d65301d"]
+				}
+				subgraph cluster487b01a216a6445a99971131ed64e481 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E48520> [label="Convolution
+weight(160, 160, 1, 7)" fillcolor=deepskyblue2 id=ae23fd2516d8426c8566b6db56deac4a]
+				}
+			}
+			subgraph cluster713c55a70ca04fc3be7be22919871aab {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_1(BasicConv2d)"
+				subgraph cluster78660b2a3e804dc6877562d4d26e2459 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E48610> [label=Relu fillcolor=aliceblue id="42a1952f92424dc0b34d104140e982e6" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E486D0> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id="1e69a802ec734291bf16ec04bfcc9ddc"]
+				}
+				subgraph clusteradd9cd27998c4f78888f4855d20b2298 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E487C0> [label="Convolution
+weight(160, 768, 1, 1)" fillcolor=deepskyblue2 id="538a984d06f64da4a2a3f8fa8e8ef4f9"]
+				}
+			}
+			subgraph cluster85cf1563635f4f0ebce90eb089995fa6 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_5(BasicConv2d)"
+				subgraph cluster370461f5d0f444e2a89a6bc557305a9f {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26B50> [label=Relu fillcolor=aliceblue id="7513c8d0d9664836afdf63a33ada1888" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E48370> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="8bc5de73e7dc43a39f7ac428d55bf472"]
+				}
+				subgraph cluster07f46218e49e4bb884322430ee1948a7 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E489D0> [label="Convolution
+weight(192, 160, 1, 7)" fillcolor=deepskyblue2 id="2ef6097aecca412a963acd98994110f6"]
+				}
+			}
+			subgraph clusterd57517a8dc9c41a49da159b9beff7afa {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_4(BasicConv2d)"
+				subgraph clusterec87b2587ecf4212bbd147ffebd2baad {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E48AC0> [label=Relu fillcolor=aliceblue id="118c20af77b947be9e4b163506aca325" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E48B80> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id="105d995d092f43a08045b112e1a2db12"]
+				}
+				subgraph cluster8e1eb7431423486b84ce123943055a6d {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E48C40> [label="Convolution
+weight(160, 160, 7, 1)" fillcolor=deepskyblue2 id=bb30c7bab30f4210b411835dbc418c3d]
+				}
+			}
+			subgraph cluster4a9a468a6c144331a0a95e4ade5a2539 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_3(BasicConv2d)"
+				subgraph cluster29f3c8c32221430a92ffc9f572f32411 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E48D30> [label=Relu fillcolor=aliceblue id=cc22ec8cbd944ce5a93d03a0330dfdd4 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E48DF0> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id="5110f53ddca44831ab9c72db9121dbd2"]
+				}
+				subgraph clusterf8f27ae9a6654c1d812bec3b0f760665 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E48EE0> [label="Convolution
+weight(160, 160, 1, 7)" fillcolor=deepskyblue2 id="93556dcffb574b248bbf15d76192d6c5"]
+				}
+			}
+			subgraph cluster805c4c1af72343daa0bca5963a132670 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_2(BasicConv2d)"
+				subgraph cluster51b0ae0f594f405f885bf081a024d692 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E48FD0> [label=Relu fillcolor=aliceblue id="7828e59c7cf745f38febe08a82900341" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E550D0> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id=e9bf3833d0aa4bb2913988c43810a8a6]
+				}
+				subgraph cluster79bcbb33384a42aca0a01f0c755e492a {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E551C0> [label="Convolution
+weight(160, 160, 7, 1)" fillcolor=deepskyblue2 id=ba6589d4f68245aa9397d417e195fd33]
+				}
+			}
+			subgraph cluster800a0b9309b642c9a1e2f3cec01c5ba5 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_1(BasicConv2d)"
+				subgraph cluster0adc29a4bb1a4535819ef126eb12704e {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E552B0> [label=Relu fillcolor=aliceblue id="23eb83e39bd940b6a300a00271f899e6" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E55370> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id=c8054f382c3e4d8caeaedbe918cf95e6]
+				}
+				subgraph clusterdc818b71ae2743e3a4a753684ef53f10 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E55460> [label="Convolution
+weight(160, 768, 1, 1)" fillcolor=deepskyblue2 id="1074af1a75df4b30bc1f3bce7f7025a2"]
+				}
+			}
+			subgraph cluster0eb32af11e57471c8b00c2cfc55e8b29 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch_pool(BasicConv2d)"
+				subgraph cluster124988cbf2b84b9ea5ba6a8c59e18b5a {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26B80> [label=Relu fillcolor=aliceblue id="19a58a85d9b0417389f4a2caf7888e2e" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E48A60> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="1c4b0cc672ff4914b8fcc72e3f189bd8"]
+				}
+				subgraph clustercd91c8a82067466c87b9dd1b70f2a588 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E55670> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id=d66f0c484e6248d6abb99abafa6860d9]
+				}
+			}
+			<CatBackward0 object at 0x00000180E4C26A30> [label=Cat id=de10077a0a9e4e10852202c0f2cf50d1]
+			<AvgPool2DBackward0 object at 0x00000180E6E55760> [label=AvgPool2D id="444652884ce5441bb8e283bb9266cb3c"]
+			new_node_22388095939306221151846634903848140067 [label=In id="23e6c4dc2f5a4e9480485c4a0e98d499" shape=point]
+		}
+		subgraph clusterf71cc24666664a7baf1105500d464efd {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Mixed_6c(InceptionC)"
+			subgraph cluster5e66eadaa2f445e38e0750855d47053f {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch1x1(BasicConv2d)"
+				subgraph clusterdad80ed0c6a24dd7a6c3252dea29ee9d {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26EB0> [label=Relu fillcolor=aliceblue id="7c46570e384244c8af8d8ad04c1d8e96" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C26FD0> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=b1ca6d825a5d470596114e498b6828ee]
+				}
+				subgraph cluster12df565a59634e5c84f6457c04fb24c7 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E4C2F100> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id="7c136b47509c45ce9caf45eb722128d5"]
+				}
+			}
+			subgraph cluster9533166d4c0e457692f4989c5f0bcc4b {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_3(BasicConv2d)"
+				subgraph cluster644c89852633424d9b517b77bd239dc3 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26EE0> [label=Relu fillcolor=aliceblue id=c396d98a5c794247aa1fa1ba48866a4b shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C2F190> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="035c75e91e6e42fc93ba266d74621e7a"]
+				}
+				subgraph cluster0c020718636c4a00bf2af301c4e4daf4 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E2CCD0> [label="Convolution
+weight(192, 160, 7, 1)" fillcolor=deepskyblue2 id=e35dcac33a964208b4075ebbde8f3820]
+				}
+			}
+			subgraph cluster4e3ee623a3c640c0a5c71d1fe2afb1c4 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_2(BasicConv2d)"
+				subgraph cluster547e83635df540f08c8faf67db3fd57a {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E2CDC0> [label=Relu fillcolor=aliceblue id="77d842feb7564953bcd6c6612bce86e4" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E2CE80> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id=bf480f18572e43a8bc4234dc2a2bcb67]
+				}
+				subgraph clusterbf05e43b4c4b4b3d87cf12c0f58493c4 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E2CF10> [label="Convolution
+weight(160, 160, 1, 7)" fillcolor=deepskyblue2 id="1a8b053d4a0e4fbb97cfdfd954bc9db0"]
+				}
+			}
+			subgraph clusterd8f28e19944b4175802a60e8491b53fd {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_1(BasicConv2d)"
+				subgraph cluster4e447033e9f44536ad7070e4ba73e026 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E3A040> [label=Relu fillcolor=aliceblue id=a99636a5762e47a598b95bb8a1e9d79d shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E3A100> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id="77a21451365d457286dd498ed091165a"]
+				}
+				subgraph clusterd904e0e6ecb1496a9ccaee49823c5d29 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E3A1F0> [label="Convolution
+weight(160, 768, 1, 1)" fillcolor=deepskyblue2 id=bad8467e1ce84601818850bf5a77e382]
+				}
+			}
+			subgraph cluster48545e89318b4219b2b17f9ef30ee96f {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_5(BasicConv2d)"
+				subgraph cluster660ffc2ddb2e46f6a490e3a9b2550647 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26F10> [label=Relu fillcolor=aliceblue id=c88f66ac968743e19be119737dd702eb shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E2CD60> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="7a86ed17c5694e76b354c5e789fe2b47"]
+				}
+				subgraph cluster435e8aa1fac748658a52ec0b4d3478f9 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E3A400> [label="Convolution
+weight(192, 160, 1, 7)" fillcolor=deepskyblue2 id=a54c11764e3e4e928cdf2dff832c238a]
+				}
+			}
+			subgraph clustere96efea09e924ea19222e0e2580da799 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_4(BasicConv2d)"
+				subgraph cluster83312ae4b6204e5fb8f55f747c8dec04 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E3A4F0> [label=Relu fillcolor=aliceblue id=ae331b2dc85f471799cecd6ca492ed58 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E3A5B0> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id="75722bddd68843f4b9e80d18f32a38db"]
+				}
+				subgraph clustere44e6a504ac440ebbf3035ee51a633fa {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E3A670> [label="Convolution
+weight(160, 160, 7, 1)" fillcolor=deepskyblue2 id=ad872769df35451893e5529dbb05a92d]
+				}
+			}
+			subgraph clustere4c2d50dd46c4a718e23bbd668d1ab44 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_3(BasicConv2d)"
+				subgraph clustera0e15853268c4ddeb0c5f32b3154aa05 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E3A760> [label=Relu fillcolor=aliceblue id="5691fb06271b411391521c2dcc94bf18" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E3A820> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id="4487c690fc90465db2b1cf3b0a294142"]
+				}
+				subgraph clusterbfd1b715a36e452fbf1367b460fcae77 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E3A910> [label="Convolution
+weight(160, 160, 1, 7)" fillcolor=deepskyblue2 id="97604297e7ed4508b48aad59eb14279d"]
+				}
+			}
+			subgraph clustera32ff77b4f7046e7b02610f17020c455 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_2(BasicConv2d)"
+				subgraph clusterbe061a55ebef432c87a81e55a572b337 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E3AA00> [label=Relu fillcolor=aliceblue id=eee5171c0fd34ba5842aec76a9eec397 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E3AAC0> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id="820b6bd0b1e44c26a90e1e57f46563e2"]
+				}
+				subgraph cluster1e84d0f7a35c4f8d90df9d3eb1b16db6 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E3ABB0> [label="Convolution
+weight(160, 160, 7, 1)" fillcolor=deepskyblue2 id=e303d9e32772453e97e6effaed5f9bbb]
+				}
+			}
+			subgraph clusterd88c6695cc9c4586be29f8ce9600c587 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_1(BasicConv2d)"
+				subgraph cluster3aa0e163a285410dbdbe505dd149e5f3 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E3ACA0> [label=Relu fillcolor=aliceblue id="8509279c929c4090ad61ba92a0c3ee4d" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E3AD60> [label="NativeBatchNorm
+weight(160,)
+bias(160,)" id="9490357089444169aa30d5176c1d04ac"]
+				}
+				subgraph cluster52c95b36f4ef49c8adbd845099e73382 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E3AE50> [label="Convolution
+weight(160, 768, 1, 1)" fillcolor=deepskyblue2 id=cd0abe2609ac44249b19b406206b2407]
+				}
+			}
+			subgraph cluster53d4aae105e14c7baab87d54507cbf7b {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch_pool(BasicConv2d)"
+				subgraph clusterf8cbcf7ef7ba4da78bd3c5db4deb83a9 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C26F40> [label=Relu fillcolor=aliceblue id=bff237fc4e8c45ce92f3162966636aa7 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E3A490> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="93b0cae489594284a7998c892e7d3897"]
+				}
+				subgraph cluster9b9a9ed523124a26b5337cb28e63a95d {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E480A0> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id=f01f6dbc87cf453aaca54f3eebbf4371]
+				}
+			}
+			<CatBackward0 object at 0x00000180E4C26DF0> [label=Cat id="5d9c95579e0c4b1883cc857cd3972204"]
+			<AvgPool2DBackward0 object at 0x00000180E6E48190> [label=AvgPool2D id="984b3aab67d94e8c9dd1934562995c54"]
+			new_node_310661593246883066174151145987301784832 [label=In id=e02b9c2927c5405eae5853204021c0b1 shape=point]
+		}
+		subgraph cluster2c0032d8eee841b1929a71b9af4a52c9 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Mixed_6b(InceptionC)"
+			subgraph clusterdf4c30cac4364778a06455ebec933d5a {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch1x1(BasicConv2d)"
+				subgraph cluster3a77125cfadb4c5eaf5b1521fb77f302 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2F2B0> [label=Relu fillcolor=aliceblue id=f2cbdab1494740199acdd6f4f8a00f0c shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C2F3D0> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=aa556b5cae764facb9c53a2af03853e8]
+				}
+				subgraph cluster051e139f63cc45718751fc3bcfc2a661 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E4C2F4C0> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id="064065b88dfd4f4fb407ff0fe5f139ff"]
+				}
+			}
+			subgraph clustere5449ed913754a8c97ef9a2112dc2367 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_3(BasicConv2d)"
+				subgraph cluster3cec2f996a74413496fe0fcf9b8dff34 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2F2E0> [label=Relu fillcolor=aliceblue id="29543d64f38c433f968553cfb78cfaa0" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C2F550> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=d3c4ec28d8064407bfb0410e6cb33819]
+				}
+				subgraph cluster7da0266aba8b43fba90b5966a4acfc1e {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E1F6D0> [label="Convolution
+weight(192, 128, 7, 1)" fillcolor=deepskyblue2 id="1c53a69287eb4d7089d7c286c44151b4"]
+				}
+			}
+			subgraph clustera03ffd280f154f5694fef5a9d4cf7b84 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_2(BasicConv2d)"
+				subgraph cluster90135f0073bc4022b737c5015ab29e4a {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E1F7C0> [label=Relu fillcolor=aliceblue id=ee42b38b03d5482aa632cfa7de62d663 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E1F880> [label="NativeBatchNorm
+weight(128,)
+bias(128,)" id="8855bfb4c2e9446fb55b5d9e2a52b73d"]
+				}
+				subgraph clusterbece57dc96e04baa9346c16d8aa1a13b {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E1F940> [label="Convolution
+weight(128, 128, 1, 7)" fillcolor=deepskyblue2 id="3bbcb108d34d434cbe9d7ef821b3f8fa"]
+				}
+			}
+			subgraph clusterbe829fe6be7c4d5aa1932e0dc0d03c1c {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7_1(BasicConv2d)"
+				subgraph clusterca2889af9be84cf796b6f960f62ca0f6 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E1FA30> [label=Relu fillcolor=aliceblue id="0840373d7fa840ff9008099e739944a5" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E1FAF0> [label="NativeBatchNorm
+weight(128,)
+bias(128,)" id="1892ca8a9cab4d3e888142383a2c2dce"]
+				}
+				subgraph cluster40f945bdb0ee41b0aa2ba181981f08ed {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E1FBE0> [label="Convolution
+weight(128, 768, 1, 1)" fillcolor=deepskyblue2 id="3dd6bd80c32b4b3d8cd4a84c07979028"]
+				}
+			}
+			subgraph cluster79679d4a852e46f1bb6fa01b58405f01 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_5(BasicConv2d)"
+				subgraph clusterb4a3b4944a2545759d56d27da56b5ab8 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2F310> [label=Relu fillcolor=aliceblue id="6b18c4b7ca5d4021b62a2b051d6b2ab2" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E1F760> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id="38bc82ec3b104217ac1607df02271846"]
+				}
+				subgraph cluster5d1ee2b5694741909c2550ec7c8d416e {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E1FDF0> [label="Convolution
+weight(192, 128, 1, 7)" fillcolor=deepskyblue2 id=f7468543d44a4b17a46bf85e4d1b9042]
+				}
+			}
+			subgraph clusteref9424e0da7e44c3868f97c92a779e09 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_4(BasicConv2d)"
+				subgraph cluster90390828213f45469ff4a227d6fd7733 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E1FEE0> [label=Relu fillcolor=aliceblue id=bacce36541d248cabb2c5c4e4146b24e shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E1FFA0> [label="NativeBatchNorm
+weight(128,)
+bias(128,)" id=d2fcd6e141fc4aab8c370197e3d5e190]
+				}
+				subgraph cluster25fc8820227f467780dd62f11ebf4d23 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E2C0A0> [label="Convolution
+weight(128, 128, 7, 1)" fillcolor=deepskyblue2 id="7de8f750713a4012a34b506bdc12fbda"]
+				}
+			}
+			subgraph cluster86f09c75f90342a8a77b7657dd6db576 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_3(BasicConv2d)"
+				subgraph cluster2284002d2de84e528ed80d35b34409fc {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E2C190> [label=Relu fillcolor=aliceblue id="527890f1bdc14c3bb9230b48cf11ac41" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E2C250> [label="NativeBatchNorm
+weight(128,)
+bias(128,)" id="5593cb7612984152a65cae54c52dc5f5"]
+				}
+				subgraph cluster462ccb12322f4ddb8a633998cd2197a6 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E2C340> [label="Convolution
+weight(128, 128, 1, 7)" fillcolor=deepskyblue2 id=b6958de1d91f410eb4705454fbd7de3c]
+				}
+			}
+			subgraph cluster92b3999cccad4b62bcc8e2a2ef4e8fa4 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_2(BasicConv2d)"
+				subgraph cluster2a10884450e74d13878ef42aac08b87e {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E2C430> [label=Relu fillcolor=aliceblue id=d0d89b75b6ea4892a8a525e9c966cff4 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E2C4F0> [label="NativeBatchNorm
+weight(128,)
+bias(128,)" id="95d5c3737faa4547ac6c2f8208ae50b6"]
+				}
+				subgraph cluster75a4d63cf54e41a3aba1822d2b0b6452 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E2C5E0> [label="Convolution
+weight(128, 128, 7, 1)" fillcolor=deepskyblue2 id=b8e269535a6e4559b5f6a051350c7a1e]
+				}
+			}
+			subgraph cluster80d10f98587941f4a68a5750f16e2931 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch7x7dbl_1(BasicConv2d)"
+				subgraph cluster1f23afbf1a9c48fa9c59adde5ce93dec {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E2C6D0> [label=Relu fillcolor=aliceblue id=e04e2048bd55421fba4ce5910783921b shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E2C790> [label="NativeBatchNorm
+weight(128,)
+bias(128,)" id=c2ec6ee69a9947a6af589a2161b873d7]
+				}
+				subgraph cluster03eec4364eca4c1c9561c7c1f540dd6f {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E2C880> [label="Convolution
+weight(128, 768, 1, 1)" fillcolor=deepskyblue2 id=f8cd937637e54d689fd122423a209259]
+				}
+			}
+			subgraph cluster6ed6823d942448f9b2c184a92436faad {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch_pool(BasicConv2d)"
+				subgraph cluster64f7718e507649d3bfb2852e8358a32b {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2F340> [label=Relu fillcolor=aliceblue id="5dc06929e4a64cb5895afeb6549bb3ea" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E1FE80> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=e0667b44e0ca4cacb122f7bf674e137b]
+				}
+				subgraph cluster95cb1a763828435ca0f0b718304de26f {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E2CA90> [label="Convolution
+weight(192, 768, 1, 1)" fillcolor=deepskyblue2 id="072e45d25ccc4989baa2cbcf611e89c6"]
+				}
+			}
+			<CatBackward0 object at 0x00000180E4C2F1F0> [label=Cat id=f2eb9d5f58a344fb820cc3711b1a5b50]
+			<AvgPool2DBackward0 object at 0x00000180E6E2CB80> [label=AvgPool2D id="403c1d2e8ec34bdbba2ee76e61975679"]
+			new_node_128856604988635764067125885283716125781 [label=In id="3540a1c49b5945aa9a4011896bfd63cc" shape=point]
+		}
+		subgraph clustera29bf27d271944caabbb9bf0c0c0a3f4 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Mixed_6a(InceptionB)"
+			subgraph clustera78d49ba52cd4d54b668969b61bbe4ec {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3(BasicConv2d)"
+				subgraph cluster249f4343846845299c9a870fb706edcb {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2F670> [label=Relu fillcolor=aliceblue id="20d01f2707844e63895ee39548427654" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C2F760> [label="NativeBatchNorm
+weight(384,)
+bias(384,)" id="8048c86d881448989d4b6b6b11c83c39"]
+				}
+				subgraph clusterb9c791f9fa1443158a134a6abcbb78cc {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E4C2F850> [label="Convolution
+weight(384, 288, 3, 3)" fillcolor=deepskyblue2 id="1785f1b778bc41c39fd1b7489e00f629"]
+				}
+			}
+			subgraph clusterb987b5e7da9342ce91b0e7c7c08557df {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_3(BasicConv2d)"
+				subgraph clusterfbf3bc61d99a48f99d789237a3d4fd2e {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2F6A0> [label=Relu fillcolor=aliceblue id="029d109a9b48407aaa3f86c7257b4b92" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C2F8E0> [label="NativeBatchNorm
+weight(96,)
+bias(96,)" id="6c9455dcfe1e48a685a3a276af28bc0f"]
+				}
+				subgraph cluster6d539bb2e1b34baa890922a5b8b65a19 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E10F40> [label="Convolution
+weight(96, 96, 3, 3)" fillcolor=deepskyblue2 id=efbcb5c20c2d448cb6cb1127d1f453f3]
+				}
+			}
+			subgraph cluster6ae2e493f4f8415f827e959994d61c4e {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_2(BasicConv2d)"
+				subgraph clusteraa9f3ceb69254f07b5bd4da7f3f9fc21 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E1F070> [label=Relu fillcolor=aliceblue id="75321b6ed38440949f5dc661ee230a53" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E1F130> [label="NativeBatchNorm
+weight(96,)
+bias(96,)" id=aed43511835e4bffb2588eacdcab0600]
+				}
+				subgraph cluster571a599372364c458019858fe2d1d162 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E1F220> [label="Convolution
+weight(96, 64, 3, 3)" fillcolor=deepskyblue2 id=d8afc84ab04547d7992b4c14663a3925]
+				}
+			}
+			subgraph clustercf28f96f56b84b7a9f1a518a023fbef6 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_1(BasicConv2d)"
+				subgraph clusterc4f5abcde7574341a982985613ce7109 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E1F310> [label=Relu fillcolor=aliceblue id=b3e7f8e862d34b5d95642a7ef5ff52bc shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E1F3D0> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id=dafed58b5e714f0295a1b0e51f9ee765]
+				}
+				subgraph clustercc8911aee0fd4547906ad947cd45e2bf {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E1F4C0> [label="Convolution
+weight(64, 288, 1, 1)" fillcolor=deepskyblue2 id="93b624afa5434db680244cbac0f64b89"]
+				}
+			}
+			<CatBackward0 object at 0x00000180E4C2F5B0> [label=Cat id=c41f60203772496b80c7e3f9f1e7b7a4]
+			<MaxPool2DWithIndicesBackward0 object at 0x00000180E4C2F6D0> [label=MaxPool2DWithIndices id=d9a73bd53a8c4dc285a4e9e36f186bb5]
+			new_node_35235193824787341945661574398846960460 [label=In id="592666f18c9945878f1f3cc0221e687f" shape=point]
+		}
+		subgraph cluster944f04e72be4458487d139cc15590225 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Mixed_5d(InceptionA)"
+			subgraph clusterd22600801cce45238e92b42fa845b4db {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch1x1(BasicConv2d)"
+				subgraph clusterced5f9e143f6440eadf40510dd2e4801 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2FA00> [label=Relu fillcolor=aliceblue id=f43f889ba54a4288a2a96cb0190994eb shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C2FB20> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id="18f4ead7c72843da9d84be49b931bc2a"]
+				}
+				subgraph cluster93b5c6d69d8d461d90507d357f063287 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E4C2FC10> [label="Convolution
+weight(64, 288, 1, 1)" fillcolor=deepskyblue2 id="6fb6c4ec83f24f6f9436bdb1f09bf598"]
+				}
+			}
+			subgraph cluster9a8484e3a1384088b47cf8e414fcc9c4 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch5x5_2(BasicConv2d)"
+				subgraph cluster7392c45cc97249fcb16ebbf3dc387e57 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2FA30> [label=Relu fillcolor=aliceblue id=e3eafb1e5ca347c196a96d6da2b8cbd8 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C2FCA0> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id="97334694da6544f896aa290402e2dc46"]
+				}
+				subgraph clusterfb5990b17d3347a7ad5c8ca36c075282 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E10100> [label="Convolution
+weight(64, 48, 5, 5)" fillcolor=deepskyblue2 id="166727dc82ab46ad9b78b064e13c6f56"]
+				}
+			}
+			subgraph clusterfbb363a7c8aa404fbcf144a5acde6feb {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch5x5_1(BasicConv2d)"
+				subgraph clusterb3ef470592c14a7bad03276e21d46444 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E101F0> [label=Relu fillcolor=aliceblue id="6c0254db179244f6bce2e551cb418014" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E102B0> [label="NativeBatchNorm
+weight(48,)
+bias(48,)" id="7708fa05c0ec49f7a111a9175c0f89ac"]
+				}
+				subgraph cluster502a21acfeb644a4a7adf56505999cbe {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E103A0> [label="Convolution
+weight(48, 288, 1, 1)" fillcolor=deepskyblue2 id=e9466efedee447c694ffde069c9b8179]
+				}
+			}
+			subgraph clusterd158d2f0404c483e88ea569a9ab9fb0e {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_3(BasicConv2d)"
+				subgraph cluster11d2796f55a1473fb4567358d699c99c {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2FA60> [label=Relu fillcolor=aliceblue id=e22a6556e4424572af3b7d8021c24bdc shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E10190> [label="NativeBatchNorm
+weight(96,)
+bias(96,)" id=f6f80983172d4a8c8eb3f1bef573acd1]
+				}
+				subgraph cluster7c40841be10f429294365f5e122b6e2f {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E105B0> [label="Convolution
+weight(96, 96, 3, 3)" fillcolor=deepskyblue2 id="60966b9f21b2413b8a9d7b8c852db235"]
+				}
+			}
+			subgraph cluster0b59437db92a494d966f7c6f8009af23 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_2(BasicConv2d)"
+				subgraph cluster30251b7434574091bbeb40c564b4e103 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E106A0> [label=Relu fillcolor=aliceblue id=fa66195351fe496fa278fb1029adc730 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E10760> [label="NativeBatchNorm
+weight(96,)
+bias(96,)" id="4b594f9ac0e747be8001292e10b071cc"]
+				}
+				subgraph cluster5ba3b199bfc84b2a952ee6e84d6d0108 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E10850> [label="Convolution
+weight(96, 64, 3, 3)" fillcolor=deepskyblue2 id=d20e0577910842ab8fa53c8d299fa1de]
+				}
+			}
+			subgraph clusterdbe96449cce742b8a7d1f50a87762cee {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_1(BasicConv2d)"
+				subgraph clustercfaf67650d9049c88d972cca6e7aa786 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E10940> [label=Relu fillcolor=aliceblue id="65012885815544eb927e0eaa6479119b" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E10A00> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id=fd1dd1c8b50a4eb798ed38b36b903dc4]
+				}
+				subgraph cluster87b89febbc8a48fba69250c9ab550543 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E10AF0> [label="Convolution
+weight(64, 288, 1, 1)" fillcolor=deepskyblue2 id="77600d436427404bb12d766aa068bcf0"]
+				}
+			}
+			subgraph clusterc8725dc8177d404a964c53e22844b6b1 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch_pool(BasicConv2d)"
+				subgraph cluster5a732ae963b84b39b0cc6a75c08aaa14 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2FA90> [label=Relu fillcolor=aliceblue id=a055f7a79e9a47bb8f083e780a134991 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E10640> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id="6cb0f79d0be143f1be61efebd7c1e8ed"]
+				}
+				subgraph cluster5c49b090b87441c49048ca78f7fdce6f {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E10D00> [label="Convolution
+weight(64, 288, 1, 1)" fillcolor=deepskyblue2 id=a6e497b12d954c29bee0a0bee26e917e]
+				}
+			}
+			<CatBackward0 object at 0x00000180E4C2F940> [label=Cat id=e5e412c5c2af4e8b92fdb039faad9ad0]
+			<AvgPool2DBackward0 object at 0x00000180E6E10DF0> [label=AvgPool2D id="6e436195b1b44754945c025d116b5ecb"]
+			new_node_261354171934293576208564186276969612165 [label=In id="7e74d77a677c4329add1339a28b98ef6" shape=point]
+		}
+		subgraph clusterca6b396a1e9c4c3c9b8d373adb209610 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Mixed_5c(InceptionA)"
+			subgraph clustere8902f613e2c47ff849466d9a1d56dc0 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch1x1(BasicConv2d)"
+				subgraph clusterc93807525b2d45eca82931151c16a8f7 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2FDC0> [label=Relu fillcolor=aliceblue id="9959e670791a449e97524414815b012c" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E4C2FEE0> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id="6bd5a2489a264a2aae446cb60be2d1d7"]
+				}
+				subgraph cluster3147255c320b4b399dacbebedb55abf3 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E4C2FFD0> [label="Convolution
+weight(64, 256, 1, 1)" fillcolor=deepskyblue2 id="1b915fa3cb7d49d08c05751a01717f4f"]
+				}
+			}
+			subgraph clusterbb05869cf12548f39a856d227f718299 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch5x5_2(BasicConv2d)"
+				subgraph cluster4660aa31275949a08cc1ea4f4f594bea {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2FDF0> [label=Relu fillcolor=aliceblue id="08917925cf0c4b629a02210aad54e1cc" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6DE80A0> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id=b0ad3a7f59d14e7baba0ae4cfc8ec32e]
+				}
+				subgraph clustera04762e937bb43c7836b1a8bdc80f738 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E01280> [label="Convolution
+weight(64, 48, 5, 5)" fillcolor=deepskyblue2 id="07fb95441bc04cc685c75492e71024ff"]
+				}
+			}
+			subgraph clusterefc956ff8d774e88b835fd1fb98a332a {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch5x5_1(BasicConv2d)"
+				subgraph cluster989dd705b6704cefb43b82061c45bd5d {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E01370> [label=Relu fillcolor=aliceblue id="4161c78e6afc49ca9aeb5162832bc684" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E01430> [label="NativeBatchNorm
+weight(48,)
+bias(48,)" id="61a490d4a42343acad65aa46d2d9abbc"]
+				}
+				subgraph clusteref534854d29d48f8a225c145f0cf26c1 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E01520> [label="Convolution
+weight(48, 256, 1, 1)" fillcolor=deepskyblue2 id="10f5d710f95945e2bb9757a3c02039cb"]
+				}
+			}
+			subgraph clusterd22318f4779940dcaddfc70c45bc7ccb {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_3(BasicConv2d)"
+				subgraph cluster8d1185bb0a404f959a743ef12a2c5efb {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2FE20> [label=Relu fillcolor=aliceblue id="92fce605d54a4c55ae8bfd9c9f459c9c" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E01310> [label="NativeBatchNorm
+weight(96,)
+bias(96,)" id=b0814acf25c146f8b50dca2bdb21a9ce]
+				}
+				subgraph cluster5e19f3da2c274741bb55f94e5dbe7342 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E01730> [label="Convolution
+weight(96, 96, 3, 3)" fillcolor=deepskyblue2 id="071dcf392b0645ba81847a2522547e7f"]
+				}
+			}
+			subgraph cluster0f353b5a8b834b85a72d8214597d682e {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_2(BasicConv2d)"
+				subgraph clusterd5efa76382074cc7babdd87642af531f {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E01820> [label=Relu fillcolor=aliceblue id="238197ec35b048c9bfe3f5f8d9382af5" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E018E0> [label="NativeBatchNorm
+weight(96,)
+bias(96,)" id="067453e954e04a13b4bbf11ef39b6e3e"]
+				}
+				subgraph cluster6880b67cd25f45c2b7cd4b9d51258054 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E019D0> [label="Convolution
+weight(96, 64, 3, 3)" fillcolor=deepskyblue2 id="7172a507fc3c4e54a7e0b8858f31b0e6"]
+				}
+			}
+			subgraph cluster7c29f2c139f843ecb168018510f8c7c9 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_1(BasicConv2d)"
+				subgraph cluster288880e362df44b18779837c898d1ae9 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6E01AC0> [label=Relu fillcolor=aliceblue id="7a6ed3c6f15b41329130ed1bdc8a387b" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E01B80> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id=ce5c4dee2e764040b023c2c195569b34]
+				}
+				subgraph cluster1c514604a06c4601b9ed44f8998d6002 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E01C70> [label="Convolution
+weight(64, 256, 1, 1)" fillcolor=deepskyblue2 id="8fc23c5df72c48659e16509633833fdd"]
+				}
+			}
+			subgraph clusterdff5236d37f24ea4b7939f0de3433786 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch_pool(BasicConv2d)"
+				subgraph cluster64080caf54de4a1eb1f68bc7241bfb4c {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E4C2FE50> [label=Relu fillcolor=aliceblue id="62346d84519d4bdaa9abbe2593aa900d" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6E017C0> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id=b44582a33eee46e1b1af6a6407275617]
+				}
+				subgraph cluster1069888201b44a288f4ebf074587a03c {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E01E80> [label="Convolution
+weight(64, 256, 1, 1)" fillcolor=deepskyblue2 id="79737e3e56db49fcba6af6efd0595963"]
+				}
+			}
+			<CatBackward0 object at 0x00000180E4C2FD00> [label=Cat id=db53a1b5d75344ca8c1651dccf732d84]
+			<AvgPool2DBackward0 object at 0x00000180E6E01F70> [label=AvgPool2D id="5bb225250ec749a1a83edd066f408947"]
+			new_node_313319632349477563197691924149098020491 [label=In id=b74abd56dde64b7cb992a0e2ac78de63 shape=point]
+		}
+		subgraph cluster1701a300943b4ac7b58884fee2cb9fd0 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Mixed_5b(InceptionA)"
+			subgraph cluster36efc19091994f7694bf9aaec503ca14 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch1x1(BasicConv2d)"
+				subgraph cluster898f923279fe4ab09c021ca0d2b2b84d {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6DE81C0> [label=Relu fillcolor=aliceblue id="7ff41bb001644aab816c30bf683c0bd2" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6DE82E0> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id="6af5118144b94eccbb45d52786bc4e94"]
+				}
+				subgraph clustere5c0be7cc4cd46bd8a6bf4c19669a3c5 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6DE83D0> [label="Convolution
+weight(64, 192, 1, 1)" fillcolor=deepskyblue2 id="77bd08e40d064f66a7d5932f905ae2b9"]
+				}
+			}
+			subgraph clusterb0f9a999902f436d9e764ca4814b933d {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch5x5_2(BasicConv2d)"
+				subgraph cluster5c409502d768435eafb9470cc3f58606 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6DE81F0> [label=Relu fillcolor=aliceblue id="56ae5722f13d40bdac348a6f1f45eb7a" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6DE8460> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id="86ea38a95a7b48eda48c515f1d9a9c74"]
+				}
+				subgraph clustercfef68efaa31433fb03050ad3b509960 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6DF3520> [label="Convolution
+weight(64, 48, 5, 5)" fillcolor=deepskyblue2 id=adeae319f7434349987891b25dc3cc5e]
+				}
+			}
+			subgraph cluster7c86856c30a0462bbbf000c1fc68dd45 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch5x5_1(BasicConv2d)"
+				subgraph clustereb73a5021f41446e9dba9ef3dc4e811d {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6DF3610> [label=Relu fillcolor=aliceblue id=f224a3f5b1f940ff87465d1ce34a6387 shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6DF36D0> [label="NativeBatchNorm
+weight(48,)
+bias(48,)" id="075df1163990415da85f46c9d5d0631c"]
+				}
+				subgraph cluster27c29fee0dd94da18f605cb5e0ee4fca {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6DF3760> [label="Convolution
+weight(48, 192, 1, 1)" fillcolor=deepskyblue2 id=f9feb2eb63574e0287594e141ebda12a]
+				}
+			}
+			subgraph cluster9f9745ffa5a54f5cbdbe2bdca4c35ff4 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_3(BasicConv2d)"
+				subgraph clusterb561de195a634d55b0b0bd4a592ca88a {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6DE8220> [label=Relu fillcolor=aliceblue id="0fac718584bc4c9ebea5005831d40f95" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6DF35B0> [label="NativeBatchNorm
+weight(96,)
+bias(96,)" id=d75db8b9588e4d8b9e3e04a9b560ebd8]
+				}
+				subgraph cluster344f7c49734f496b80f174afda340361 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6DF3970> [label="Convolution
+weight(96, 96, 3, 3)" fillcolor=deepskyblue2 id="8fc5e3600f524e74af58302eb3dd0a4c"]
+				}
+			}
+			subgraph clustere762c45b5d02442d98a5f249c6d4b006 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_2(BasicConv2d)"
+				subgraph cluster8b32ed4fe75f4765aca27513bbcdc006 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6DF3A60> [label=Relu fillcolor=aliceblue id="9affc80812d640b1955642ef0ab8cb4e" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6DF3B20> [label="NativeBatchNorm
+weight(96,)
+bias(96,)" id=d7a36b8577374fa8bea4649be3ca54eb]
+				}
+				subgraph clustereb14596b89dc4bdab8024a3c7d757255 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6DF3BB0> [label="Convolution
+weight(96, 64, 3, 3)" fillcolor=deepskyblue2 id=d9f9e61147f440d09c538b27cc3668d5]
+				}
+			}
+			subgraph clusterb8537f7819e34eec85cb123e718719f3 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch3x3dbl_1(BasicConv2d)"
+				subgraph clusterd847e5bb7915440e9ba0a6e4ff4b7fc3 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6DF3CA0> [label=Relu fillcolor=aliceblue id=f3b9e2b26de9497bbe0d98484111d24a shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6DF3D60> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id="6cc082417d874f8fa09e14e1e07446fd"]
+				}
+				subgraph cluster3b94a6e8be1e4087830a8eef76c42f66 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6DF3DF0> [label="Convolution
+weight(64, 192, 1, 1)" fillcolor=deepskyblue2 id="8f92e5cea5af40c7b7cff275d97adba6"]
+				}
+			}
+			subgraph cluster4ac94fc9246745cfac202320810c7b3d {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="branch_pool(BasicConv2d)"
+				subgraph cluster9f9cbfb60ca84e42be0f306cc1cf98c5 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="bn(BatchNorm2d)"
+					<ReluBackward0 object at 0x00000180E6DE8250> [label=Relu fillcolor=aliceblue id="781ab925ff1a47a1ab5db792ae729b6c" shape=diamond]
+					<NativeBatchNormBackward0 object at 0x00000180E6DF3A00> [label="NativeBatchNorm
+weight(32,)
+bias(32,)" id="2108c087e8d24f7380bced4949f13d69"]
+				}
+				subgraph cluster8acc8f0cb17b43a6924c460fe185e467 {
+					margin=30
+					fontsize=20
+					color=lightgrey
+					colorscheme=oranges9
+					bgcolor=4
+					style=rounded
+					label="conv(Conv2d)"
+					<ConvolutionBackward0 object at 0x00000180E6E01040> [label="Convolution
+weight(32, 192, 1, 1)" fillcolor=deepskyblue2 id=f5adee23e7a9437290988d3a04b77fe8]
+				}
+			}
+			<CatBackward0 object at 0x00000180E6DE8100> [label=Cat id=ac2c758ba75b41cd8321e9bc0b822bce]
+			<AvgPool2DBackward0 object at 0x00000180E6E01130> [label=AvgPool2D id="3120048207e04e2a9a7cbb4b4f7f5999"]
+			new_node_104244803376011723567034969385808782024 [label=In id="5f2f32fcbf594e519743c46d0093be83" shape=point]
+		}
+		subgraph clustera53fc4ce2cde493cbdb3b64d59ebf04c {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="maxpool2(MaxPool2d)"
+			<MaxPool2DWithIndicesBackward0 object at 0x00000180E6DE84C0> [label=MaxPool2DWithIndices id=c0b7ebb6efef4a29beca74ae13b31f3d]
+		}
+		subgraph cluster6709fcc40cad4f51b3a1da661b3f32bb {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Conv2d_4a_3x3(BasicConv2d)"
+			subgraph cluster21132d8116514b3f98c721a14621a5c7 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="bn(BatchNorm2d)"
+				<ReluBackward0 object at 0x00000180E6DE8580> [label=Relu fillcolor=aliceblue id="75c4786344c84b90a288cdead53b403f" shape=diamond]
+				<NativeBatchNormBackward0 object at 0x00000180E6DE8670> [label="NativeBatchNorm
+weight(192,)
+bias(192,)" id=f63b56b3f50449588824078a5864242e]
+			}
+			subgraph clusterd3d801a0e90e4f94bd8fa1d11cb032f8 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="conv(Conv2d)"
+				<ConvolutionBackward0 object at 0x00000180E6DE8760> [label="Convolution
+weight(192, 80, 3, 3)" fillcolor=deepskyblue2 id="2c6882523edf446c9ffbf2558487c19c"]
+			}
+		}
+		subgraph cluster604ed1a64fe5470c8f69ae2c266f3d22 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Conv2d_3b_1x1(BasicConv2d)"
+			subgraph clustercef8ba2b5ec548bbbeec5bd9ee296c58 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="bn(BatchNorm2d)"
+				<ReluBackward0 object at 0x00000180E6DE8850> [label=Relu fillcolor=aliceblue id="89c3986d989b44838b5eec37d52b7156" shape=diamond]
+				<NativeBatchNormBackward0 object at 0x00000180E6DE8910> [label="NativeBatchNorm
+weight(80,)
+bias(80,)" id=f601d012a1944fcab7ac684214f1b127]
+			}
+			subgraph cluster1dba3f99fb9042228994f7075cf5752d {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="conv(Conv2d)"
+				<ConvolutionBackward0 object at 0x00000180E6DE8A00> [label="Convolution
+weight(80, 64, 1, 1)" fillcolor=deepskyblue2 id=f592b0e0b60340fc801fe7fcda588c70]
+			}
+		}
+		subgraph cluster28e0d5611c1e48c39935808805c3ba8e {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="maxpool1(MaxPool2d)"
+			<MaxPool2DWithIndicesBackward0 object at 0x00000180E6DE8AF0> [label=MaxPool2DWithIndices id="5381e4e497784f87963c14277e2f2d3b"]
+		}
+		subgraph cluster3f4088f5dbf245e5a5caad45be942b49 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Conv2d_2b_3x3(BasicConv2d)"
+			subgraph cluster18f4cdce497e419cb81b06089eb93d12 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="bn(BatchNorm2d)"
+				<ReluBackward0 object at 0x00000180E6DE8BB0> [label=Relu fillcolor=aliceblue id="22628b4f5ddb4d6ba93b1d28ac1025fb" shape=diamond]
+				<NativeBatchNormBackward0 object at 0x00000180E6DE8CA0> [label="NativeBatchNorm
+weight(64,)
+bias(64,)" id=d24b656471cd4191a8f2353c3ad4c124]
+			}
+			subgraph cluster778310212cee477184e462ec541ad7d1 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="conv(Conv2d)"
+				<ConvolutionBackward0 object at 0x00000180E6DE8D90> [label="Convolution
+weight(64, 32, 3, 3)" fillcolor=deepskyblue2 id="77c9079089714ad3b37026e51325f4a9"]
+			}
+		}
+		subgraph cluster4e5d7b2d60574f3ca324ea2939b3d984 {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Conv2d_2a_3x3(BasicConv2d)"
+			subgraph cluster0ef1189b36df4b24a3a0da8ee724d700 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="bn(BatchNorm2d)"
+				<ReluBackward0 object at 0x00000180E6DE8E80> [label=Relu fillcolor=aliceblue id=e8cb0c6ff10e4a50b681f18b418632f9 shape=diamond]
+				<NativeBatchNormBackward0 object at 0x00000180E6DE8F40> [label="NativeBatchNorm
+weight(32,)
+bias(32,)" id="89fc6c8d70274791aeb6d10ca06f5074"]
+			}
+			subgraph clustere9e72cbba0714c5089199ba394d4a4b7 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="conv(Conv2d)"
+				<ConvolutionBackward0 object at 0x00000180E6DF3070> [label="Convolution
+weight(32, 32, 3, 3)" fillcolor=deepskyblue2 id="04386c8a64bb4f3487cf7c795deb39ba"]
+			}
+		}
+		subgraph clusteref56da5902724683ba833853f12fa86e {
+			margin=40
+			fontsize=32
+			color=lightgrey
+			colorscheme=oranges9
+			bgcolor=2
+			style=rounded
+			label="Conv2d_1a_3x3(BasicConv2d)"
+			subgraph cluster1470992979da4e399b02ba6431c82c7f {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="bn(BatchNorm2d)"
+				<ReluBackward0 object at 0x00000180E6DF3160> [label=Relu fillcolor=aliceblue id=ce7a8272913d4c8e96d53321d44eb09d shape=diamond]
+				<NativeBatchNormBackward0 object at 0x00000180E6DF3220> [label="NativeBatchNorm
+weight(32,)
+bias(32,)" id="491cda4674ba4c96bed7a31c3876b218"]
+			}
+			subgraph cluster03a15d9b843640a0b5923ce93c8793a5 {
+				margin=35
+				fontsize=20
+				color=lightgrey
+				colorscheme=oranges9
+				bgcolor=3
+				style=rounded
+				label="conv(Conv2d)"
+				<ConvolutionBackward0 object at 0x00000180E6DF3310> [label="Convolution
+weight(32, 3, 3, 3)" fillcolor=deepskyblue2 id="31cb492ee58343678655f6da009eac61"]
+			}
+		}
+		<ReshapeAliasBackward0 object at 0x00000180E4C1C640> [label=ReshapeAlias id="92a25b5154d244fbb2f8b21cea033fa3"]
+		<AccumulateGrad object at 0x00000180E6DF3400> [label=AccumulateGrad id="92183bee5c464398a64cef75edc1de27"]
+	}
+	<AddmmBackward0 object at 0x00000180E4C1C5B0> -> <SumBackward0 object at 0x00000180E4C1C520>
+	<ReshapeAliasBackward0 object at 0x00000180E4C1C640> -> <AddmmBackward0 object at 0x00000180E4C1C5B0>
+	<MulBackward0 object at 0x00000180E4C1C730> -> <ReshapeAliasBackward0 object at 0x00000180E4C1C640>
+	<MeanBackward1 object at 0x00000180E4C1C7C0> -> <MulBackward0 object at 0x00000180E4C1C730>
+	<CatBackward0 object at 0x00000180E4C1C850> -> <MeanBackward1 object at 0x00000180E4C1C7C0>
+	<ReluBackward0 object at 0x00000180E4C1C940> -> <CatBackward0 object at 0x00000180E4C1C850>
+	<NativeBatchNormBackward0 object at 0x00000180E4C1CA60> -> <ReluBackward0 object at 0x00000180E4C1C940>
+	<ConvolutionBackward0 object at 0x00000180E4C1CB50> -> <NativeBatchNormBackward0 object at 0x00000180E4C1CA60>
+	<CatBackward0 object at 0x00000180E4C1CC40> -> new_node_315352218373891003511379228325747272115
+	<ReluBackward0 object at 0x00000180E4C1CD00> -> <CatBackward0 object at 0x00000180E4C1CC40>
+	<NativeBatchNormBackward0 object at 0x00000180E4C1CE20> -> <ReluBackward0 object at 0x00000180E4C1CD00>
+	<ConvolutionBackward0 object at 0x00000180E4C1CF10> -> <NativeBatchNormBackward0 object at 0x00000180E4C1CE20>
+	<CatBackward0 object at 0x00000180E4C26040> -> new_node_51650642768583225056784385497938031414
+	<ReluBackward0 object at 0x00000180E4C26100> -> <CatBackward0 object at 0x00000180E4C26040>
+	<NativeBatchNormBackward0 object at 0x00000180E4C261F0> -> <ReluBackward0 object at 0x00000180E4C26100>
+	<ConvolutionBackward0 object at 0x00000180E4C262E0> -> <NativeBatchNormBackward0 object at 0x00000180E4C261F0>
+	<ReluBackward0 object at 0x00000180E4C263D0> -> <ConvolutionBackward0 object at 0x00000180E4C262E0>
+	<NativeBatchNormBackward0 object at 0x00000180E4C26490> -> <ReluBackward0 object at 0x00000180E4C263D0>
+	<ConvolutionBackward0 object at 0x00000180E4C26580> -> <NativeBatchNormBackward0 object at 0x00000180E4C26490>
+	<CatBackward0 object at 0x00000180E4C26670> -> new_node_238704943620827803252912446340505674310
+	<ReluBackward0 object at 0x00000180E4C26730> -> <CatBackward0 object at 0x00000180E4C26670>
+	<NativeBatchNormBackward0 object at 0x00000180E4C26850> -> <ReluBackward0 object at 0x00000180E4C26730>
+	<ConvolutionBackward0 object at 0x00000180E4C26940> -> <NativeBatchNormBackward0 object at 0x00000180E4C26850>
+	<CatBackward0 object at 0x00000180E4C26A30> -> new_node_74231627236634396971093216767895916656
+	<ReluBackward0 object at 0x00000180E4C26AF0> -> <CatBackward0 object at 0x00000180E4C26A30>
+	<NativeBatchNormBackward0 object at 0x00000180E4C26C10> -> <ReluBackward0 object at 0x00000180E4C26AF0>
+	<ConvolutionBackward0 object at 0x00000180E4C26D00> -> <NativeBatchNormBackward0 object at 0x00000180E4C26C10>
+	<CatBackward0 object at 0x00000180E4C26DF0> -> new_node_22388095939306221151846634903848140067
+	<ReluBackward0 object at 0x00000180E4C26EB0> -> <CatBackward0 object at 0x00000180E4C26DF0>
+	<NativeBatchNormBackward0 object at 0x00000180E4C26FD0> -> <ReluBackward0 object at 0x00000180E4C26EB0>
+	<ConvolutionBackward0 object at 0x00000180E4C2F100> -> <NativeBatchNormBackward0 object at 0x00000180E4C26FD0>
+	<CatBackward0 object at 0x00000180E4C2F1F0> -> new_node_310661593246883066174151145987301784832
+	<ReluBackward0 object at 0x00000180E4C2F2B0> -> <CatBackward0 object at 0x00000180E4C2F1F0>
+	<NativeBatchNormBackward0 object at 0x00000180E4C2F3D0> -> <ReluBackward0 object at 0x00000180E4C2F2B0>
+	<ConvolutionBackward0 object at 0x00000180E4C2F4C0> -> <NativeBatchNormBackward0 object at 0x00000180E4C2F3D0>
+	<CatBackward0 object at 0x00000180E4C2F5B0> -> new_node_128856604988635764067125885283716125781
+	<ReluBackward0 object at 0x00000180E4C2F670> -> <CatBackward0 object at 0x00000180E4C2F5B0>
+	<NativeBatchNormBackward0 object at 0x00000180E4C2F760> -> <ReluBackward0 object at 0x00000180E4C2F670>
+	<ConvolutionBackward0 object at 0x00000180E4C2F850> -> <NativeBatchNormBackward0 object at 0x00000180E4C2F760>
+	<CatBackward0 object at 0x00000180E4C2F940> -> new_node_35235193824787341945661574398846960460
+	<ReluBackward0 object at 0x00000180E4C2FA00> -> <CatBackward0 object at 0x00000180E4C2F940>
+	<NativeBatchNormBackward0 object at 0x00000180E4C2FB20> -> <ReluBackward0 object at 0x00000180E4C2FA00>
+	<ConvolutionBackward0 object at 0x00000180E4C2FC10> -> <NativeBatchNormBackward0 object at 0x00000180E4C2FB20>
+	<CatBackward0 object at 0x00000180E4C2FD00> -> new_node_261354171934293576208564186276969612165
+	<ReluBackward0 object at 0x00000180E4C2FDC0> -> <CatBackward0 object at 0x00000180E4C2FD00>
+	<NativeBatchNormBackward0 object at 0x00000180E4C2FEE0> -> <ReluBackward0 object at 0x00000180E4C2FDC0>
+	<ConvolutionBackward0 object at 0x00000180E4C2FFD0> -> <NativeBatchNormBackward0 object at 0x00000180E4C2FEE0>
+	<CatBackward0 object at 0x00000180E6DE8100> -> new_node_313319632349477563197691924149098020491
+	<ReluBackward0 object at 0x00000180E6DE81C0> -> <CatBackward0 object at 0x00000180E6DE8100>
+	<NativeBatchNormBackward0 object at 0x00000180E6DE82E0> -> <ReluBackward0 object at 0x00000180E6DE81C0>
+	<ConvolutionBackward0 object at 0x00000180E6DE83D0> -> <NativeBatchNormBackward0 object at 0x00000180E6DE82E0>
+	<MaxPool2DWithIndicesBackward0 object at 0x00000180E6DE84C0> -> new_node_104244803376011723567034969385808782024
+	<ReluBackward0 object at 0x00000180E6DE8580> -> <MaxPool2DWithIndicesBackward0 object at 0x00000180E6DE84C0>
+	<NativeBatchNormBackward0 object at 0x00000180E6DE8670> -> <ReluBackward0 object at 0x00000180E6DE8580>
+	<ConvolutionBackward0 object at 0x00000180E6DE8760> -> <NativeBatchNormBackward0 object at 0x00000180E6DE8670>
+	<ReluBackward0 object at 0x00000180E6DE8850> -> <ConvolutionBackward0 object at 0x00000180E6DE8760>
+	<NativeBatchNormBackward0 object at 0x00000180E6DE8910> -> <ReluBackward0 object at 0x00000180E6DE8850>
+	<ConvolutionBackward0 object at 0x00000180E6DE8A00> -> <NativeBatchNormBackward0 object at 0x00000180E6DE8910>
+	<MaxPool2DWithIndicesBackward0 object at 0x00000180E6DE8AF0> -> <ConvolutionBackward0 object at 0x00000180E6DE8A00>
+	<ReluBackward0 object at 0x00000180E6DE8BB0> -> <MaxPool2DWithIndicesBackward0 object at 0x00000180E6DE8AF0>
+	<NativeBatchNormBackward0 object at 0x00000180E6DE8CA0> -> <ReluBackward0 object at 0x00000180E6DE8BB0>
+	<ConvolutionBackward0 object at 0x00000180E6DE8D90> -> <NativeBatchNormBackward0 object at 0x00000180E6DE8CA0>
+	<ReluBackward0 object at 0x00000180E6DE8E80> -> <ConvolutionBackward0 object at 0x00000180E6DE8D90>
+	<NativeBatchNormBackward0 object at 0x00000180E6DE8F40> -> <ReluBackward0 object at 0x00000180E6DE8E80>
+	<ConvolutionBackward0 object at 0x00000180E6DF3070> -> <NativeBatchNormBackward0 object at 0x00000180E6DE8F40>
+	<ReluBackward0 object at 0x00000180E6DF3160> -> <ConvolutionBackward0 object at 0x00000180E6DF3070>
+	<NativeBatchNormBackward0 object at 0x00000180E6DF3220> -> <ReluBackward0 object at 0x00000180E6DF3160>
+	<ConvolutionBackward0 object at 0x00000180E6DF3310> -> <NativeBatchNormBackward0 object at 0x00000180E6DF3220>
+	<AccumulateGrad object at 0x00000180E6DF3400> -> <ConvolutionBackward0 object at 0x00000180E6DF3310>
+	<ReluBackward0 object at 0x00000180E6DE81F0> -> <CatBackward0 object at 0x00000180E6DE8100>
+	<NativeBatchNormBackward0 object at 0x00000180E6DE8460> -> <ReluBackward0 object at 0x00000180E6DE81F0>
+	<ConvolutionBackward0 object at 0x00000180E6DF3520> -> <NativeBatchNormBackward0 object at 0x00000180E6DE8460>
+	<ReluBackward0 object at 0x00000180E6DF3610> -> <ConvolutionBackward0 object at 0x00000180E6DF3520>
+	<NativeBatchNormBackward0 object at 0x00000180E6DF36D0> -> <ReluBackward0 object at 0x00000180E6DF3610>
+	<ConvolutionBackward0 object at 0x00000180E6DF3760> -> <NativeBatchNormBackward0 object at 0x00000180E6DF36D0>
+	<ReluBackward0 object at 0x00000180E6DE8220> -> <CatBackward0 object at 0x00000180E6DE8100>
+	<NativeBatchNormBackward0 object at 0x00000180E6DF35B0> -> <ReluBackward0 object at 0x00000180E6DE8220>
+	<ConvolutionBackward0 object at 0x00000180E6DF3970> -> <NativeBatchNormBackward0 object at 0x00000180E6DF35B0>
+	<ReluBackward0 object at 0x00000180E6DF3A60> -> <ConvolutionBackward0 object at 0x00000180E6DF3970>
+	<NativeBatchNormBackward0 object at 0x00000180E6DF3B20> -> <ReluBackward0 object at 0x00000180E6DF3A60>
+	<ConvolutionBackward0 object at 0x00000180E6DF3BB0> -> <NativeBatchNormBackward0 object at 0x00000180E6DF3B20>
+	<ReluBackward0 object at 0x00000180E6DF3CA0> -> <ConvolutionBackward0 object at 0x00000180E6DF3BB0>
+	<NativeBatchNormBackward0 object at 0x00000180E6DF3D60> -> <ReluBackward0 object at 0x00000180E6DF3CA0>
+	<ConvolutionBackward0 object at 0x00000180E6DF3DF0> -> <NativeBatchNormBackward0 object at 0x00000180E6DF3D60>
+	<ReluBackward0 object at 0x00000180E6DE8250> -> <CatBackward0 object at 0x00000180E6DE8100>
+	<NativeBatchNormBackward0 object at 0x00000180E6DF3A00> -> <ReluBackward0 object at 0x00000180E6DE8250>
+	<ConvolutionBackward0 object at 0x00000180E6E01040> -> <NativeBatchNormBackward0 object at 0x00000180E6DF3A00>
+	<AvgPool2DBackward0 object at 0x00000180E6E01130> -> <ConvolutionBackward0 object at 0x00000180E6E01040>
+	<ReluBackward0 object at 0x00000180E4C2FDF0> -> <CatBackward0 object at 0x00000180E4C2FD00>
+	<NativeBatchNormBackward0 object at 0x00000180E6DE80A0> -> <ReluBackward0 object at 0x00000180E4C2FDF0>
+	<ConvolutionBackward0 object at 0x00000180E6E01280> -> <NativeBatchNormBackward0 object at 0x00000180E6DE80A0>
+	<ReluBackward0 object at 0x00000180E6E01370> -> <ConvolutionBackward0 object at 0x00000180E6E01280>
+	<NativeBatchNormBackward0 object at 0x00000180E6E01430> -> <ReluBackward0 object at 0x00000180E6E01370>
+	<ConvolutionBackward0 object at 0x00000180E6E01520> -> <NativeBatchNormBackward0 object at 0x00000180E6E01430>
+	<ReluBackward0 object at 0x00000180E4C2FE20> -> <CatBackward0 object at 0x00000180E4C2FD00>
+	<NativeBatchNormBackward0 object at 0x00000180E6E01310> -> <ReluBackward0 object at 0x00000180E4C2FE20>
+	<ConvolutionBackward0 object at 0x00000180E6E01730> -> <NativeBatchNormBackward0 object at 0x00000180E6E01310>
+	<ReluBackward0 object at 0x00000180E6E01820> -> <ConvolutionBackward0 object at 0x00000180E6E01730>
+	<NativeBatchNormBackward0 object at 0x00000180E6E018E0> -> <ReluBackward0 object at 0x00000180E6E01820>
+	<ConvolutionBackward0 object at 0x00000180E6E019D0> -> <NativeBatchNormBackward0 object at 0x00000180E6E018E0>
+	<ReluBackward0 object at 0x00000180E6E01AC0> -> <ConvolutionBackward0 object at 0x00000180E6E019D0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E01B80> -> <ReluBackward0 object at 0x00000180E6E01AC0>
+	<ConvolutionBackward0 object at 0x00000180E6E01C70> -> <NativeBatchNormBackward0 object at 0x00000180E6E01B80>
+	<ReluBackward0 object at 0x00000180E4C2FE50> -> <CatBackward0 object at 0x00000180E4C2FD00>
+	<NativeBatchNormBackward0 object at 0x00000180E6E017C0> -> <ReluBackward0 object at 0x00000180E4C2FE50>
+	<ConvolutionBackward0 object at 0x00000180E6E01E80> -> <NativeBatchNormBackward0 object at 0x00000180E6E017C0>
+	<AvgPool2DBackward0 object at 0x00000180E6E01F70> -> <ConvolutionBackward0 object at 0x00000180E6E01E80>
+	<ReluBackward0 object at 0x00000180E4C2FA30> -> <CatBackward0 object at 0x00000180E4C2F940>
+	<NativeBatchNormBackward0 object at 0x00000180E4C2FCA0> -> <ReluBackward0 object at 0x00000180E4C2FA30>
+	<ConvolutionBackward0 object at 0x00000180E6E10100> -> <NativeBatchNormBackward0 object at 0x00000180E4C2FCA0>
+	<ReluBackward0 object at 0x00000180E6E101F0> -> <ConvolutionBackward0 object at 0x00000180E6E10100>
+	<NativeBatchNormBackward0 object at 0x00000180E6E102B0> -> <ReluBackward0 object at 0x00000180E6E101F0>
+	<ConvolutionBackward0 object at 0x00000180E6E103A0> -> <NativeBatchNormBackward0 object at 0x00000180E6E102B0>
+	<ReluBackward0 object at 0x00000180E4C2FA60> -> <CatBackward0 object at 0x00000180E4C2F940>
+	<NativeBatchNormBackward0 object at 0x00000180E6E10190> -> <ReluBackward0 object at 0x00000180E4C2FA60>
+	<ConvolutionBackward0 object at 0x00000180E6E105B0> -> <NativeBatchNormBackward0 object at 0x00000180E6E10190>
+	<ReluBackward0 object at 0x00000180E6E106A0> -> <ConvolutionBackward0 object at 0x00000180E6E105B0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E10760> -> <ReluBackward0 object at 0x00000180E6E106A0>
+	<ConvolutionBackward0 object at 0x00000180E6E10850> -> <NativeBatchNormBackward0 object at 0x00000180E6E10760>
+	<ReluBackward0 object at 0x00000180E6E10940> -> <ConvolutionBackward0 object at 0x00000180E6E10850>
+	<NativeBatchNormBackward0 object at 0x00000180E6E10A00> -> <ReluBackward0 object at 0x00000180E6E10940>
+	<ConvolutionBackward0 object at 0x00000180E6E10AF0> -> <NativeBatchNormBackward0 object at 0x00000180E6E10A00>
+	<ReluBackward0 object at 0x00000180E4C2FA90> -> <CatBackward0 object at 0x00000180E4C2F940>
+	<NativeBatchNormBackward0 object at 0x00000180E6E10640> -> <ReluBackward0 object at 0x00000180E4C2FA90>
+	<ConvolutionBackward0 object at 0x00000180E6E10D00> -> <NativeBatchNormBackward0 object at 0x00000180E6E10640>
+	<AvgPool2DBackward0 object at 0x00000180E6E10DF0> -> <ConvolutionBackward0 object at 0x00000180E6E10D00>
+	<ReluBackward0 object at 0x00000180E4C2F6A0> -> <CatBackward0 object at 0x00000180E4C2F5B0>
+	<NativeBatchNormBackward0 object at 0x00000180E4C2F8E0> -> <ReluBackward0 object at 0x00000180E4C2F6A0>
+	<ConvolutionBackward0 object at 0x00000180E6E10F40> -> <NativeBatchNormBackward0 object at 0x00000180E4C2F8E0>
+	<ReluBackward0 object at 0x00000180E6E1F070> -> <ConvolutionBackward0 object at 0x00000180E6E10F40>
+	<NativeBatchNormBackward0 object at 0x00000180E6E1F130> -> <ReluBackward0 object at 0x00000180E6E1F070>
+	<ConvolutionBackward0 object at 0x00000180E6E1F220> -> <NativeBatchNormBackward0 object at 0x00000180E6E1F130>
+	<ReluBackward0 object at 0x00000180E6E1F310> -> <ConvolutionBackward0 object at 0x00000180E6E1F220>
+	<NativeBatchNormBackward0 object at 0x00000180E6E1F3D0> -> <ReluBackward0 object at 0x00000180E6E1F310>
+	<ConvolutionBackward0 object at 0x00000180E6E1F4C0> -> <NativeBatchNormBackward0 object at 0x00000180E6E1F3D0>
+	<MaxPool2DWithIndicesBackward0 object at 0x00000180E4C2F6D0> -> <CatBackward0 object at 0x00000180E4C2F5B0>
+	<ReluBackward0 object at 0x00000180E4C2F2E0> -> <CatBackward0 object at 0x00000180E4C2F1F0>
+	<NativeBatchNormBackward0 object at 0x00000180E4C2F550> -> <ReluBackward0 object at 0x00000180E4C2F2E0>
+	<ConvolutionBackward0 object at 0x00000180E6E1F6D0> -> <NativeBatchNormBackward0 object at 0x00000180E4C2F550>
+	<ReluBackward0 object at 0x00000180E6E1F7C0> -> <ConvolutionBackward0 object at 0x00000180E6E1F6D0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E1F880> -> <ReluBackward0 object at 0x00000180E6E1F7C0>
+	<ConvolutionBackward0 object at 0x00000180E6E1F940> -> <NativeBatchNormBackward0 object at 0x00000180E6E1F880>
+	<ReluBackward0 object at 0x00000180E6E1FA30> -> <ConvolutionBackward0 object at 0x00000180E6E1F940>
+	<NativeBatchNormBackward0 object at 0x00000180E6E1FAF0> -> <ReluBackward0 object at 0x00000180E6E1FA30>
+	<ConvolutionBackward0 object at 0x00000180E6E1FBE0> -> <NativeBatchNormBackward0 object at 0x00000180E6E1FAF0>
+	<ReluBackward0 object at 0x00000180E4C2F310> -> <CatBackward0 object at 0x00000180E4C2F1F0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E1F760> -> <ReluBackward0 object at 0x00000180E4C2F310>
+	<ConvolutionBackward0 object at 0x00000180E6E1FDF0> -> <NativeBatchNormBackward0 object at 0x00000180E6E1F760>
+	<ReluBackward0 object at 0x00000180E6E1FEE0> -> <ConvolutionBackward0 object at 0x00000180E6E1FDF0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E1FFA0> -> <ReluBackward0 object at 0x00000180E6E1FEE0>
+	<ConvolutionBackward0 object at 0x00000180E6E2C0A0> -> <NativeBatchNormBackward0 object at 0x00000180E6E1FFA0>
+	<ReluBackward0 object at 0x00000180E6E2C190> -> <ConvolutionBackward0 object at 0x00000180E6E2C0A0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E2C250> -> <ReluBackward0 object at 0x00000180E6E2C190>
+	<ConvolutionBackward0 object at 0x00000180E6E2C340> -> <NativeBatchNormBackward0 object at 0x00000180E6E2C250>
+	<ReluBackward0 object at 0x00000180E6E2C430> -> <ConvolutionBackward0 object at 0x00000180E6E2C340>
+	<NativeBatchNormBackward0 object at 0x00000180E6E2C4F0> -> <ReluBackward0 object at 0x00000180E6E2C430>
+	<ConvolutionBackward0 object at 0x00000180E6E2C5E0> -> <NativeBatchNormBackward0 object at 0x00000180E6E2C4F0>
+	<ReluBackward0 object at 0x00000180E6E2C6D0> -> <ConvolutionBackward0 object at 0x00000180E6E2C5E0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E2C790> -> <ReluBackward0 object at 0x00000180E6E2C6D0>
+	<ConvolutionBackward0 object at 0x00000180E6E2C880> -> <NativeBatchNormBackward0 object at 0x00000180E6E2C790>
+	<ReluBackward0 object at 0x00000180E4C2F340> -> <CatBackward0 object at 0x00000180E4C2F1F0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E1FE80> -> <ReluBackward0 object at 0x00000180E4C2F340>
+	<ConvolutionBackward0 object at 0x00000180E6E2CA90> -> <NativeBatchNormBackward0 object at 0x00000180E6E1FE80>
+	<AvgPool2DBackward0 object at 0x00000180E6E2CB80> -> <ConvolutionBackward0 object at 0x00000180E6E2CA90>
+	<ReluBackward0 object at 0x00000180E4C26EE0> -> <CatBackward0 object at 0x00000180E4C26DF0>
+	<NativeBatchNormBackward0 object at 0x00000180E4C2F190> -> <ReluBackward0 object at 0x00000180E4C26EE0>
+	<ConvolutionBackward0 object at 0x00000180E6E2CCD0> -> <NativeBatchNormBackward0 object at 0x00000180E4C2F190>
+	<ReluBackward0 object at 0x00000180E6E2CDC0> -> <ConvolutionBackward0 object at 0x00000180E6E2CCD0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E2CE80> -> <ReluBackward0 object at 0x00000180E6E2CDC0>
+	<ConvolutionBackward0 object at 0x00000180E6E2CF10> -> <NativeBatchNormBackward0 object at 0x00000180E6E2CE80>
+	<ReluBackward0 object at 0x00000180E6E3A040> -> <ConvolutionBackward0 object at 0x00000180E6E2CF10>
+	<NativeBatchNormBackward0 object at 0x00000180E6E3A100> -> <ReluBackward0 object at 0x00000180E6E3A040>
+	<ConvolutionBackward0 object at 0x00000180E6E3A1F0> -> <NativeBatchNormBackward0 object at 0x00000180E6E3A100>
+	<ReluBackward0 object at 0x00000180E4C26F10> -> <CatBackward0 object at 0x00000180E4C26DF0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E2CD60> -> <ReluBackward0 object at 0x00000180E4C26F10>
+	<ConvolutionBackward0 object at 0x00000180E6E3A400> -> <NativeBatchNormBackward0 object at 0x00000180E6E2CD60>
+	<ReluBackward0 object at 0x00000180E6E3A4F0> -> <ConvolutionBackward0 object at 0x00000180E6E3A400>
+	<NativeBatchNormBackward0 object at 0x00000180E6E3A5B0> -> <ReluBackward0 object at 0x00000180E6E3A4F0>
+	<ConvolutionBackward0 object at 0x00000180E6E3A670> -> <NativeBatchNormBackward0 object at 0x00000180E6E3A5B0>
+	<ReluBackward0 object at 0x00000180E6E3A760> -> <ConvolutionBackward0 object at 0x00000180E6E3A670>
+	<NativeBatchNormBackward0 object at 0x00000180E6E3A820> -> <ReluBackward0 object at 0x00000180E6E3A760>
+	<ConvolutionBackward0 object at 0x00000180E6E3A910> -> <NativeBatchNormBackward0 object at 0x00000180E6E3A820>
+	<ReluBackward0 object at 0x00000180E6E3AA00> -> <ConvolutionBackward0 object at 0x00000180E6E3A910>
+	<NativeBatchNormBackward0 object at 0x00000180E6E3AAC0> -> <ReluBackward0 object at 0x00000180E6E3AA00>
+	<ConvolutionBackward0 object at 0x00000180E6E3ABB0> -> <NativeBatchNormBackward0 object at 0x00000180E6E3AAC0>
+	<ReluBackward0 object at 0x00000180E6E3ACA0> -> <ConvolutionBackward0 object at 0x00000180E6E3ABB0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E3AD60> -> <ReluBackward0 object at 0x00000180E6E3ACA0>
+	<ConvolutionBackward0 object at 0x00000180E6E3AE50> -> <NativeBatchNormBackward0 object at 0x00000180E6E3AD60>
+	<ReluBackward0 object at 0x00000180E4C26F40> -> <CatBackward0 object at 0x00000180E4C26DF0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E3A490> -> <ReluBackward0 object at 0x00000180E4C26F40>
+	<ConvolutionBackward0 object at 0x00000180E6E480A0> -> <NativeBatchNormBackward0 object at 0x00000180E6E3A490>
+	<AvgPool2DBackward0 object at 0x00000180E6E48190> -> <ConvolutionBackward0 object at 0x00000180E6E480A0>
+	<ReluBackward0 object at 0x00000180E4C26B20> -> <CatBackward0 object at 0x00000180E4C26A30>
+	<NativeBatchNormBackward0 object at 0x00000180E4C26D90> -> <ReluBackward0 object at 0x00000180E4C26B20>
+	<ConvolutionBackward0 object at 0x00000180E6E482E0> -> <NativeBatchNormBackward0 object at 0x00000180E4C26D90>
+	<ReluBackward0 object at 0x00000180E6E483D0> -> <ConvolutionBackward0 object at 0x00000180E6E482E0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E48490> -> <ReluBackward0 object at 0x00000180E6E483D0>
+	<ConvolutionBackward0 object at 0x00000180E6E48520> -> <NativeBatchNormBackward0 object at 0x00000180E6E48490>
+	<ReluBackward0 object at 0x00000180E6E48610> -> <ConvolutionBackward0 object at 0x00000180E6E48520>
+	<NativeBatchNormBackward0 object at 0x00000180E6E486D0> -> <ReluBackward0 object at 0x00000180E6E48610>
+	<ConvolutionBackward0 object at 0x00000180E6E487C0> -> <NativeBatchNormBackward0 object at 0x00000180E6E486D0>
+	<ReluBackward0 object at 0x00000180E4C26B50> -> <CatBackward0 object at 0x00000180E4C26A30>
+	<NativeBatchNormBackward0 object at 0x00000180E6E48370> -> <ReluBackward0 object at 0x00000180E4C26B50>
+	<ConvolutionBackward0 object at 0x00000180E6E489D0> -> <NativeBatchNormBackward0 object at 0x00000180E6E48370>
+	<ReluBackward0 object at 0x00000180E6E48AC0> -> <ConvolutionBackward0 object at 0x00000180E6E489D0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E48B80> -> <ReluBackward0 object at 0x00000180E6E48AC0>
+	<ConvolutionBackward0 object at 0x00000180E6E48C40> -> <NativeBatchNormBackward0 object at 0x00000180E6E48B80>
+	<ReluBackward0 object at 0x00000180E6E48D30> -> <ConvolutionBackward0 object at 0x00000180E6E48C40>
+	<NativeBatchNormBackward0 object at 0x00000180E6E48DF0> -> <ReluBackward0 object at 0x00000180E6E48D30>
+	<ConvolutionBackward0 object at 0x00000180E6E48EE0> -> <NativeBatchNormBackward0 object at 0x00000180E6E48DF0>
+	<ReluBackward0 object at 0x00000180E6E48FD0> -> <ConvolutionBackward0 object at 0x00000180E6E48EE0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E550D0> -> <ReluBackward0 object at 0x00000180E6E48FD0>
+	<ConvolutionBackward0 object at 0x00000180E6E551C0> -> <NativeBatchNormBackward0 object at 0x00000180E6E550D0>
+	<ReluBackward0 object at 0x00000180E6E552B0> -> <ConvolutionBackward0 object at 0x00000180E6E551C0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E55370> -> <ReluBackward0 object at 0x00000180E6E552B0>
+	<ConvolutionBackward0 object at 0x00000180E6E55460> -> <NativeBatchNormBackward0 object at 0x00000180E6E55370>
+	<ReluBackward0 object at 0x00000180E4C26B80> -> <CatBackward0 object at 0x00000180E4C26A30>
+	<NativeBatchNormBackward0 object at 0x00000180E6E48A60> -> <ReluBackward0 object at 0x00000180E4C26B80>
+	<ConvolutionBackward0 object at 0x00000180E6E55670> -> <NativeBatchNormBackward0 object at 0x00000180E6E48A60>
+	<AvgPool2DBackward0 object at 0x00000180E6E55760> -> <ConvolutionBackward0 object at 0x00000180E6E55670>
+	<ReluBackward0 object at 0x00000180E4C26760> -> <CatBackward0 object at 0x00000180E4C26670>
+	<NativeBatchNormBackward0 object at 0x00000180E4C269D0> -> <ReluBackward0 object at 0x00000180E4C26760>
+	<ConvolutionBackward0 object at 0x00000180E6E558B0> -> <NativeBatchNormBackward0 object at 0x00000180E4C269D0>
+	<ReluBackward0 object at 0x00000180E6E559A0> -> <ConvolutionBackward0 object at 0x00000180E6E558B0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E55A60> -> <ReluBackward0 object at 0x00000180E6E559A0>
+	<ConvolutionBackward0 object at 0x00000180E6E55AF0> -> <NativeBatchNormBackward0 object at 0x00000180E6E55A60>
+	<ReluBackward0 object at 0x00000180E6E55BE0> -> <ConvolutionBackward0 object at 0x00000180E6E55AF0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E55CA0> -> <ReluBackward0 object at 0x00000180E6E55BE0>
+	<ConvolutionBackward0 object at 0x00000180E6E55D90> -> <NativeBatchNormBackward0 object at 0x00000180E6E55CA0>
+	<ReluBackward0 object at 0x00000180E4C26790> -> <CatBackward0 object at 0x00000180E4C26670>
+	<NativeBatchNormBackward0 object at 0x00000180E6E55940> -> <ReluBackward0 object at 0x00000180E4C26790>
+	<ConvolutionBackward0 object at 0x00000180E6E55FA0> -> <NativeBatchNormBackward0 object at 0x00000180E6E55940>
+	<ReluBackward0 object at 0x00000180E6E650D0> -> <ConvolutionBackward0 object at 0x00000180E6E55FA0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E65190> -> <ReluBackward0 object at 0x00000180E6E650D0>
+	<ConvolutionBackward0 object at 0x00000180E6E65250> -> <NativeBatchNormBackward0 object at 0x00000180E6E65190>
+	<ReluBackward0 object at 0x00000180E6E65340> -> <ConvolutionBackward0 object at 0x00000180E6E65250>
+	<NativeBatchNormBackward0 object at 0x00000180E6E65400> -> <ReluBackward0 object at 0x00000180E6E65340>
+	<ConvolutionBackward0 object at 0x00000180E6E654F0> -> <NativeBatchNormBackward0 object at 0x00000180E6E65400>
+	<ReluBackward0 object at 0x00000180E6E655E0> -> <ConvolutionBackward0 object at 0x00000180E6E654F0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E656A0> -> <ReluBackward0 object at 0x00000180E6E655E0>
+	<ConvolutionBackward0 object at 0x00000180E6E65790> -> <NativeBatchNormBackward0 object at 0x00000180E6E656A0>
+	<ReluBackward0 object at 0x00000180E6E65880> -> <ConvolutionBackward0 object at 0x00000180E6E65790>
+	<NativeBatchNormBackward0 object at 0x00000180E6E65940> -> <ReluBackward0 object at 0x00000180E6E65880>
+	<ConvolutionBackward0 object at 0x00000180E6E65A30> -> <NativeBatchNormBackward0 object at 0x00000180E6E65940>
+	<ReluBackward0 object at 0x00000180E4C267C0> -> <CatBackward0 object at 0x00000180E4C26670>
+	<NativeBatchNormBackward0 object at 0x00000180E6E65070> -> <ReluBackward0 object at 0x00000180E4C267C0>
+	<ConvolutionBackward0 object at 0x00000180E6E65C40> -> <NativeBatchNormBackward0 object at 0x00000180E6E65070>
+	<AvgPool2DBackward0 object at 0x00000180E6E65D30> -> <ConvolutionBackward0 object at 0x00000180E6E65C40>
+	<ReluBackward0 object at 0x00000180E4C26130> -> <CatBackward0 object at 0x00000180E4C26040>
+	<NativeBatchNormBackward0 object at 0x00000180E4C26370> -> <ReluBackward0 object at 0x00000180E4C26130>
+	<ConvolutionBackward0 object at 0x00000180E6E65E80> -> <NativeBatchNormBackward0 object at 0x00000180E4C26370>
+	<ReluBackward0 object at 0x00000180E6E65F70> -> <ConvolutionBackward0 object at 0x00000180E6E65E80>
+	<NativeBatchNormBackward0 object at 0x00000180E6E74070> -> <ReluBackward0 object at 0x00000180E6E65F70>
+	<ConvolutionBackward0 object at 0x00000180E6E74100> -> <NativeBatchNormBackward0 object at 0x00000180E6E74070>
+	<ReluBackward0 object at 0x00000180E6E741F0> -> <ConvolutionBackward0 object at 0x00000180E6E74100>
+	<NativeBatchNormBackward0 object at 0x00000180E6E742B0> -> <ReluBackward0 object at 0x00000180E6E741F0>
+	<ConvolutionBackward0 object at 0x00000180E6E74370> -> <NativeBatchNormBackward0 object at 0x00000180E6E742B0>
+	<ReluBackward0 object at 0x00000180E6E74460> -> <ConvolutionBackward0 object at 0x00000180E6E74370>
+	<NativeBatchNormBackward0 object at 0x00000180E6E74520> -> <ReluBackward0 object at 0x00000180E6E74460>
+	<ConvolutionBackward0 object at 0x00000180E6E74610> -> <NativeBatchNormBackward0 object at 0x00000180E6E74520>
+	<MaxPool2DWithIndicesBackward0 object at 0x00000180E4C26160> -> <CatBackward0 object at 0x00000180E4C26040>
+	<CatBackward0 object at 0x00000180E4C1CD30> -> <CatBackward0 object at 0x00000180E4C1CC40>
+	<ReluBackward0 object at 0x00000180E4C1CFA0> -> <CatBackward0 object at 0x00000180E4C1CD30>
+	<NativeBatchNormBackward0 object at 0x00000180E6E74850> -> <ReluBackward0 object at 0x00000180E4C1CFA0>
+	<ConvolutionBackward0 object at 0x00000180E6E748E0> -> <NativeBatchNormBackward0 object at 0x00000180E6E74850>
+	<ReluBackward0 object at 0x00000180E6E749D0> -> new_node_314386473653144369815384181981073033981
+	<NativeBatchNormBackward0 object at 0x00000180E6E74A90> -> <ReluBackward0 object at 0x00000180E6E749D0>
+	<ConvolutionBackward0 object at 0x00000180E6E74B20> -> <NativeBatchNormBackward0 object at 0x00000180E6E74A90>
+	<ReluBackward0 object at 0x00000180E6E747C0> -> <CatBackward0 object at 0x00000180E4C1CD30>
+	<NativeBatchNormBackward0 object at 0x00000180E6E74970> -> <ReluBackward0 object at 0x00000180E6E747C0>
+	<ConvolutionBackward0 object at 0x00000180E6E74D30> -> <NativeBatchNormBackward0 object at 0x00000180E6E74970>
+	<CatBackward0 object at 0x00000180E4C1CD60> -> <CatBackward0 object at 0x00000180E4C1CC40>
+	<ReluBackward0 object at 0x00000180E6E74CD0> -> <CatBackward0 object at 0x00000180E4C1CD60>
+	<NativeBatchNormBackward0 object at 0x00000180E6E74F40> -> <ReluBackward0 object at 0x00000180E6E74CD0>
+	<ConvolutionBackward0 object at 0x00000180E6E82040> -> <NativeBatchNormBackward0 object at 0x00000180E6E74F40>
+	<ReluBackward0 object at 0x00000180E6E82130> -> new_node_28035819749494647364142575002192874222
+	<NativeBatchNormBackward0 object at 0x00000180E6E821F0> -> <ReluBackward0 object at 0x00000180E6E82130>
+	<ConvolutionBackward0 object at 0x00000180E6E822E0> -> <NativeBatchNormBackward0 object at 0x00000180E6E821F0>
+	<ReluBackward0 object at 0x00000180E6E823D0> -> <ConvolutionBackward0 object at 0x00000180E6E822E0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E82490> -> <ReluBackward0 object at 0x00000180E6E823D0>
+	<ConvolutionBackward0 object at 0x00000180E6E82580> -> <NativeBatchNormBackward0 object at 0x00000180E6E82490>
+	<ReluBackward0 object at 0x00000180E6E74DC0> -> <CatBackward0 object at 0x00000180E4C1CD60>
+	<NativeBatchNormBackward0 object at 0x00000180E6E820D0> -> <ReluBackward0 object at 0x00000180E6E74DC0>
+	<ConvolutionBackward0 object at 0x00000180E6E82790> -> <NativeBatchNormBackward0 object at 0x00000180E6E820D0>
+	<ReluBackward0 object at 0x00000180E4C1CD90> -> <CatBackward0 object at 0x00000180E4C1CC40>
+	<NativeBatchNormBackward0 object at 0x00000180E6E82730> -> <ReluBackward0 object at 0x00000180E4C1CD90>
+	<ConvolutionBackward0 object at 0x00000180E6E82970> -> <NativeBatchNormBackward0 object at 0x00000180E6E82730>
+	<AvgPool2DBackward0 object at 0x00000180E6E82A60> -> <ConvolutionBackward0 object at 0x00000180E6E82970>
+	<CatBackward0 object at 0x00000180E4C1C970> -> <CatBackward0 object at 0x00000180E4C1C850>
+	<ReluBackward0 object at 0x00000180E4C1CBE0> -> <CatBackward0 object at 0x00000180E4C1C970>
+	<NativeBatchNormBackward0 object at 0x00000180E6E82C10> -> <ReluBackward0 object at 0x00000180E4C1CBE0>
+	<ConvolutionBackward0 object at 0x00000180E6E82CA0> -> <NativeBatchNormBackward0 object at 0x00000180E6E82C10>
+	<ReluBackward0 object at 0x00000180E6E82D90> -> new_node_277790034176600963752219919334886978576
+	<NativeBatchNormBackward0 object at 0x00000180E6E82E50> -> <ReluBackward0 object at 0x00000180E6E82D90>
+	<ConvolutionBackward0 object at 0x00000180E6E82F40> -> <NativeBatchNormBackward0 object at 0x00000180E6E82E50>
+	<ReluBackward0 object at 0x00000180E6E82A00> -> <CatBackward0 object at 0x00000180E4C1C970>
+	<NativeBatchNormBackward0 object at 0x00000180E6E82D30> -> <ReluBackward0 object at 0x00000180E6E82A00>
+	<ConvolutionBackward0 object at 0x00000180E6E90190> -> <NativeBatchNormBackward0 object at 0x00000180E6E82D30>
+	<CatBackward0 object at 0x00000180E4C1C9A0> -> <CatBackward0 object at 0x00000180E4C1C850>
+	<ReluBackward0 object at 0x00000180E6E90130> -> <CatBackward0 object at 0x00000180E4C1C9A0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E903A0> -> <ReluBackward0 object at 0x00000180E6E90130>
+	<ConvolutionBackward0 object at 0x00000180E6E90460> -> <NativeBatchNormBackward0 object at 0x00000180E6E903A0>
+	<ReluBackward0 object at 0x00000180E6E90550> -> new_node_164737899734100240762695365793708572511
+	<NativeBatchNormBackward0 object at 0x00000180E6E90610> -> <ReluBackward0 object at 0x00000180E6E90550>
+	<ConvolutionBackward0 object at 0x00000180E6E90700> -> <NativeBatchNormBackward0 object at 0x00000180E6E90610>
+	<ReluBackward0 object at 0x00000180E6E907F0> -> <ConvolutionBackward0 object at 0x00000180E6E90700>
+	<NativeBatchNormBackward0 object at 0x00000180E6E908B0> -> <ReluBackward0 object at 0x00000180E6E907F0>
+	<ConvolutionBackward0 object at 0x00000180E6E909A0> -> <NativeBatchNormBackward0 object at 0x00000180E6E908B0>
+	<ReluBackward0 object at 0x00000180E6E90220> -> <CatBackward0 object at 0x00000180E4C1C9A0>
+	<NativeBatchNormBackward0 object at 0x00000180E6E904F0> -> <ReluBackward0 object at 0x00000180E6E90220>
+	<ConvolutionBackward0 object at 0x00000180E6E90BB0> -> <NativeBatchNormBackward0 object at 0x00000180E6E904F0>
+	<ReluBackward0 object at 0x00000180E4C1C9D0> -> <CatBackward0 object at 0x00000180E4C1C850>
+	<NativeBatchNormBackward0 object at 0x00000180E6E90B50> -> <ReluBackward0 object at 0x00000180E4C1C9D0>
+	<ConvolutionBackward0 object at 0x00000180E6E90D90> -> <NativeBatchNormBackward0 object at 0x00000180E6E90B50>
+	<AvgPool2DBackward0 object at 0x00000180E6E90E80> -> <ConvolutionBackward0 object at 0x00000180E6E90D90>
+	<TBackward0 object at 0x00000180E4C1C670> -> <AddmmBackward0 object at 0x00000180E4C1C5B0>
+	new_node_104244803376011723567034969385808782024 -> <AvgPool2DBackward0 object at 0x00000180E6E01130>
+	new_node_104244803376011723567034969385808782024 -> <ConvolutionBackward0 object at 0x00000180E6DE83D0>
+	new_node_104244803376011723567034969385808782024 -> <ConvolutionBackward0 object at 0x00000180E6DF3760>
+	new_node_104244803376011723567034969385808782024 -> <ConvolutionBackward0 object at 0x00000180E6DF3DF0>
+	new_node_313319632349477563197691924149098020491 -> <ConvolutionBackward0 object at 0x00000180E6E01520>
+	new_node_313319632349477563197691924149098020491 -> <AvgPool2DBackward0 object at 0x00000180E6E01F70>
+	new_node_313319632349477563197691924149098020491 -> <ConvolutionBackward0 object at 0x00000180E4C2FFD0>
+	new_node_313319632349477563197691924149098020491 -> <ConvolutionBackward0 object at 0x00000180E6E01C70>
+	new_node_261354171934293576208564186276969612165 -> <AvgPool2DBackward0 object at 0x00000180E6E10DF0>
+	new_node_261354171934293576208564186276969612165 -> <ConvolutionBackward0 object at 0x00000180E4C2FC10>
+	new_node_261354171934293576208564186276969612165 -> <ConvolutionBackward0 object at 0x00000180E6E103A0>
+	new_node_261354171934293576208564186276969612165 -> <ConvolutionBackward0 object at 0x00000180E6E10AF0>
+	new_node_35235193824787341945661574398846960460 -> <MaxPool2DWithIndicesBackward0 object at 0x00000180E4C2F6D0>
+	new_node_35235193824787341945661574398846960460 -> <ConvolutionBackward0 object at 0x00000180E6E1F4C0>
+	new_node_35235193824787341945661574398846960460 -> <ConvolutionBackward0 object at 0x00000180E4C2F850>
+	new_node_128856604988635764067125885283716125781 -> <ConvolutionBackward0 object at 0x00000180E6E2C880>
+	new_node_128856604988635764067125885283716125781 -> <ConvolutionBackward0 object at 0x00000180E6E1FBE0>
+	new_node_128856604988635764067125885283716125781 -> <ConvolutionBackward0 object at 0x00000180E4C2F4C0>
+	new_node_128856604988635764067125885283716125781 -> <AvgPool2DBackward0 object at 0x00000180E6E2CB80>
+	new_node_310661593246883066174151145987301784832 -> <ConvolutionBackward0 object at 0x00000180E4C2F100>
+	new_node_310661593246883066174151145987301784832 -> <AvgPool2DBackward0 object at 0x00000180E6E48190>
+	new_node_310661593246883066174151145987301784832 -> <ConvolutionBackward0 object at 0x00000180E6E3AE50>
+	new_node_310661593246883066174151145987301784832 -> <ConvolutionBackward0 object at 0x00000180E6E3A1F0>
+	new_node_22388095939306221151846634903848140067 -> <ConvolutionBackward0 object at 0x00000180E4C26D00>
+	new_node_22388095939306221151846634903848140067 -> <AvgPool2DBackward0 object at 0x00000180E6E55760>
+	new_node_22388095939306221151846634903848140067 -> <ConvolutionBackward0 object at 0x00000180E6E487C0>
+	new_node_22388095939306221151846634903848140067 -> <ConvolutionBackward0 object at 0x00000180E6E55460>
+	new_node_74231627236634396971093216767895916656 -> <ConvolutionBackward0 object at 0x00000180E6E55D90>
+	new_node_74231627236634396971093216767895916656 -> <ConvolutionBackward0 object at 0x00000180E6E65A30>
+	new_node_74231627236634396971093216767895916656 -> <ConvolutionBackward0 object at 0x00000180E4C26940>
+	new_node_74231627236634396971093216767895916656 -> <AvgPool2DBackward0 object at 0x00000180E6E65D30>
+	new_node_238704943620827803252912446340505674310 -> <ConvolutionBackward0 object at 0x00000180E4C26580>
+	new_node_238704943620827803252912446340505674310 -> <ConvolutionBackward0 object at 0x00000180E6E74610>
+	new_node_238704943620827803252912446340505674310 -> <MaxPool2DWithIndicesBackward0 object at 0x00000180E4C26160>
+	new_node_51650642768583225056784385497938031414 -> <ConvolutionBackward0 object at 0x00000180E6E82580>
+	new_node_51650642768583225056784385497938031414 -> <ConvolutionBackward0 object at 0x00000180E4C1CF10>
+	new_node_51650642768583225056784385497938031414 -> <ConvolutionBackward0 object at 0x00000180E6E74B20>
+	new_node_51650642768583225056784385497938031414 -> <AvgPool2DBackward0 object at 0x00000180E6E82A60>
+	new_node_315352218373891003511379228325747272115 -> <AvgPool2DBackward0 object at 0x00000180E6E90E80>
+	new_node_315352218373891003511379228325747272115 -> <ConvolutionBackward0 object at 0x00000180E6E909A0>
+	new_node_315352218373891003511379228325747272115 -> <ConvolutionBackward0 object at 0x00000180E6E82F40>
+	new_node_315352218373891003511379228325747272115 -> <ConvolutionBackward0 object at 0x00000180E4C1CB50>
+	new_node_277790034176600963752219919334886978576 -> <ConvolutionBackward0 object at 0x00000180E6E90190>
+	new_node_277790034176600963752219919334886978576 -> <ConvolutionBackward0 object at 0x00000180E6E82CA0>
+	new_node_164737899734100240762695365793708572511 -> <ConvolutionBackward0 object at 0x00000180E6E90BB0>
+	new_node_164737899734100240762695365793708572511 -> <ConvolutionBackward0 object at 0x00000180E6E90460>
+	new_node_314386473653144369815384181981073033981 -> <ConvolutionBackward0 object at 0x00000180E6E74D30>
+	new_node_314386473653144369815384181981073033981 -> <ConvolutionBackward0 object at 0x00000180E6E748E0>
+	new_node_28035819749494647364142575002192874222 -> <ConvolutionBackward0 object at 0x00000180E6E82790>
+	new_node_28035819749494647364142575002192874222 -> <ConvolutionBackward0 object at 0x00000180E6E82040>
+}

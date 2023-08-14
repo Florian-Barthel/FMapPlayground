@@ -37,7 +37,7 @@ class BackwardLayer(Layer):
         if len(self.possible_scopes) > 0:
             self.scope = max(self.possible_scopes, key=lambda s: len(s.split('/')))
         else:
-            print('no scope')
+            print('no scope ' + self.name)
 
 
 class ResultLayerType(Enum):

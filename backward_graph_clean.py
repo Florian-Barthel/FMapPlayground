@@ -5,7 +5,7 @@ import torch
 
 from custom_layer import BackwardLayer, ResultLayer, ResultLayerType
 from layer_utils import gather_layer_info
-from pytorch_utils import check_equal
+from module_list import Module
 from graph_connections import GraphConnections
 
 
@@ -22,7 +22,7 @@ class BackwardGraph:
 
         # this has to be called after iterate graph
         self.input_layer_grad_fn = None
-        self._set_input_layer_grad_fn(input_tensor)
+        self._set_input_layer_grad_fn()
 
         # TODO: call all relevant functions to create the graph
 
@@ -48,65 +48,47 @@ class BackwardGraph:
                 self.all_layers[constant_id] = BackwardLayer(constant_id, {'name': 'Constant Input'})
                 self.connections.add_connection(origin=constant_id, target=grad_fn)
 
-    def _set_input_layer_grad_fn(self, input_tensor):
+    def _set_input_layer_grad_fn(self):
         """
         Sets the class parameter input_layer_grad_fn, which is the key for the input layer.
-        :param input_tensor: The input tensor that was used to create the networks output.
         """
         for layer_grad_fn in self.all_layers.keys():
             current_layer: [ResultLayer, BackwardLayer] = self.all_layers[layer_grad_fn]
             if isinstance(current_layer, BackwardLayer):
                 if 'variable' in current_layer.layer_backwards_info.keys():
-                    if id(current_layer.layer_backwards_info['variable']) == id(input_tensor):
+                    if id(current_layer.layer_backwards_info['variable']) == id(self.input_tensor):
                         self.input_layer_grad_fn = layer_grad_fn
-                        print('Input layer found:', input_tensor.shape)
+                        print('Input layer found:', self.input_tensor.shape)
                         return
         Warning('No input layer found')
 
-    def insert_result_nodes(self, module_input_output):
-        """
-        This function iterates the module_input_output and adds new result nodes before and after each backward layer.
-        The order of the modules in module_input_output is not relevant, as this function determines the correct order.
-        All modules are iterated twice:
+    def insert_result_nodes(self, modules):
+        module_input_output: List[Module] = modules.get_input_nodes()
 
-        First iteration:
-            Places all input result layers before the backward layers, starting from the most general layer (the lowest
-            scope).
+        for module in tqdm(module_input_output[::-1]):
+            current_scope: str = module.scope
+            if current_scope.endswith('_leaf'):
+                current_scope += str(uuid.uuid4().hex)
+            self.all_scopes[module.id] = current_scope
 
-        Second iteration:
-            Places all output result layers after the backward layers, starting from the most specific layer (the
-            highest scope)
-
-        :param module_input_output: List of (input, function, output) tuples.
-        """
-        module_input_output, input_output_list_2 = self.reorder_model_input_output(module_input_output)
-
-        for inputs, current_module, outputs in tqdm(module_input_output[::-1]):
-            current_scopes: str = current_module.__name__
-            if current_scopes.endswith('_leaf'):
-                current_scopes += str(uuid.uuid4().hex)
-
-            self.all_scopes[(id(inputs), id(current_module), id(outputs))] = current_scopes
-
-            if check_equal(inputs, outputs) and id(inputs) == id(outputs):
+            if module.equal_io:
                 continue
 
-            input_node = ResultLayer(current_scopes, inputs, ResultLayerType.INPUT)
-            self._insert_result_node_after(inputs.grad_fn, input_node)
+            input_node = ResultLayer(current_scope, module.input_tensor, ResultLayerType.INPUT)
+            self._insert_result_node_after(module.input_tensor.grad_fn, input_node)
             self.input_result_list.append(input_node)
+        module_input_output = modules.get_output_nodes()
 
-        for inputs, current_module, outputs in tqdm(input_output_list_2[::-1]):
-            current_scopes = self.all_scopes[(id(inputs), id(current_module), id(outputs))]
+        for module in tqdm(module_input_output[::-1]):
+            current_scopes = self.all_scopes[module.id]
 
-            if check_equal(inputs, outputs) and id(inputs) == id(outputs):
-                # output_node = ResultLayer(current_scopes, outputs, ResultLayerType.OUTPUT)
-                # self._insert_result_node_after(outputs.grad_fn, output_node, is_output_node=True)
-                input_node = ResultLayer(current_scopes, inputs, ResultLayerType.INTERMEDIATE)
-                self._insert_result_node_after(outputs.grad_fn, input_node)
+            if module.equal_io:
+                # input_node = ResultLayer(current_scopes, module.input_tensor, ResultLayerType.INTERMEDIATE)
+                # self._insert_result_node_after(module.output_tensor.grad_fn, input_node)
                 continue
 
-            output_node = ResultLayer(current_scopes, outputs, ResultLayerType.OUTPUT)
-            self._insert_result_node_after(outputs.grad_fn, output_node, is_output_node=True)
+            output_node = ResultLayer(current_scopes, module.output_tensor, ResultLayerType.OUTPUT)
+            self._insert_result_node_after(module.output_tensor.grad_fn, output_node, is_output_node=True)
 
         self.remove_unused_edges()
 
@@ -206,7 +188,7 @@ class BackwardGraph:
                 new_layers = self.connections.get_next_nodes(current_layer_id)
 
                 if isinstance(current_layer, ResultLayer):
-                    if current_layer.layer_type == ResultLayerType.INPUT or current_layer.layer_type == ResultLayerType.INTERMEDIATE:
+                    if current_layer.layer_type == ResultLayerType.INPUT: # or current_layer.layer_type == ResultLayerType.INTERMEDIATE:
                         # only keep scopes that are more general than the current scope
                         current_scope_stack = [scope for scope in current_scope_stack
                                                if len(scope.split('/')) < len(current_layer.scope.split('/'))]
@@ -222,10 +204,9 @@ class BackwardGraph:
                             if scope_variation not in current_scope_stack:
                                 current_scope_stack.append(scope_variation)
 
-                    if current_layer.layer_type == ResultLayerType.OUTPUT or current_layer.layer_type == ResultLayerType.INTERMEDIATE:
+                    if current_layer.layer_type == ResultLayerType.OUTPUT:# or current_layer.layer_type == ResultLayerType.INTERMEDIATE:
                         if current_layer.scope in current_scope_stack:
                             current_scope_stack = current_scope_stack[:current_scope_stack.index(current_layer.scope)]
-
 
                 elif isinstance(current_layer, BackwardLayer):
                     if current_scope_stack[-1] in current_layer.possible_scopes:
@@ -273,47 +254,23 @@ class BackwardGraph:
 
         self._create_module_rec(layer, scopes[1:], module[scopes[0]]['next_scopes'])
 
-    def reorder_model_input_output(self, module_input_output):
-        scope_dict = {}
-        for input_output in module_input_output:
-            scope = input_output[1].__name__.split('/')
-            scope_len = len(scope)
-            if scope_len not in scope_dict.keys():
-                scope_dict[scope_len] = []
-            scope_dict[scope_len].append(input_output)
+    def skip_duplicate_results(self):
+        nodes_to_delete = set()
+        for from_conn, to_conns in self.connections.iterate_connections():
+            from_node = self.all_layers[from_conn]
+            for to_conn in to_conns:
+                to_node = self.all_layers[to_conn]
+                if isinstance(from_node, ResultLayer) and isinstance(to_node, ResultLayer):
+                    if from_node.scope == to_node.scope and from_node.layer_type == to_node.layer_type:
+                        nodes_to_delete.add(from_node)
 
-        scope_list = [[self.model_name]]
-        input_output_list = []
-        sorted_keys = sorted(scope_dict.keys())
-        for key in sorted_keys:
-            for input_output in scope_dict[key][::-1]:
-                scope = input_output[1].__name__.split('/')
-                for i in range(1, len(scope)):
-                    if scope[:-i] in scope_list:
-                        scope_list.reverse()
-                        insert_index = scope_list.index(scope[:-i])
-                        insert_index = len(scope_list) - insert_index - 1 + 1
-                        scope_list.reverse()
-                        scope_list.insert(insert_index, scope)
-                        input_output_list.insert(insert_index, input_output)
-                        break
+        for i in range(len(nodes_to_delete)):
+            node = nodes_to_delete.pop()
+            self.connections.remove_node(node.node_id, fix_graph=True)
+            del self.all_layers[node.node_id]
+            print("Removing", node.scope)
 
-        scope_list = [[self.model_name]]
-        input_output_list_2 = []
-        sorted_keys = sorted(scope_dict.keys())
-        for key in sorted_keys:
-            for input_output in scope_dict[key]:
-                scope = input_output[1].__name__.split('/')
-                for i in range(1, len(scope)):
-                    if scope[:-i] in scope_list:
-                        insert_index = scope_list.index(scope[:-i])
-                        # if id(input_output[0]) == id(input_output[2]):
-                        #     insert_index += 1
-                        scope_list.insert(insert_index, scope)
-                        input_output_list_2.insert(insert_index, input_output)
-                        break
 
-        return input_output_list, input_output_list_2
 
 
 def see_scope(mod):

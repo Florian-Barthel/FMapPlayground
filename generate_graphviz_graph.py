@@ -21,16 +21,6 @@ Format Types: [
 """
 
 
-def create_graph_dot_str(
-        connections: GraphConnections,
-        modules: dict,
-        param_map: dict
-):
-    graph = Digraph(node_attr=graphviz_config.default_node_attr, format='dot')
-    graph = _create_graph(graph, connections, modules, param_map)
-    return str(graph)
-
-
 def create_graph(
         connections: GraphConnections,
         modules: dict,

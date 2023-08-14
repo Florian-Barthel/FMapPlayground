@@ -25,7 +25,7 @@ def get_back(var_grad_fn):
 
 
 if __name__ == '__main__':
-    img_pil = Image.open('images/elefant.jpg').convert('RGB')
+    img_pil = Image.open('../images/elefant.jpg').convert('RGB')
     img = transforms.ToTensor()(img_pil)[None, ...]
 
     net = remove_inplace_relu(net)
