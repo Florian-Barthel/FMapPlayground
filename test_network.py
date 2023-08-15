@@ -6,6 +6,8 @@ class TestNet(torch.nn.Module):
         super().__init__()
         self.conv1 = torch.nn.Conv2d(3, 3, kernel_size=1)
         self.cat = CatNet()
+        self.ident = torch.nn.Identity()
+
 
     def forward(self, x):
         x = self.conv1(x)
@@ -30,10 +32,13 @@ class SubNet(torch.nn.Module):
         super().__init__()
         self.conv1 = torch.nn.Conv2d(3, 3, kernel_size=1)
         self.ident = torch.nn.Identity()
+        self.dropout = torch.nn.Dropout()
 
     def forward(self, x):
         x = self.ident(x)
+        x = self.dropout(x)
         x = self.conv1(x)
+        x = self.ident(x)
         return x
 
 

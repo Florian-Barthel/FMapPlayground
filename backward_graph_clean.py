@@ -9,6 +9,12 @@ from module_list import Module
 from graph_connections import GraphConnections
 
 
+class GraphModule:
+    def __init__(self):
+        self.input_node: ResultLayer = None
+        self.output_node: ResultLayer = None
+
+
 class BackwardGraph:
     def __init__(self, input_tensor: torch.Tensor, loss, name):
         self.all_layers: Dict[object, any] = {}
@@ -19,6 +25,8 @@ class BackwardGraph:
         self._iterate_graph(loss.grad_fn)
         self.model_name = name
         self.input_tensor = input_tensor
+        self.all_modules: Dict[str, GraphModule] = {}
+        self.completed_intermediate_layers = set()
 
         # this has to be called after iterate graph
         self.input_layer_grad_fn = None
@@ -63,35 +71,44 @@ class BackwardGraph:
     def insert_result_nodes(self, modules):
         module_input_output: List[Module] = modules.get_input_nodes()
 
+        # Input Result Layers
         for module in tqdm(module_input_output[::-1]):
             current_scope: str = module.scope
             if current_scope.endswith('_leaf'):
                 current_scope += str(uuid.uuid4().hex)
             self.all_scopes[module.id] = current_scope
-
             if module.equal_io:
                 continue
-
-            input_node = ResultLayer(current_scope, module.input_tensor, ResultLayerType.INPUT)
+            input_node = ResultLayer(current_scope, module.input_tensor, ResultLayerType.INPUT, module.input_tensor.grad_fn)
+            self.all_modules[current_scope] = GraphModule()
+            self.all_modules[current_scope].input_node = input_node
             self._insert_result_node_after(module.input_tensor.grad_fn, input_node)
             self.input_result_list.append(input_node)
         module_input_output = modules.get_output_nodes()
 
+        # Output Result Layers
         for module in tqdm(module_input_output[::-1]):
-            current_scopes = self.all_scopes[module.id]
-
+            current_scope = self.all_scopes[module.id]
             if module.equal_io:
-                # input_node = ResultLayer(current_scopes, module.input_tensor, ResultLayerType.INTERMEDIATE)
-                # self._insert_result_node_after(module.output_tensor.grad_fn, input_node)
+                intermediate_node = ResultLayer(current_scope, module.input_tensor, ResultLayerType.INTERMEDIATE, module.output_tensor.grad_fn)
+                self._insert_intermediate_layer(module.output_tensor.grad_fn, intermediate_node, only_start_end=False)
                 continue
-
-            output_node = ResultLayer(current_scopes, module.output_tensor, ResultLayerType.OUTPUT)
+            output_node = ResultLayer(current_scope, module.output_tensor, ResultLayerType.OUTPUT, module.output_tensor.grad_fn)
+            self.all_modules[current_scope].output_node = output_node
             self._insert_result_node_after(module.output_tensor.grad_fn, output_node, is_output_node=True)
 
         self.remove_unused_edges()
 
-    def _insert_result_node_after(self, after_grad_fn, node: ResultLayer, is_output_node: bool = False):
+        # Intermediate Result Layers at start and end
+        for module in tqdm(module_input_output[::-1]):
+            if not module.equal_io:
+                continue
+            current_scope = self.all_scopes[module.id]
+            if module.equal_io:
+                intermediate_node = ResultLayer(current_scope, module.input_tensor, ResultLayerType.INTERMEDIATE, module.output_tensor.grad_fn)
+                self._insert_intermediate_layer(module.output_tensor.grad_fn, intermediate_node, only_start_end=True)
 
+    def _insert_result_node_after(self, after_grad_fn, node: ResultLayer, is_output_node: bool = False):
         if after_grad_fn is None and not is_output_node:
             if id(node.data) == id(self.input_tensor):
                 after_grad_fn = self.input_layer_grad_fn
@@ -104,6 +121,52 @@ class BackwardGraph:
 
         for next_node in next_nodes:
             self.connections.insert_node_inbetween(after_grad_fn, node.node_id, next_node)
+
+    def _insert_intermediate_layer(self, after_grad_fn, node: ResultLayer, only_start_end):
+        if node.scope in self.completed_intermediate_layers:
+            return
+
+        outer_scope = "/".join(node.scope.split("/")[:-1])
+        outer_module = self.all_modules.get(outer_scope)
+        if outer_module is None: # and outer_scope == self.model_name:
+            print(outer_scope, "is none")
+            return
+            # outer_module = GraphModule()
+            # outer_module.input_node = ResultLayer(outer_scope, )
+            # outer_module.output_node = self.connections.get_last_output_result_node()
+
+        if outer_module.input_node.grad_fn == after_grad_fn:
+            if only_start_end:
+                # insert node after input result node
+                self.all_layers[node.node_id] = node
+                next_nodes = self.connections.get_next_nodes(outer_module.input_node.node_id)
+                for next_node in next_nodes:
+                    self.connections.insert_node_inbetween(outer_module.input_node.node_id, node.node_id, next_node)
+            return
+
+        if outer_module.output_node.grad_fn == after_grad_fn:
+            if only_start_end:
+                # insert node before output result node
+                self.all_layers[node.node_id] = node
+                prev_nodes = self.connections.get_previous_nodes(outer_module.output_node.node_id)
+                for prev_node in prev_nodes:
+                    self.connections.insert_node_inbetween(prev_node, node.node_id, outer_module.output_node.node_id)
+            return
+
+        if not only_start_end:
+            if after_grad_fn is None:
+                if id(node.data) == id(self.input_tensor):
+                    after_grad_fn = self.input_layer_grad_fn
+                    next_nodes = self.connections.get_next_nodes(after_grad_fn)
+                else:
+                    return
+            else:
+                next_nodes = self.connections.get_next_nodes(after_grad_fn)
+            self.all_layers[node.node_id] = node
+            for next_node in next_nodes:
+                self.connections.insert_node_inbetween(after_grad_fn, node.node_id, next_node)
+            self.completed_intermediate_layers.add(node.scope)
+
 
     def remove_unused_edges(self):
         """
@@ -186,7 +249,10 @@ class BackwardGraph:
                 new_layers = self.connections.get_next_nodes(current_layer_id)
 
                 if isinstance(current_layer, ResultLayer):
-                    if current_layer.layer_type == ResultLayerType.INPUT: # or current_layer.layer_type == ResultLayerType.INTERMEDIATE:
+                    # if current_layer.layer_type == ResultLayerType.INTERMEDIATE:
+                    #     continue
+
+                    if current_layer.layer_type == ResultLayerType.INPUT or current_layer.layer_type == ResultLayerType.INTERMEDIATE:
                         # only keep scopes that are more general than the current scope
                         current_scope_stack = [scope for scope in current_scope_stack
                                                if len(scope.split('/')) < len(current_layer.scope.split('/'))]
@@ -202,7 +268,7 @@ class BackwardGraph:
                             if scope_variation not in current_scope_stack:
                                 current_scope_stack.append(scope_variation)
 
-                    if current_layer.layer_type == ResultLayerType.OUTPUT:# or current_layer.layer_type == ResultLayerType.INTERMEDIATE:
+                    if current_layer.layer_type == ResultLayerType.OUTPUT  or current_layer.layer_type == ResultLayerType.INTERMEDIATE:
                         if current_layer.scope in current_scope_stack:
                             current_scope_stack = current_scope_stack[:current_scope_stack.index(current_layer.scope)]
 
@@ -224,9 +290,13 @@ class BackwardGraph:
                 # if no scope was found, iterate to the next node that has a scope
                 current_search_layer = layer.grad_fn
                 while layer.scope == '':
-                    next_layer = list(self.connections.get_next_nodes(current_search_layer))[0]
-                    layer.scope = self.all_layers[next_layer].scope
-                    current_search_layer = next_layer
+                    if isinstance(current_search_layer, list):
+                        print()
+                    next_layer = list(self.connections.get_next_nodes(current_search_layer))
+                    if len(next_layer) == 0:
+                        break
+                    layer.scope = self.all_layers[next_layer[0]].scope
+                    current_search_layer = next_layer[0]
 
     def split_into_modules(self):
         """
@@ -259,6 +329,8 @@ class BackwardGraph:
             for to_conn in to_conns:
                 to_node = self.all_layers[to_conn]
                 if isinstance(from_node, ResultLayer) and isinstance(to_node, ResultLayer):
+                    if from_node.layer_type == ResultLayerType.INTERMEDIATE or to_node.layer_type == ResultLayerType.INTERMEDIATE:
+                        continue
                     if from_node.scope == to_node.scope and from_node.layer_type == to_node.layer_type:
                         nodes_to_delete.add(from_node)
 

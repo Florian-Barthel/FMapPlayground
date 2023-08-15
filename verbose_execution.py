@@ -51,7 +51,9 @@ class VerboseExecution(torch.nn.Module):
             input_tensor = [input_tensor]
 
         for current_input_tensor in input_tensor:
+            current_input_tensor.requires_grad_()
             for current_output_tensor in output_tensor:
+                current_output_tensor.requires_grad_()
                 self.input_layer_output_list.append((current_input_tensor, layer, current_output_tensor))
 
     def forward(self, x: torch.Tensor, *args) -> torch.Tensor:

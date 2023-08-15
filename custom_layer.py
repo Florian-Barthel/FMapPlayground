@@ -47,12 +47,10 @@ class ResultLayerType(Enum):
 
 
 class ResultLayer(Layer):
-    def __init__(self, scope, data, layer_type: ResultLayerType):
+    def __init__(self, scope, data, layer_type: ResultLayerType, grad_fn):
         super().__init__(scope)
         self.data = data
         self.layer_type = layer_type
         self.weight_nodes = []
         self.node_id = 'new_node_' + str(uuid.uuid4().int)
-
-
-
+        self.grad_fn = grad_fn

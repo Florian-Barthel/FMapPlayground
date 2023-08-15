@@ -51,7 +51,7 @@ def _add_modules_to_graph_rec(graph: Digraph, modules: dict, param_map, color_co
             sg.attr(margin=str(max(50 - color_counter * 5, 10)))
             sg.attr(fontsize=str(max(80 - color_counter**2 * 12, 20)))
             sg.attr(color='lightgrey')
-            sg.attr(colorscheme='oranges9') # ylgn9
+            sg.attr(colorscheme='oranges9')
             sg.attr(bgcolor=str(color_counter))
             sg.attr(style=str('rounded'))
             if '?!module_id:' in scope_name:
