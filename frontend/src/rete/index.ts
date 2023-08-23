@@ -6,6 +6,7 @@ import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-
 import { MinimapExtra, MinimapPlugin } from 'rete-minimap-plugin'
 
 import { fetchGraph } from '../api'
+import ImageOnNode from '../components/ImageOnNode.vue'
 
 type Node = InputOutputNode | AddNode
 type Conn =
@@ -18,13 +19,20 @@ class Connection<A extends Node, B extends Node> extends Classic.Connection<A, B
 
 class InputOutputNode extends Classic.Node {
   width = 180
-  height = 120
+  height = 280
 
   constructor(initial: any) {
     super(`Module ${initial}`)
 
     this.addInput('input', new Classic.Input(socket, 'Input'))
+    this.addControl("image", new CustomImgControl(initial))
     this.addOutput('output', new Classic.Output(socket, 'Output'))
+  }
+}
+
+class CustomImgControl extends Classic.Control {
+  constructor(public nodeId: string) {
+    super()
   }
 }
 
@@ -58,6 +66,17 @@ export async function createEditor(container: HTMLElement) {
   area.use(connection)
   area.use(minimap)
 
+  vueRender.addPreset(
+    VuePresets.classic.setup({
+      customize: {
+        control(data) {
+          if (data.payload instanceof CustomImgControl) {
+            return ImageOnNode;
+          }
+        }
+      }
+    })
+  )
   connection.addPreset(ConnectionPresets.classic.setup())
   vueRender.addPreset(VuePresets.classic.setup())
   vueRender.addPreset(VuePresets.minimap.setup())
