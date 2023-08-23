@@ -6,7 +6,14 @@ from torchvision.transforms import transforms
 
 # from LTVRR.lib.utils import logging
 # from torchvision.models import resnet50, alexnet, convnext_tiny, convnext_large
-from torchvision.models import efficientnet_b4, mobilenet_v2, vgg16, inception_v3, googlenet, squeezenet
+from torchvision.models import (
+    efficientnet_b4,
+    mobilenet_v2,
+    vgg16,
+    inception_v3,
+    googlenet,
+    squeezenet,
+)
 from timm.models import vision_transformer, nest_small, crossvit_tiny_240, mobilenetv3
 
 
@@ -28,41 +35,42 @@ from verbose_execution import VerboseExecution
 from module_list import ModuleList
 
 
-
-if __name__ == '__main__':
-    img_pil = Image.open('images/elefant.jpg').convert('RGB').resize((224, 224))
+if __name__ == "__main__":
+    img_pil = Image.open("images/elefant.jpg").convert("RGB").resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
-    net = hrnet_w32()# TestNet() # hrnet_w32() #squeezenet.squeezenet1_0() # vision_transformer.vit_small_patch16_36x1_224()
+    net = (
+        inception_v3()
+    )  # TestNet() # hrnet_w32() #squeezenet.squeezenet1_0() # vision_transformer.vit_small_patch16_36x1_224()
     # net = vision_transformer.vit_small_patch16_36x1_224()
     net.eval()
 
-    print('Forward Pass')
+    print("Forward Pass")
     net = VerboseExecution(net)
     out = net(img)
 
-    print('Backward Pass')
+    print("Backward Pass")
     loss = torch.sum(out)
     loss.backward(retain_graph=True)
     backGraph = BackwardGraph(img, loss, net.original_name)
 
-    print('Insert Result Nodes')
+    print("Insert Result Nodes")
     modules = ModuleList(net.input_layer_output_list)
     backGraph.insert_result_nodes(modules)
 
-    print('Reduce Nodes')
-    backGraph.reduce_nodes(['AccumulateGrad'])
+    print("Reduce Nodes")
+    backGraph.reduce_nodes(["AccumulateGrad"])
 
-    print('Update Scopes')
+    print("Update Scopes")
     backGraph.update_scopes()
 
-    print('Skip Duplicates')
+    print("Skip Duplicates")
     backGraph.skip_duplicate_results()
 
-    print('Draw Graph')
+    print("Draw Graph")
     create_graph(
         connections=backGraph.connections,
         modules=backGraph.split_into_modules(),
         param_map=net.param_map,
-        out_folder='./frontend/frontend_custom/src/assets',
-        out_format='svg'
+        out_folder="./frontend/frontend_custom/src/assets",
+        out_format="svg",
     )
