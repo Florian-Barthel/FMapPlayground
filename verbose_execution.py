@@ -7,26 +7,29 @@ class VerboseExecution(torch.nn.Module):
     """
     Wrapper class for torch.nn.Module that replaces inplace functions and adds hooks
     """
+
     def __init__(self, model: torch.nn.Module):
         super().__init__()
         self.model = model
         self.input_layer_output_list = []
         self.original_name: str = self.model._get_name()
-        self.param_map = {str(id(v)): k for k, v in dict(self.model.named_parameters()).items()}
+        self.param_map = {
+            str(id(v)): k for k, v in dict(self.model.named_parameters()).items()
+        }
 
         self.recursively_remove_inplace(model)
         self.recursively_register_hooks(model)
 
     def recursively_register_hooks(self, module, current_name=None, parent_name=None):
         if parent_name is not None:
-            module.__name__ = f'{parent_name}/{current_name}({module._get_name()})'
-            module.__name__ += '?!module_id:' + str(uuid.uuid4().hex)
+            module.__name__ = f"{parent_name}/{current_name}({module._get_name()})"
+            module.__name__ += "?!module_id:" + str(uuid.uuid4().hex)
         else:
             module.__name__ = module._get_name()
 
         children_layer = list(module.named_children())
         if len(children_layer) == 0:
-            module.__name__ += '_leaf'
+            module.__name__ += "_leaf"
             return
         for name, layer in children_layer:
             self.recursively_register_hooks(layer, name, module.__name__)
@@ -52,11 +55,13 @@ class VerboseExecution(torch.nn.Module):
 
         for current_input_tensor in input_tensor:
             for current_output_tensor in output_tensor:
-                self.input_layer_output_list.append((current_input_tensor, layer, current_output_tensor))
+                self.input_layer_output_list.append(
+                    (current_input_tensor, layer, current_output_tensor)
+                )
 
-    def forward(self, x: torch.Tensor, *args) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
         x.requires_grad_()
-        return self.model(x, *args)
+        return self.model(x, *args, **kwargs)
 
     @staticmethod
     def recursively_remove_inplace(model, verbose=True):
@@ -73,7 +78,7 @@ class VerboseExecution(torch.nn.Module):
             for inplace_class in inplace_classes:
                 if isinstance(child, inplace_class):
                     current_module = getattr(model, child_name)
-                    if hasattr(current_module, 'inplace'):
+                    if hasattr(current_module, "inplace"):
                         if current_module.inplace and verbose:
-                            print(f'setting {child_name}.inplace to false')
+                            print(f"setting {child_name}.inplace to false")
                             current_module.inplace = False

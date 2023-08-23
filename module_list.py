@@ -23,7 +23,7 @@ class ModuleList:
             self.scope_list.append(current_module.scope_readable)
         self.model_name = self.scope_list[0].split("/")[0]
 
-    def get_input_nodes(self) -> list[Module]:
+    def get_input_nodes(self):
         scope_dict = {}
         for module in self.module_list:
             scope = module.scope.split('/')
@@ -50,7 +50,7 @@ class ModuleList:
 
         return input_output_list[1:] # remove first element, which was used as a placeholder
 
-    def get_output_nodes(self) -> list[Module]:
+    def get_output_nodes(self):
         scope_dict = {}
         for module in self.module_list:
             scope = module.scope.split('/')
