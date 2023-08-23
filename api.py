@@ -1,19 +1,30 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
+import torchvision.transforms as T
+import torch
+from io import StringIO
 
 from fmap_viz import create
-
-from torchvision.models import efficientnet_b4, mobilenet_v2, vgg16, inception_v3
 from test_network import TestNet
+
+
+def serve_pil_image(pil_img):
+    img_io = StringIO()
+    pil_img.save(img_io, "JPEG", quality=70)
+    img_io.seek(0)
+    return send_file(img_io, mimetype="image/jpeg")
+
 
 app = Flask(__name__)
 CORS(app)
-net = TestNet()
-graph = create(net)
+graph = None
 
 
-@app.route("/graph", methods=["GET", "POST"])
-def index():
+@app.route("/api/graph", methods=["GET", "POST"])
+def get_graph():
+    global graph
+    net = TestNet()
+    graph = create(net)
     forward_connections = graph.connections.forward_connections
     all_connections = []
     for start, end in forward_connections.items():
@@ -26,6 +37,30 @@ def index():
         {"status": "success", "edges": all_connections, "nodes": all_layers}
     )
     return json_graph
+
+
+@app.route("/api/fmap", methods=["GET", "POST"])
+def get_img():
+    node_id = request.args.get("node_id")
+    global graph
+    if graph is None:
+        return jsonify({f"status": f"create graph first with /api/graph"})
+
+    all_layers = {str(key): value for key, value in graph.all_layers.items()}
+
+    if node_id not in all_layers.keys():
+        return jsonify({f"status": f"{node_id} not in nodes"})
+
+    if not hasattr(all_layers[node_id], "data"):
+        return jsonify({f"status": f"no fmap for node: {node_id}"})
+
+    fmap = torch.mean(all_layers[node_id].data, dim=0)
+    # grad = torch.mean(all_layers[node_id].data.grad, dim=0)
+    transform = T.ToPILImage()
+    fmap = transform(fmap)
+    # grad = transform(grad)
+
+    return serve_pil_image(fmap)
 
 
 @app.after_request
