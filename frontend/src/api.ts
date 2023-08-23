@@ -1,20 +1,15 @@
-const endpoint = 'http://localhost:1234'
+const endpoint = 'http://localhost:5000/api'
 
 export async function fetchGraph() {
-//   const response = await fetch(`${endpoint}/graph`)
-//   const responseData = await response.json()
+  const response = await fetch(`${endpoint}/graph`)
+  const responseData = await response.json()
+  return responseData
 
-  return {
-    nodes: [
-      {
-        id: 'first'
-      },
-      { id: 'second' },
-      { id: 'third' }
-    ],
-    edges: [
-      { from: 0, to: 1 },
-      { from: 2, to: 1 }
-    ]
-  }
+//   return {
+//     nodes: ['first', 'second', 'third'],
+//     edges: [
+//       ['first', 'second'],
+//       ['third', 'second']
+//     ]
+//   }
 }

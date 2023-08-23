@@ -1,12 +1,8 @@
 import { ClassicPreset as Classic, GetSchemes, NodeEditor } from 'rete'
-
 import { Area2D, AreaExtensions, AreaPlugin } from 'rete-area-plugin'
 import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-plugin'
-
 import { VuePlugin, VueArea2D, Presets as VuePresets } from 'rete-vue-plugin'
-
 import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-plugin'
-
 import { MinimapExtra, MinimapPlugin } from 'rete-minimap-plugin'
 
 import { fetchGraph } from '../api'
@@ -24,7 +20,7 @@ class InputOutputNode extends Classic.Node {
   width = 180
   height = 120
 
-  constructor(initial: number) {
+  constructor(initial: any) {
     super(`Module ${initial}`)
 
     this.addInput('input', new Classic.Input(socket, 'Input'))
@@ -54,40 +50,33 @@ export async function createEditor(container: HTMLElement) {
   const editor = new NodeEditor<Schemes>()
   const area = new AreaPlugin<Schemes, AreaExtra>(container)
   const connection = new ConnectionPlugin<Schemes, AreaExtra>()
-
   const vueRender = new VuePlugin<Schemes, AreaExtra>()
-
   const minimap = new MinimapPlugin<Schemes>()
 
   editor.use(area)
-
   area.use(vueRender)
-
   area.use(connection)
-
   area.use(minimap)
 
   connection.addPreset(ConnectionPresets.classic.setup())
-
   vueRender.addPreset(VuePresets.classic.setup())
-
   vueRender.addPreset(VuePresets.minimap.setup())
 
   const graphData = await fetchGraph()
-  const editorNodes = graphData.nodes.map((n, i) => new InputOutputNode(i))
+  const nodeIdx = graphData.nodes.reduce((prev, curr, i) => ({...prev, [curr]: i}), {})
+  const editorNodes = graphData.nodes.map(n => new InputOutputNode(n))
   await Promise.all(editorNodes.map((n) => editor.addNode(n)))
   await Promise.all(
     graphData.edges.map((e) =>
-      editor.addConnection(new Connection(editorNodes[e.from], 'output', editorNodes[e.to], 'input'))
+      editor.addConnection(
+        new Connection(editorNodes[nodeIdx[e[0]]], 'output', editorNodes[nodeIdx[e[1]]], 'input')
+      )
     )
   )
 
   const arrange = new AutoArrangePlugin<Schemes>()
-
   arrange.addPreset(ArrangePresets.classic.setup())
-
   area.use(arrange)
-
   await arrange.layout()
 
   const selector = AreaExtensions.selector()

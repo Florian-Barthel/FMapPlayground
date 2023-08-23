@@ -1,6 +1,6 @@
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { createEditor } from './rete';
+import { defineComponent } from 'vue'
+import { createEditor } from './rete'
 
 export default defineComponent({
   components: {},
@@ -19,5 +19,4 @@ export default defineComponent({
   height: 100vh;
   background-color: white;
 }
-
 </style>
