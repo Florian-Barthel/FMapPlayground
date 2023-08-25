@@ -4,49 +4,48 @@ import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-
 import { VuePlugin, VueArea2D, Presets as VuePresets } from 'rete-vue-plugin'
 import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-plugin'
 import { MinimapExtra, MinimapPlugin } from 'rete-minimap-plugin'
+import { ScopesPlugin, Presets as ScopesPresets } from 'rete-scopes-plugin'
 
 import { fetchGraph } from '../api'
 import ImageOnNode from '../components/ImageOnNode.vue'
+// import CustomNode from '../components/CustomNode.vue'
 
-type Node = InputOutputNode | AddNode
+type Node = InputOutputNode | ContainerNode
 type Conn =
-  | Connection<InputOutputNode, AddNode>
-  | Connection<AddNode, AddNode>
-  | Connection<AddNode, InputOutputNode>
+  | Connection<InputOutputNode, ContainerNode>
+  | Connection<ContainerNode, ContainerNode>
+  | Connection<ContainerNode, InputOutputNode>
 type Schemes = GetSchemes<Node, Conn>
 
 class Connection<A extends Node, B extends Node> extends Classic.Connection<A, B> {}
 
 class InputOutputNode extends Classic.Node {
   width = 180
-  height = 280
+  height = 320
+  parent?: string
 
-  constructor(initial: any) {
+  constructor(initial: any, parent?: string) {
     super(`Module ${initial}`)
+    this.parent = parent
 
     this.addInput('input', new Classic.Input(socket, 'Input'))
-    this.addControl("image", new CustomImgControl(initial))
+    this.addControl('image', new CustomImgControl(initial))
     this.addOutput('output', new Classic.Output(socket, 'Output'))
+  }
+}
+
+class ContainerNode extends Classic.Node {
+  width = 0
+  height = 0
+  parent?: string
+  constructor(name: string) {
+    super(`Container: ${name}`)
   }
 }
 
 class CustomImgControl extends Classic.Control {
   constructor(public nodeId: string) {
     super()
-  }
-}
-
-class AddNode extends Classic.Node {
-  width = 180
-  height = 195
-
-  constructor() {
-    super('Add')
-
-    this.addInput('a', new Classic.Input(socket, 'A'))
-    this.addInput('b', new Classic.Input(socket, 'B'))
-    this.addOutput('value', new Classic.Output(socket, 'Number'))
-    this.addControl('result', new Classic.InputControl('number', { initial: 0, readonly: true }))
   }
 }
 
@@ -60,8 +59,10 @@ export async function createEditor(container: HTMLElement) {
   const connection = new ConnectionPlugin<Schemes, AreaExtra>()
   const vueRender = new VuePlugin<Schemes, AreaExtra>()
   const minimap = new MinimapPlugin<Schemes>()
+  const scopes = new ScopesPlugin<Schemes>()
 
   editor.use(area)
+  area.use(scopes)
   area.use(vueRender)
   area.use(connection)
   area.use(minimap)
@@ -69,9 +70,13 @@ export async function createEditor(container: HTMLElement) {
   vueRender.addPreset(
     VuePresets.classic.setup({
       customize: {
+        // node(context) {
+        //   console.log('payload', context.payload.label)
+        //   return CustomNode
+        // },
         control(data) {
           if (data.payload instanceof CustomImgControl) {
-            return ImageOnNode;
+            return ImageOnNode
           }
         }
       }
@@ -80,11 +85,26 @@ export async function createEditor(container: HTMLElement) {
   connection.addPreset(ConnectionPresets.classic.setup())
   vueRender.addPreset(VuePresets.classic.setup())
   vueRender.addPreset(VuePresets.minimap.setup())
+  scopes.addPreset(ScopesPresets.classic.setup())
 
   const graphData = await fetchGraph()
-  const nodeIdx = graphData.nodes.reduce((prev, curr, i) => ({...prev, [curr]: i}), {})
-  const editorNodes = graphData.nodes.map(n => new InputOutputNode(n))
-  await Promise.all(editorNodes.map((n) => editor.addNode(n)))
+  const nodeIdx = graphData.nodes.reduce((prev, curr, i) => ({ ...prev, [curr.id]: i }), {})
+  const editorNodes = graphData.nodes.map((n) =>
+    n.children ? new ContainerNode(n.id) : new InputOutputNode(n.id)
+  )
+  // assign parents
+  graphData.nodes.map((n, i) => {
+    n.children?.forEach((c) => {
+      editorNodes[nodeIdx[c]].parent = editorNodes[i].id
+    })
+  })
+  // TODO: ordering matters! Parent nodes must exist when children nodes are added
+  // TODO: parent nodes that are independent can be added at the same time, that should improve latency
+  for (let i = 0; i < editorNodes.length; i += 1) {
+    await editor.addNode(editorNodes[i])
+  }
+
+  // await Promise.all(editorNodes.map((n) => editor.addNode(n)))
   await Promise.all(
     graphData.edges.map((e) =>
       editor.addConnection(

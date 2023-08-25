@@ -1,6 +1,5 @@
 <template>
-    <img :src="`http://localhost:5000/api/fmap?node_id=${data.nodeId}`">
-    <!-- <img src="http://placedog.net/256/256"> -->
+    <img :src="imgSrc">
 </template>
 
 <style scoped>
@@ -10,10 +9,11 @@ img {
 </style>
 
 <script lang="ts">
+import {getFeatureMapUrl} from '../api'
 export default {
   props: ['data'],
-  created() {
-    console.log(this.data)
-  },
+  computed: {
+    imgSrc() {return getFeatureMapUrl(this.data.nodeId)}
+  }
 }
 </script>
