@@ -9,6 +9,7 @@ import { ScopesPlugin, Presets as ScopesPresets } from 'rete-scopes-plugin'
 import { fetchGraph } from '../api'
 import ImageOnNode from '../components/ImageOnNode.vue'
 // import CustomNode from '../components/CustomNode.vue'
+import CollapseControlComp from '../components/CollapseControl.vue'
 
 type Node = InputOutputNode | ContainerNode
 type Conn =
@@ -35,11 +36,12 @@ class InputOutputNode extends Classic.Node {
 }
 
 class ContainerNode extends Classic.Node {
-  width = 0
-  height = 0
+  width = 300
+  height = 300
   parent?: string
   constructor(name: string) {
     super(`Container: ${name}`)
+    this.addControl('collapse', new CollapseControl())
   }
 }
 
@@ -48,6 +50,7 @@ class CustomImgControl extends Classic.Control {
     super()
   }
 }
+class CollapseControl extends Classic.Control {}
 
 type AreaExtra = Area2D<Schemes> | VueArea2D<Schemes> | MinimapExtra
 
@@ -70,13 +73,18 @@ export async function createEditor(container: HTMLElement) {
   vueRender.addPreset(
     VuePresets.classic.setup({
       customize: {
-        // node(context) {
-        //   console.log('payload', context.payload.label)
-        //   return CustomNode
-        // },
+        node(context) {
+          if (context.payload.label.startsWith('Container')) {
+            // return CustomNode
+          }
+          return VuePresets.classic.Node
+        },
         control(data) {
           if (data.payload instanceof CustomImgControl) {
             return ImageOnNode
+          }
+          if (data.payload instanceof CollapseControl) {
+            return CollapseControlComp
           }
         }
       }
@@ -88,27 +96,53 @@ export async function createEditor(container: HTMLElement) {
   scopes.addPreset(ScopesPresets.classic.setup())
 
   const graphData = await fetchGraph()
-  const nodeIdx = graphData.nodes.reduce((prev, curr, i) => ({ ...prev, [curr.id]: i }), {})
+
   const editorNodes = graphData.nodes.map((n) =>
     n.children ? new ContainerNode(n.id) : new InputOutputNode(n.id)
+  )
+  // TODO: reference nodes directly instead of index. That should produce cleaner code
+  const apiNodeIdx = graphData.nodes.reduce(
+    (prev, curr, i) => ({
+      ...prev,
+      [curr.id]: i
+    }),
+    {}
+  )
+  const editorNodeIdx = editorNodes.reduce(
+    (prev, curr, i) => ({
+      ...prev,
+      [curr.id]: i
+    }),
+    {}
   )
   // assign parents
   graphData.nodes.map((n, i) => {
     n.children?.forEach((c) => {
-      editorNodes[nodeIdx[c]].parent = editorNodes[i].id
+      editorNodes[apiNodeIdx[c]].parent = editorNodes[i].id
     })
   })
-  // TODO: ordering matters! Parent nodes must exist when children nodes are added
-  // TODO: parent nodes that are independent can be added at the same time, that should improve latency
-  for (let i = 0; i < editorNodes.length; i += 1) {
-    await editor.addNode(editorNodes[i])
+
+  // ordering matters! Parent nodes must exist when children nodes are added
+  // parent nodes that are independent can be added at the same time, that should improve latency
+  let addNodes = editorNodes.filter((n) => !n.parent)
+  while (addNodes.length > 0) {
+    await Promise.all(addNodes.map((n) => editor.addNode(n)))
+    addNodes = addNodes.flatMap(
+      (n) =>
+        graphData.nodes[editorNodeIdx[n.id]].children?.map((c) => editorNodes[apiNodeIdx[c]]) || []
+    )
   }
 
-  // await Promise.all(editorNodes.map((n) => editor.addNode(n)))
+  // add connections
   await Promise.all(
     graphData.edges.map((e) =>
       editor.addConnection(
-        new Connection(editorNodes[nodeIdx[e[0]]], 'output', editorNodes[nodeIdx[e[1]]], 'input')
+        new Connection(
+          editorNodes[apiNodeIdx[e[0]]],
+          'output',
+          editorNodes[apiNodeIdx[e[1]]],
+          'input'
+        )
       )
     )
   )
