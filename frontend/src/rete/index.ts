@@ -7,9 +7,7 @@ import { MinimapExtra, MinimapPlugin } from 'rete-minimap-plugin'
 import { ScopesPlugin, Presets as ScopesPresets } from 'rete-scopes-plugin'
 
 import { fetchGraph } from '../api'
-import ImageOnNode from '../components/ImageOnNode.vue'
-// import CustomNode from '../components/CustomNode.vue'
-import CollapseControlComp from '../components/CollapseControl.vue'
+import CustomNode from '../components/CustomNode.vue'
 
 type Node = InputOutputNode | ContainerNode
 type Conn =
@@ -22,7 +20,7 @@ class Connection<A extends Node, B extends Node> extends Classic.Connection<A, B
 
 class InputOutputNode extends Classic.Node {
   width = 180
-  height = 320
+  height = 180
   parent?: string
 
   constructor(initial: any, parent?: string) {
@@ -30,7 +28,6 @@ class InputOutputNode extends Classic.Node {
     this.parent = parent
 
     this.addInput('input', new Classic.Input(socket, 'Input'))
-    this.addControl('image', new CustomImgControl(initial))
     this.addOutput('output', new Classic.Output(socket, 'Output'))
   }
 }
@@ -41,16 +38,14 @@ class ContainerNode extends Classic.Node {
   parent?: string
   constructor(name: string) {
     super(`Container: ${name}`)
-    this.addControl('collapse', new CollapseControl())
-  }
-}
 
-class CustomImgControl extends Classic.Control {
-  constructor(public nodeId: string) {
-    super()
+    this.addInput('input', new Classic.Input(socket, 'Input'))
+    this.addOutput('output', new Classic.Output(socket, 'Output'))
+
+    this.addInput('internalOutput', new Classic.Input(socket, 'Internal Output'))
+    this.addOutput('internalInput', new Classic.Output(socket, 'Internal Input'))
   }
 }
-class CollapseControl extends Classic.Control {}
 
 type AreaExtra = Area2D<Schemes> | VueArea2D<Schemes> | MinimapExtra
 
@@ -62,7 +57,11 @@ export async function createEditor(container: HTMLElement) {
   const connection = new ConnectionPlugin<Schemes, AreaExtra>()
   const vueRender = new VuePlugin<Schemes, AreaExtra>()
   const minimap = new MinimapPlugin<Schemes>()
-  const scopes = new ScopesPlugin<Schemes>()
+  const scopes = new ScopesPlugin<Schemes>({
+    // default
+    // padding: () => ({ top: 40, left: 20, right: 20, bottom: 20 })
+    padding: () => ({ top: 40, left: 110, right: 110, bottom: 20 })
+  })
 
   editor.use(area)
   area.use(scopes)
@@ -75,17 +74,9 @@ export async function createEditor(container: HTMLElement) {
       customize: {
         node(context) {
           if (context.payload.label.startsWith('Container')) {
-            // return CustomNode
+            return CustomNode
           }
           return VuePresets.classic.Node
-        },
-        control(data) {
-          if (data.payload instanceof CustomImgControl) {
-            return ImageOnNode
-          }
-          if (data.payload instanceof CollapseControl) {
-            return CollapseControlComp
-          }
         }
       }
     })
@@ -135,16 +126,26 @@ export async function createEditor(container: HTMLElement) {
 
   // add connections
   await Promise.all(
-    graphData.edges.map((e) =>
-      editor.addConnection(
-        new Connection(
-          editorNodes[apiNodeIdx[e[0]]],
-          'output',
-          editorNodes[apiNodeIdx[e[1]]],
-          'input'
-        )
-      )
-    )
+    graphData.edges.map((e) => {
+      // source node is child of target node
+      // source node is parent of target node
+      // nodes are not in a relationship
+      const srcNode = editorNodes[apiNodeIdx[e[0]]]
+      const tgtNode = editorNodes[apiNodeIdx[e[1]]]
+      let srcKey: string
+      let tgtKey: string
+      if (srcNode.parent === tgtNode.id) {
+        srcKey = 'output'
+        tgtKey = 'internalOutput'
+      } else if (tgtNode.parent === srcNode.id) {
+        srcKey = 'internalInput'
+        tgtKey = 'input'
+      } else {
+        srcKey = 'output'
+        tgtKey = 'input'
+      }
+      return editor.addConnection(new Connection(srcNode, srcKey, tgtNode, tgtKey))
+    })
   )
 
   const arrange = new AutoArrangePlugin<Schemes>()
