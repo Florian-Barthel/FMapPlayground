@@ -23,12 +23,12 @@ class InputOutputNode extends Classic.Node {
   height = 180
   parent?: string
 
-  constructor(initial: any, parent?: string) {
-    super(`Module ${initial}`)
+  constructor(name: string, inputSockets: string[], outputSockets: string[], parent?: string) {
+    super(`Module ${name.substring(0, 16)}`)
     this.parent = parent
 
-    this.addInput('input', new Classic.Input(socket, 'Input'))
-    this.addOutput('output', new Classic.Output(socket, 'Output'))
+    inputSockets.forEach((s) => this.addInput(s, new Classic.Input(socket, s)))
+    outputSockets.forEach((s) => this.addOutput(s, new Classic.Output(socket, s)))
   }
 }
 
@@ -36,14 +36,17 @@ class ContainerNode extends Classic.Node {
   width = 300
   height = 300
   parent?: string
-  constructor(name: string) {
-    super(`Container: ${name}`)
+  constructor(name: string, inputSockets: string[], outputSockets: string[]) {
+    super(`Container: ${name.substring(0, 16)}`)
 
-    this.addInput('input', new Classic.Input(socket, 'Input'))
-    this.addOutput('output', new Classic.Output(socket, 'Output'))
-
-    this.addInput('internalOutput', new Classic.Input(socket, 'Internal Output'))
-    this.addOutput('internalInput', new Classic.Output(socket, 'Internal Input'))
+    inputSockets.forEach((s) => this.addInput(s, new Classic.Input(socket, s.substring(0, 16))))
+    outputSockets.forEach((s) => this.addOutput(s, new Classic.Output(socket, s.substring(0, 16))))
+    inputSockets.forEach((s) =>
+      this.addOutput(`internal-${s}`, new Classic.Output(socket, `Internal ${s}`))
+    )
+    outputSockets.forEach((s) =>
+      this.addInput(`internal-${s}`, new Classic.Input(socket, `Internal ${s}`))
+    )
   }
 }
 
@@ -88,8 +91,35 @@ export async function createEditor(container: HTMLElement) {
 
   const graphData = await fetchGraph()
 
+  const children:{[key:string]:string[]} = {}
+  graphData.nodes.forEach(node => {
+    children[node.id] = node.children || []
+  })
+  const inputSocketLookup: {[key:string]:any[]} = {}
+  const outputSocketLookup: {[key:string]:any[]} = {}
+  graphData.edges.forEach(([fromNode, fromSocket, toNode, toSocket]) => {
+    // is child?
+    if (children[fromNode].some(c => c === toNode)) {
+      // to is child of from => input-input
+      inputSocketLookup[fromNode] = [fromSocket, ...(inputSocketLookup[fromNode] || [])]
+      inputSocketLookup[toNode] = [toSocket, ...(inputSocketLookup[toNode] || [])]
+    } else if (children[toNode].some(c => c === fromNode)) {
+      // from is child of to => output-output
+      outputSocketLookup[fromNode] = [fromSocket, ...(outputSocketLookup[fromNode] || [])]
+      outputSocketLookup[toNode] = [toSocket, ...(outputSocketLookup[toNode] || [])]
+    } else {
+      // no child-parent relationship => output-input
+      outputSocketLookup[fromNode] = [fromSocket, ...(outputSocketLookup[fromNode] || [])]
+      inputSocketLookup[toNode] = [toSocket, ...(inputSocketLookup[toNode] || [])]
+    }
+  })
+  const inputSocketLkp = Object.fromEntries(Object.entries(inputSocketLookup).map(([key, sockets]) => [key, [...new Set(sockets)]]));
+  const outputSocketLkp = Object.fromEntries(Object.entries(outputSocketLookup).map(([key, sockets]) => [key, [...new Set(sockets)]]));
+
   const editorNodes = graphData.nodes.map((n) =>
-    n.children ? new ContainerNode(n.id) : new InputOutputNode(n.id)
+    n.children
+      ? new ContainerNode(n.name || n.id, inputSocketLkp[n.id] || [], outputSocketLkp[n.id] || [])
+      : new InputOutputNode(n.name || n.id, inputSocketLkp[n.id] || [], outputSocketLkp[n.id] || [])
   )
   // TODO: reference nodes directly instead of index. That should produce cleaner code
   const apiNodeIdx = graphData.nodes.reduce(
@@ -126,23 +156,20 @@ export async function createEditor(container: HTMLElement) {
 
   // add connections
   await Promise.all(
-    graphData.edges.map((e) => {
-      // source node is child of target node
-      // source node is parent of target node
-      // nodes are not in a relationship
-      const srcNode = editorNodes[apiNodeIdx[e[0]]]
-      const tgtNode = editorNodes[apiNodeIdx[e[1]]]
+    graphData.edges.map(([fromNode, fromSocket, toNode, toSocket]) => {
+      const srcNode = editorNodes[apiNodeIdx[fromNode]]
+      const tgtNode = editorNodes[apiNodeIdx[toNode]]
       let srcKey: string
       let tgtKey: string
       if (srcNode.parent === tgtNode.id) {
-        srcKey = 'output'
-        tgtKey = 'internalOutput'
+        srcKey = fromSocket
+        tgtKey = `internal-${toSocket}`
       } else if (tgtNode.parent === srcNode.id) {
-        srcKey = 'internalInput'
-        tgtKey = 'input'
+        srcKey = `internal-${fromSocket}`
+        tgtKey = toSocket
       } else {
-        srcKey = 'output'
-        tgtKey = 'input'
+        srcKey = fromSocket
+        tgtKey = toSocket
       }
       return editor.addConnection(new Connection(srcNode, srcKey, tgtNode, tgtKey))
     })
