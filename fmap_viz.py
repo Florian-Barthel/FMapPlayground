@@ -8,7 +8,7 @@ from verbose_execution import VerboseExecution
 from module_list import ModuleList
 
 
-def create(net):
+def create(net) -> BackwardGraph:
     img_pil = Image.open("images/elefant.jpg").convert("RGB").resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
     net.eval()
@@ -34,12 +34,16 @@ def create(net):
 
     print("Skip Duplicates")
     backGraph.skip_duplicate_results()
+
+    # print("remove results")
+    # backGraph.remove_results()
+
+    # print("Draw Graph")
+    # _create_graph(
+    #     connections=backGraph.connections,
+    #     modules=backGraph.split_into_modules(),
+    #     param_map=net.param_map,
+    #     out_folder="./frontend/frontend_custom/src/assets",
+    #     out_format="svg",
+    # )
     return backGraph
-    print("Draw Graph")
-    _create_graph(
-        connections=backGraph.connections,
-        modules=backGraph.split_into_modules(),
-        param_map=net.param_map,
-        out_folder="./frontend/frontend_custom/src/assets",
-        out_format="svg",
-    )

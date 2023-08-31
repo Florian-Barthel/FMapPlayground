@@ -26,7 +26,7 @@ from timm.models import vision_transformer, nest_small, crossvit_tiny_240, mobil
 # todo fix those:
 from timm.models import convit_small, hrnet_w32
 from torchvision.models import densenet121
-from test_network import TestNet
+from test_networks.submodules import Net
 
 
 from generate_graphviz_graph import create_graph
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     img_pil = Image.open("images/elefant.jpg").convert("RGB").resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
     net = (
-        TestNet()
+        hrnet_w32()
     )  # TestNet() # hrnet_w32() #squeezenet.squeezenet1_0() # vision_transformer.vit_small_patch16_36x1_224()
     # net = vision_transformer.vit_small_patch16_36x1_224()
     net.eval()
@@ -65,6 +65,9 @@ if __name__ == "__main__":
 
     print("Skip Duplicates")
     backGraph.skip_duplicate_results()
+
+    print("remove results")
+    backGraph.remove_results()
 
     print("Draw Graph")
     create_graph(
