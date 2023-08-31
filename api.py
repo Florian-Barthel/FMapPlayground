@@ -57,16 +57,15 @@ def get_graph():
     all_layers = graph.all_layers
     nodes = []
     filtered_layers = {}
-    for key in all_layers.keys():
+    for key, layer in all_layers.items():
         children = []
-        layer = all_layers[key]
         if isinstance(layer, ResultLayer):
             continue
         filtered_layers[key] = layer
-        name = all_layers[key].name
+        name = layer.name
         nodes.append(dict(id=str(key), name=name, children=children))
 
-    filtered_layers.update({module: Module(module) for module in all_modules})
+    filtered_layers.update({module: Module(module[:module.index("?!module_id")]) for module in all_modules})
     for module in all_modules:
         children = [
             str(layer_key)
