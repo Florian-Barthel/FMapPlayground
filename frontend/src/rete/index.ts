@@ -4,49 +4,46 @@ import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-
 import { VuePlugin, VueArea2D, Presets as VuePresets } from 'rete-vue-plugin'
 import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-plugin'
 import { MinimapExtra, MinimapPlugin } from 'rete-minimap-plugin'
+import { ScopesPlugin, Presets as ScopesPresets } from 'rete-scopes-plugin'
 
 import { fetchGraph } from '../api'
-import ImageOnNode from '../components/ImageOnNode.vue'
+import CustomNode from '../components/CustomNode.vue'
 
-type Node = InputOutputNode | AddNode
+type Node = InputOutputNode | ContainerNode
 type Conn =
-  | Connection<InputOutputNode, AddNode>
-  | Connection<AddNode, AddNode>
-  | Connection<AddNode, InputOutputNode>
+  | Connection<InputOutputNode, ContainerNode>
+  | Connection<ContainerNode, ContainerNode>
+  | Connection<ContainerNode, InputOutputNode>
 type Schemes = GetSchemes<Node, Conn>
 
 class Connection<A extends Node, B extends Node> extends Classic.Connection<A, B> {}
 
 class InputOutputNode extends Classic.Node {
   width = 180
-  height = 280
+  height = 180
+  parent?: string
 
-  constructor(initial: any) {
+  constructor(initial: any, parent?: string) {
     super(`Module ${initial}`)
+    this.parent = parent
 
     this.addInput('input', new Classic.Input(socket, 'Input'))
-    this.addControl("image", new CustomImgControl(initial))
     this.addOutput('output', new Classic.Output(socket, 'Output'))
   }
 }
 
-class CustomImgControl extends Classic.Control {
-  constructor(public nodeId: string) {
-    super()
-  }
-}
+class ContainerNode extends Classic.Node {
+  width = 300
+  height = 300
+  parent?: string
+  constructor(name: string) {
+    super(`Container: ${name}`)
 
-class AddNode extends Classic.Node {
-  width = 180
-  height = 195
+    this.addInput('input', new Classic.Input(socket, 'Input'))
+    this.addOutput('output', new Classic.Output(socket, 'Output'))
 
-  constructor() {
-    super('Add')
-
-    this.addInput('a', new Classic.Input(socket, 'A'))
-    this.addInput('b', new Classic.Input(socket, 'B'))
-    this.addOutput('value', new Classic.Output(socket, 'Number'))
-    this.addControl('result', new Classic.InputControl('number', { initial: 0, readonly: true }))
+    this.addInput('internalOutput', new Classic.Input(socket, 'Internal Output'))
+    this.addOutput('internalInput', new Classic.Output(socket, 'Internal Input'))
   }
 }
 
@@ -60,8 +57,14 @@ export async function createEditor(container: HTMLElement) {
   const connection = new ConnectionPlugin<Schemes, AreaExtra>()
   const vueRender = new VuePlugin<Schemes, AreaExtra>()
   const minimap = new MinimapPlugin<Schemes>()
+  const scopes = new ScopesPlugin<Schemes>({
+    // default
+    // padding: () => ({ top: 40, left: 20, right: 20, bottom: 20 })
+    padding: () => ({ top: 40, left: 110, right: 110, bottom: 20 })
+  })
 
   editor.use(area)
+  area.use(scopes)
   area.use(vueRender)
   area.use(connection)
   area.use(minimap)
@@ -69,10 +72,11 @@ export async function createEditor(container: HTMLElement) {
   vueRender.addPreset(
     VuePresets.classic.setup({
       customize: {
-        control(data) {
-          if (data.payload instanceof CustomImgControl) {
-            return ImageOnNode;
+        node(context) {
+          if (context.payload.label.startsWith('Container')) {
+            return CustomNode
           }
+          return VuePresets.classic.Node
         }
       }
     })
@@ -80,17 +84,68 @@ export async function createEditor(container: HTMLElement) {
   connection.addPreset(ConnectionPresets.classic.setup())
   vueRender.addPreset(VuePresets.classic.setup())
   vueRender.addPreset(VuePresets.minimap.setup())
+  scopes.addPreset(ScopesPresets.classic.setup())
 
   const graphData = await fetchGraph()
-  const nodeIdx = graphData.nodes.reduce((prev, curr, i) => ({...prev, [curr]: i}), {})
-  const editorNodes = graphData.nodes.map(n => new InputOutputNode(n))
-  await Promise.all(editorNodes.map((n) => editor.addNode(n)))
-  await Promise.all(
-    graphData.edges.map((e) =>
-      editor.addConnection(
-        new Connection(editorNodes[nodeIdx[e[0]]], 'output', editorNodes[nodeIdx[e[1]]], 'input')
-      )
+
+  const editorNodes = graphData.nodes.map((n) =>
+    n.children ? new ContainerNode(n.id) : new InputOutputNode(n.id)
+  )
+  // TODO: reference nodes directly instead of index. That should produce cleaner code
+  const apiNodeIdx = graphData.nodes.reduce(
+    (prev, curr, i) => ({
+      ...prev,
+      [curr.id]: i
+    }),
+    {}
+  )
+  const editorNodeIdx = editorNodes.reduce(
+    (prev, curr, i) => ({
+      ...prev,
+      [curr.id]: i
+    }),
+    {}
+  )
+  // assign parents
+  graphData.nodes.map((n, i) => {
+    n.children?.forEach((c) => {
+      editorNodes[apiNodeIdx[c]].parent = editorNodes[i].id
+    })
+  })
+
+  // ordering matters! Parent nodes must exist when children nodes are added
+  // parent nodes that are independent can be added at the same time, that should improve latency
+  let addNodes = editorNodes.filter((n) => !n.parent)
+  while (addNodes.length > 0) {
+    await Promise.all(addNodes.map((n) => editor.addNode(n)))
+    addNodes = addNodes.flatMap(
+      (n) =>
+        graphData.nodes[editorNodeIdx[n.id]].children?.map((c) => editorNodes[apiNodeIdx[c]]) || []
     )
+  }
+
+  // add connections
+  await Promise.all(
+    graphData.edges.map((e) => {
+      // source node is child of target node
+      // source node is parent of target node
+      // nodes are not in a relationship
+      const srcNode = editorNodes[apiNodeIdx[e[0]]]
+      const tgtNode = editorNodes[apiNodeIdx[e[1]]]
+      let srcKey: string
+      let tgtKey: string
+      if (srcNode.parent === tgtNode.id) {
+        srcKey = 'output'
+        tgtKey = 'internalOutput'
+      } else if (tgtNode.parent === srcNode.id) {
+        srcKey = 'internalInput'
+        tgtKey = 'input'
+      } else {
+        srcKey = 'output'
+        tgtKey = 'input'
+      }
+      return editor.addConnection(new Connection(srcNode, srcKey, tgtNode, tgtKey))
+    })
   )
 
   const arrange = new AutoArrangePlugin<Schemes>()
