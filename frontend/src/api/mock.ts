@@ -2,24 +2,27 @@ import { ApiGraph } from './types'
 import { graph } from "./the-big-fat-graph"
 
 export async function fetchGraph(): Promise<ApiGraph> {
-  return graph
-  // return {
-  //   nodes: [
-  //     { id: 'input' },
-  //     // Sub
-  //     { id: 'sub_net1', children: ['sub_net1/conv1', 'sub_net1/subsub'] },
-  //     { id: 'sub_net1/conv1' },
-  //     { id: 'sub_net1/subsub', children: ['sub_net1/subsub/conv1'] },
-  //     { id: 'sub_net1/subsub/conv1' },
-  //     { id: 'output' }
-  //   ],
-  //   edges: [
-  //     // block 1
-  //     ['input', 'z', 'sub_net1', 'a'],
-  //     ['sub_net1', 'a', 'sub_net1/conv1', 'z'],
-  //     ['sub_net1', 'z', 'output', 'a']
-  //   ]
-  // }
+  // return graph
+  return {
+    nodes: [
+      { id: 'input' },
+      // Sub
+      { id: 'sub_net1', children: ['sub_net1/conv1', 'sub_net1/subsub'] },
+      { id: 'sub_net1/conv1' },
+      { id: 'sub_net1/subsub', children: ['sub_net1/subsub/conv1'] },
+      { id: 'sub_net1/subsub/conv1' },
+      { id: 'output' }
+    ],
+    edges: [
+      // block 1
+      ['input', 'z', 'sub_net1', 'a'],
+      ['sub_net1', 'a', 'sub_net1/conv1', 'a'],
+      ['sub_net1', 'a', 'sub_net1/subsub', 'a'],
+      ['sub_net1/conv1', 'z', 'sub_net1', 'z'],
+      ['sub_net1/subsub', 'z', 'sub_net1', 'y'],
+      ['sub_net1', 'z', 'output', 'a']
+    ]
+  }
   // // return graph
   // return {
   //   nodes: [
