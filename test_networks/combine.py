@@ -8,9 +8,8 @@ class TestNet(torch.nn.Module):
         self.cat = CatNet()
 
     def forward(self, x):
-        x1 = self.conv1(x)
-        x2 = self.conv1(x)
-        return x1 + x2
+        x = self.conv1(x)
+        return self.cat(x)
 
 
 class CombineNet(torch.nn.Module):
@@ -22,7 +21,8 @@ class CombineNet(torch.nn.Module):
     def forward(self, x):
         x = torch.cat(x)
         x1 = self.sub_net1(x)
-        return x1
+        x2 = self.sub_net2(x)
+        return x1 + x2
 
 
 class SubNet(torch.nn.Module):
@@ -33,6 +33,16 @@ class SubNet(torch.nn.Module):
 
     def forward(self, x):
         x = self.ident(x)
+        x = self.conv1(x)
+        return x
+
+
+class SubSubNet(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = torch.nn.Conv2d(3, 3, kernel_size=1)
+
+    def forward(self, x):
         x = self.conv1(x)
         return x
 
