@@ -1,9 +1,10 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { createEditor } from './rete'
+import NodeViewer from './components/NodeViewer.vue'
 
 export default defineComponent({
-  components: {},
+  components: { NodeViewer },
   async mounted() {
     await createEditor(this.$refs.rete as HTMLElement)
   }
@@ -12,6 +13,7 @@ export default defineComponent({
 
 <template>
   <main class="rete" ref="rete"></main>
+  <NodeViewer :node="{ id: 'nodeid' }"/>
 </template>
 
 <style scoped>

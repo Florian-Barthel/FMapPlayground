@@ -6,25 +6,17 @@
         <!-- TODO: style the checkbox to make it look like a collapse button -->
         <input name="collapse" type="checkbox" v-model="isCollapsed" @pointerdown="(evt) => evt.stopPropagation()">
     </div>
-    <div class="output" :key="'output' + 'output' + seed" :data-testid="'output-'+'output'">
-        <Ref class="input-socket" :data="{ type: 'socket', side: 'input', key: 'internalOutput', nodeId: data.id, payload: fmapInternalOutput().socket }" :emit="emit" data-testid="input-socket"></Ref>
-        <div class="output-title" data-testid="output-title">{{fmapOutput().label}}</div>
-        <Ref class="output-socket" :data="{ type: 'socket', side: 'output', key: 'output', nodeId: data.id, payload: fmapOutput().socket }" :emit="emit" data-testid="output-socket"></Ref>
+    <div class="output" v-for="pair in outputPairs()" :key="pair.key">
+      <Ref class="input-socket" :data="{ type: 'socket', side: 'input', key: `internal-${pair.key}`, nodeId: data.id, payload: pair.internal.socket }" :emit="emit" data-testid="input-socket"></Ref>
+      <div class="output-title" data-testid="output-title">{{pair.outside.label}}</div>
+      <Ref class="output-socket" :data="{ type: 'socket', side: 'output', key: pair.key, nodeId: data.id, payload: pair.outside.socket }" :emit="emit" data-testid="output-socket"></Ref>
     </div>
-    <!-- <div class="output" :key="'output' + 'internalInput' + seed" :data-testid="'output-'+'internalInput'">
-        <div class="output-title" data-testid="output-title">{{fmapInternalInput().label}}</div>
-        <Ref class="output-socket" :data="{ type: 'socket', side: 'output', key: 'internalInput', nodeId: data.id, payload: fmapInternalInput().socket }" :emit="emit" data-testid="output-socket"></Ref>
-    </div> -->
 
-    <div class="input" :key="'input' + 'input' + seed" :data-testid="'input-'+'input'">
-        <Ref class="input-socket" :data="{ type: 'socket', side: 'input', key: 'input', nodeId: data.id, payload: fmapInput().socket }" :emit="emit" data-testid="input-socket"></Ref>
-        <div class="input-title" v-show="!fmapInput().control || !fmapInput().showControl" data-testid="input-title">{{fmapInput().label}}</div>
-        <Ref class="output-socket" :data="{ type: 'socket', side: 'output', key: 'internalInput', nodeId: data.id, payload: fmapInternalInput().socket }" :emit="emit" data-testid="output-socket"></Ref>
+    <div class="input" v-for="pair in inputPairs()" :key="pair.key">
+        <Ref class="input-socket" :data="{ type: 'socket', side: 'input', key: pair.key, nodeId: data.id, payload: pair.outside.socket }" :emit="emit" data-testid="input-socket"></Ref>
+        <div class="input-title" v-show="!pair.outside.control || !pair.outside.showControl" data-testid="input-title">{{pair.outside.label}}</div>
+        <Ref class="output-socket" :data="{ type: 'socket', side: 'output', key: `internal-${pair.key}`, nodeId: data.id, payload: pair.internal.socket }" :emit="emit" data-testid="output-socket"></Ref>
     </div>
-    <!-- <div class="input" :key="'input' + 'internalOutput' + seed" :data-testid="'input-'+'internalOutput'">
-        <Ref class="input-socket" :data="{ type: 'socket', side: 'input', key: 'internalOutput', nodeId: data.id, payload: fmapInternalOutput().socket }" :emit="emit" data-testid="input-socket"></Ref>
-        <div class="input-title" v-show="!fmapInternalOutput().control || !fmapInternalOutput().showControl" data-testid="input-title">{{fmapInternalOutput().label}}</div>
-    </div> -->
 </div>
 </template>
     
@@ -57,27 +49,29 @@
           height: Number.isFinite(this.data.height) ? `${this.data.height}px` : ''
         }
       },
-      inputs() {
-        return sortByIndex(Object.entries(this.data.inputs))
-      },
       controls() {
         return sortByIndex(Object.entries(this.data.controls))
       },
-      outputs() {
-        return sortByIndex(Object.entries(this.data.outputs))
+      inputPairs() {
+        const preLen = "internal-".length
+        const realInputs = Object.entries(this.data.inputs).filter(([key, skt]) => !key.startsWith("internal-"));
+        const fakeOutputs = Object.entries(this.data.outputs).filter(([key, skt]) => key.startsWith("internal-"));
+        return realInputs.map(([key, skt]) => ({
+          key: key,
+          outside: skt,
+          internal: fakeOutputs.find(([iKey, iSkt]) => iKey.substr(preLen) === key)[1]
+        }))
       },
-      fmapInput() {
-        return this.data.inputs.input
+      outputPairs() {
+        const preLen = "internal-".length
+        const realOutputs = Object.entries(this.data.outputs).filter(([key, skt]) => !key.startsWith("internal-"));
+        const fakeInputs = Object.entries(this.data.inputs).filter(([key, skt]) => key.startsWith("internal-"));
+        return realOutputs.map(([key, skt]) => ({
+          key: key,
+          outside: skt,
+          internal: fakeInputs.find(([iKey, iSkt]) => iKey.substr(preLen) === key)[1]
+        }))
       },
-      fmapInternalInput() {
-        return this.data.outputs.internalInput
-      },
-      fmapOutput() {
-        return this.data.outputs.output
-      },
-      fmapInternalOutput() {
-        return this.data.inputs.internalOutput
-      }
     },
     components: {
       Ref
