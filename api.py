@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 import torchvision.transforms as T
@@ -9,6 +7,7 @@ from io import BytesIO
 from backward_graph_clean import BackwardGraph
 from fmap_viz import create
 from test_networks import submodules
+from api_graph import APIGraph
 
 from torchvision.models import (
     efficientnet_b4,
@@ -30,51 +29,13 @@ def serve_pil_image(pil_img):
 app = Flask(__name__)
 CORS(app)
 graph: BackwardGraph = None
-
-
-class APIGraph:
-    def __init__(self, module_info):
-        self.nodes: List[dict] = []
-        self.edges = []
-        self.module_info = module_info
-
-    def rec_add_nodes(self, module: dict):
-        children = []
-        id_ = list(module.keys())[0]
-
-        name = id_
-        if "?!module_id" in name:
-            name = name[: name.index("?!module_id")]
-
-        content = list(module.values())[0]
-        if "layers" in content.keys():
-            for layer in content["layers"]:
-                children.append(str(layer.grad_fn))
-                self.nodes.append(
-                    dict(id=str(layer.grad_fn), name=str(layer.grad_fn), children=[], info=None)
-                )
-
-        if "next_scopes" in content.keys():
-            for next_module_name, next_module_content in content["next_scopes"].items():
-                children.append(next_module_name)
-                self.rec_add_nodes({next_module_name: next_module_content})
-
-        info = None
-        if id_ in self.module_info.keys():
-            info = self.module_info[id_].info
-        self.nodes.append(dict(id=id_, name=name, children=children, info=info))
-
-    def add_connections(self, forward_connections: dict):
-        for start, end in forward_connections.items():
-            for end_id in end:
-                start_node = str(start)
-                end_node = str(end_id)
-                self.edges.append((start_node, "out", end_node, "in"))
+api_graph: APIGraph = None
 
 
 @app.route("/api/graph", methods=["GET", "POST"])
 def get_graph():
     global graph
+    global api_graph
     net = submodules.Net()
     graph = create(net)
 
@@ -89,19 +50,18 @@ def get_graph():
 @app.route("/api/fmap", methods=["GET", "POST"])
 def get_img():
     node_id = request.args.get("node_id")
-    global graph
-    if graph is None:
+    node_id = node_id.split("/")[-1]
+    global api_graph
+    if api_graph is None:
         return jsonify({f"status": f"create graph first with /api/graph"})
 
-    all_layers = {str(key): value for key, value in graph.all_layers.items()}
-
-    if node_id not in all_layers.keys():
+    if node_id not in api_graph.module_info.keys():
         return jsonify({f"status": f"{node_id} not in nodes"})
 
-    if not hasattr(all_layers[node_id], "data"):
+    if not hasattr(api_graph.module_info[node_id], "input_tensor"):
         return jsonify({f"status": f"no fmap for node: {node_id}"})
 
-    fmap = torch.mean(all_layers[node_id].data, dim=0)
+    fmap = torch.mean(api_graph.module_info[node_id].input_tensor, dim=0)
     # grad = torch.mean(all_layers[node_id].data.grad, dim=0)
     transform = T.ToPILImage()
     fmap = transform(fmap)
