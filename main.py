@@ -36,10 +36,7 @@ from module_list import ModuleList
 if __name__ == "__main__":
     img_pil = Image.open("images/elefant.jpg").convert("RGB").resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
-    net = (
-        inception_v3()
-    )  # TestNet() # hrnet_w32() #squeezenet.squeezenet1_0() # vision_transformer.vit_small_patch16_36x1_224()
-    # net = vision_transformer.vit_small_patch16_36x1_224()
+    net = inception_v3()
     net.eval()
 
     print("Forward Pass")
@@ -61,9 +58,6 @@ if __name__ == "__main__":
     print("Update Scopes")
     backGraph.update_scopes()
 
-    print("Skip Duplicates")
-    backGraph.skip_duplicate_results()
-
     print("remove results")
     backGraph.remove_results()
 
@@ -72,6 +66,4 @@ if __name__ == "__main__":
         connections=backGraph.connections,
         modules=backGraph.split_into_modules(),
         param_map=net.param_map,
-        out_folder="./frontend/frontend_custom/src/assets",
-        out_format="svg",
     )

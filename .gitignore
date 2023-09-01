@@ -3,3 +3,5 @@ __pycache__
 HiLo
 .DS_Store
 frontend/frontend_custom/src/assets/
+
+graph_viz_out/
