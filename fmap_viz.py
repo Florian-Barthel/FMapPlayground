@@ -35,8 +35,8 @@ def create(net) -> BackwardGraph:
     print("Skip Duplicates")
     backGraph.skip_duplicate_results()
 
-    # print("remove results")
-    # backGraph.remove_results()
+    print("remove results")
+    backGraph.remove_results()
 
     # print("Draw Graph")
     # _create_graph(

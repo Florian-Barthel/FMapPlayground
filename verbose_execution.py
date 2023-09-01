@@ -28,6 +28,7 @@ class VerboseExecution(torch.nn.Module):
         sig = inspect.signature(module)
         file = inspect.getfile(module.__class__)
         doc = module.__doc__
+        description = str(module)
 
         children_layer = list(module.named_children())
         if len(children_layer) == 0:

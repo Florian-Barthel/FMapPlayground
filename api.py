@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 import torchvision.transforms as T
@@ -5,7 +7,6 @@ import torch
 from io import BytesIO
 
 from backward_graph_clean import BackwardGraph
-from custom_layer import ResultLayer
 from fmap_viz import create
 from test_networks import submodules
 
@@ -31,9 +32,38 @@ CORS(app)
 graph: BackwardGraph = None
 
 
-class Module:
-    def __init__(self, scope):
-        self.scope = scope
+class APIGraph:
+    def __init__(self):
+        self.nodes: List[dict] = []
+        self.edges = []
+
+    def rec_add_nodes(self, module: dict):
+        children = []
+        id_ = list(module.keys())[0]
+
+        name = id_
+        if "?!module_id" in name:
+            name = name[: name.index("?!module_id")]
+
+        content = list(module.values())[0]
+        if "layers" in content.keys():
+            for layer in content["layers"]:
+                children.append(str(layer.grad_fn))
+                self.nodes.append(dict(id=str(layer.grad_fn), name=str(layer.grad_fn), children=[]))
+
+        if "next_scopes" in content.keys():
+            for next_module_name, next_module_content in content["next_scopes"].items():
+                children.append(next_module_name)
+                self.rec_add_nodes({next_module_name: next_module_content})
+
+        self.nodes.append(dict(id=id_, name=name, children=children))
+
+    def add_connections(self, forward_connections: dict):
+        for start, end in forward_connections.items():
+            for end_id in end:
+                start_node = str(start)
+                end_node = str(end_id)
+                self.edges.append((start_node, "out", end_node, "in"))
 
 
 @app.route("/api/graph", methods=["GET", "POST"])
@@ -41,44 +71,12 @@ def get_graph():
     global graph
     net = submodules.Net()
     graph = create(net)
-    forward_connections = graph.connections.forward_connections
-    edges = []
-    all_modules = set()
-    for start, end in forward_connections.items():
-        for end_id in end:
-            start_node = str(start)
-            end_node = str(end)
-            start_module = graph.all_layers[start].scope
-            end_module = graph.all_layers[end_id].scope
-            all_modules.add(start_module)
-            all_modules.add(end_module)
-            edges.append((start_module, start_node, end_module, end_node))
 
-    all_layers = graph.all_layers
-    nodes = []
-    filtered_layers = {}
-    for key, layer in all_layers.items():
-        children = []
-        if isinstance(layer, ResultLayer):
-            continue
-        filtered_layers[key] = layer
-        name = layer.name
-        nodes.append(dict(id=str(key), name=name, children=children))
+    api_graph = APIGraph()
+    api_graph.rec_add_nodes(graph.split_into_modules())
+    api_graph.add_connections(graph.connections.forward_connections)
 
-    filtered_layers.update({module: Module(module[:module.index("?!module_id")]) for module in all_modules})
-    for module in all_modules:
-        children = [
-            str(layer_key)
-            for layer_key in list(filtered_layers.keys())
-            if filtered_layers[layer_key].scope.startswith(module)
-            and (
-                len(filtered_layers[layer_key].scope.split("/")) == len(module.split("/")) + 1
-                or len(filtered_layers[layer_key].scope.split("/")) == len(module.split("/"))
-                and module.endswith("_leaf")
-            )
-        ]
-        nodes.append(dict(id=module, name=module, children=children))
-    json_graph = jsonify({"status": "success", "edges": edges, "nodes": nodes})
+    json_graph = jsonify({"status": "success", "edges": api_graph.edges, "nodes": api_graph.nodes})
     return json_graph
 
 
