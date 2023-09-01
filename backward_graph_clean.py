@@ -268,24 +268,23 @@ class BackwardGraph:
 
         self._create_module_rec(layer, scopes[1:], module[scopes[0]]["next_scopes"])
 
-    def skip_duplicate_results(self):
-        nodes_to_delete = set()
-        for from_conn, to_conns in self.connections.iterate_connections():
-            from_node = self.all_layers[from_conn]
-            for to_conn in to_conns:
-                to_node = self.all_layers[to_conn]
-                if isinstance(from_node, ResultLayer) and isinstance(to_node, ResultLayer):
-                    if (
-                        from_node.scope == to_node.scope
-                        and from_node.layer_type == to_node.layer_type
-                    ):
-                        nodes_to_delete.add(from_node)
-
-        for i in range(len(nodes_to_delete)):
-            node = nodes_to_delete.pop()
-            self.connections.remove_node(node.node_id, fix_graph=True)
-            del self.all_layers[node.node_id]
-            print("Removing", node.scope)
+    # def skip_duplicate_results(self):
+    #     nodes_to_delete = set()
+    #     for from_conn, to_conns in self.connections.iterate_connections():
+    #         from_node = self.all_layers[from_conn]
+    #         for to_conn in to_conns:
+    #             to_node = self.all_layers[to_conn]
+    #             if isinstance(from_node, ResultLayer) and isinstance(to_node, ResultLayer):
+    #                 if (
+    #                     from_node.scope == to_node.scope
+    #                     and from_node.layer_type == to_node.layer_type
+    #                 ):
+    #                     nodes_to_delete.add(from_node)
+    #
+    #     for i in range(len(nodes_to_delete)):
+    #         node = nodes_to_delete.pop()
+    #         self.connections.remove_node(node.node_id, fix_graph=True)
+    #         del self.all_layers[node.node_id]
 
     def remove_results(self):
         nodes_to_delete = set()
@@ -297,4 +296,3 @@ class BackwardGraph:
             node = nodes_to_delete.pop()
             self.connections.remove_node(node.node_id, fix_graph=True)
             del self.all_layers[node.node_id]
-            print("Removing", node.scope)

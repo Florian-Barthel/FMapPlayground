@@ -2,7 +2,6 @@ import torch
 from PIL import Image
 from torchvision.transforms import transforms
 
-from generate_graphviz_graph import create_graph as _create_graph
 from backward_graph_clean import BackwardGraph
 from verbose_execution import VerboseExecution
 from module_list import ModuleList
@@ -32,18 +31,7 @@ def create(net) -> BackwardGraph:
     print("Update Scopes")
     backGraph.update_scopes()
 
-    print("Skip Duplicates")
-    backGraph.skip_duplicate_results()
-
-    print("remove results")
+    print("Remove Results")
     backGraph.remove_results()
 
-    # print("Draw Graph")
-    # _create_graph(
-    #     connections=backGraph.connections,
-    #     modules=backGraph.split_into_modules(),
-    #     param_map=net.param_map,
-    #     out_folder="./frontend/frontend_custom/src/assets",
-    #     out_format="svg",
-    # )
     return backGraph
