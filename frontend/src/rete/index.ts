@@ -41,12 +41,9 @@ class ContainerNode extends Classic.Node {
 
     inputSockets.forEach((s) => this.addInput(s, new Classic.Input(socket, s.substring(0, 16))))
     outputSockets.forEach((s) => this.addOutput(s, new Classic.Output(socket, s.substring(0, 16))))
-    inputSockets.forEach((s) =>
-      this.addOutput(`internal-${s}`, new Classic.Output(socket, `Internal ${s}`))
-    )
-    outputSockets.forEach((s) =>
-      this.addInput(`internal-${s}`, new Classic.Input(socket, `Internal ${s}`))
-    )
+
+    this.addInput('test-input', new Classic.Input(socket, 'Test Input'))
+    this.addOutput('test-Output', new Classic.Output(socket, 'Test Output'))
   }
 }
 
@@ -54,17 +51,17 @@ type AreaExtra = Area2D<Schemes> | VueArea2D<Schemes> | MinimapExtra
 
 const socket = new Classic.Socket('socket')
 
+function unique<T>(array: T[]): T[] {
+  return [...new Set(array)]
+}
+
 export async function createEditor(container: HTMLElement) {
   const editor = new NodeEditor<Schemes>()
   const area = new AreaPlugin<Schemes, AreaExtra>(container)
   const connection = new ConnectionPlugin<Schemes, AreaExtra>()
   const vueRender = new VuePlugin<Schemes, AreaExtra>()
   const minimap = new MinimapPlugin<Schemes>()
-  const scopes = new ScopesPlugin<Schemes>({
-    // default
-    // padding: () => ({ top: 40, left: 20, right: 20, bottom: 20 })
-    padding: () => ({ top: 40, left: 110, right: 110, bottom: 20 })
-  })
+  const scopes = new ScopesPlugin<Schemes>()
 
   editor.use(area)
   area.use(scopes)
@@ -91,45 +88,27 @@ export async function createEditor(container: HTMLElement) {
 
   const graphData = await fetchGraph()
 
-  const children:{[key:string]:string[]} = {}
-  graphData.nodes.forEach(node => {
-    children[node.id] = node.children || []
-  })
   const inputSocketLookup: {[key:string]:any[]} = {}
   const outputSocketLookup: {[key:string]:any[]} = {}
   graphData.edges.forEach(([fromNode, fromSocket, toNode, toSocket]) => {
-    // is child?
-    if (children[fromNode].some(c => c === toNode)) {
-      // to is child of from => input-input
-      inputSocketLookup[fromNode] = [fromSocket, ...(inputSocketLookup[fromNode] || [])]
-      inputSocketLookup[toNode] = [toSocket, ...(inputSocketLookup[toNode] || [])]
-    } else if (children[toNode].some(c => c === fromNode)) {
-      // from is child of to => output-output
-      outputSocketLookup[fromNode] = [fromSocket, ...(outputSocketLookup[fromNode] || [])]
-      outputSocketLookup[toNode] = [toSocket, ...(outputSocketLookup[toNode] || [])]
-    } else {
-      // no child-parent relationship => output-input
-      outputSocketLookup[fromNode] = [fromSocket, ...(outputSocketLookup[fromNode] || [])]
-      inputSocketLookup[toNode] = [toSocket, ...(inputSocketLookup[toNode] || [])]
-    }
+    outputSocketLookup[fromNode] = [fromSocket, ...(outputSocketLookup[fromNode] || [])]
+    inputSocketLookup[toNode] = [toSocket, ...(inputSocketLookup[toNode] || [])]
   })
-  const inputSocketLkp = Object.fromEntries(Object.entries(inputSocketLookup).map(([key, sockets]) => [key, [...new Set(sockets)]]));
-  const outputSocketLkp = Object.fromEntries(Object.entries(outputSocketLookup).map(([key, sockets]) => [key, [...new Set(sockets)]]));
 
   const editorNodes = graphData.nodes.map((n) =>
     n.children
-      ? new ContainerNode(n.name || n.id, inputSocketLkp[n.id] || [], outputSocketLkp[n.id] || [])
-      : new InputOutputNode(n.name || n.id, inputSocketLkp[n.id] || [], outputSocketLkp[n.id] || [])
+      ? new ContainerNode(n.name || n.id, unique(inputSocketLookup[n.id]) || [], unique(outputSocketLookup[n.id]) || [])
+      : new InputOutputNode(n.name || n.id, unique(inputSocketLookup[n.id]) || [], unique(outputSocketLookup[n.id]) || [])
   )
   // TODO: reference nodes directly instead of index. That should produce cleaner code
-  const apiNodeIdx = graphData.nodes.reduce(
+  const apiNodeIdx: {[key:string]: number} = graphData.nodes.reduce(
     (prev, curr, i) => ({
       ...prev,
       [curr.id]: i
     }),
     {}
   )
-  const editorNodeIdx = editorNodes.reduce(
+  const editorNodeIdx: {[key: string]: number} = editorNodes.reduce(
     (prev, curr, i) => ({
       ...prev,
       [curr.id]: i
@@ -159,19 +138,7 @@ export async function createEditor(container: HTMLElement) {
     graphData.edges.map(([fromNode, fromSocket, toNode, toSocket]) => {
       const srcNode = editorNodes[apiNodeIdx[fromNode]]
       const tgtNode = editorNodes[apiNodeIdx[toNode]]
-      let srcKey: string
-      let tgtKey: string
-      if (srcNode.parent === tgtNode.id) {
-        srcKey = fromSocket
-        tgtKey = `internal-${toSocket}`
-      } else if (tgtNode.parent === srcNode.id) {
-        srcKey = `internal-${fromSocket}`
-        tgtKey = toSocket
-      } else {
-        srcKey = fromSocket
-        tgtKey = toSocket
-      }
-      return editor.addConnection(new Connection(srcNode, srcKey, tgtNode, tgtKey))
+      return editor.addConnection(new Connection(srcNode, fromSocket, tgtNode, toSocket))
     })
   )
 
