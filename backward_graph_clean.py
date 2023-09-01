@@ -298,6 +298,3 @@ class BackwardGraph:
             self.connections.remove_node(node.node_id, fix_graph=True)
             del self.all_layers[node.node_id]
             print("Removing", node.scope)
-
-    def get_modules(self):
-        pass
