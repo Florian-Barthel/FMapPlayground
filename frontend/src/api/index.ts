@@ -2,7 +2,7 @@ import { fetchGraph as mockFetchGraph, getFeatureMapUrl as mockGetFeatureMapUrl 
 import { fetchGraph as realFetchGraph, getFeatureMapUrl as realGetFeatureMapUrl } from './real'
 import { ApiGraph } from './types'
 
-const useMock = true
+const useMock = false
 
 export function fetchGraph(): Promise<ApiGraph> {
   return useMock ? mockFetchGraph() : realFetchGraph()
