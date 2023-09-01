@@ -33,9 +33,10 @@ graph: BackwardGraph = None
 
 
 class APIGraph:
-    def __init__(self):
+    def __init__(self, module_info):
         self.nodes: List[dict] = []
         self.edges = []
+        self.module_info = module_info
 
     def rec_add_nodes(self, module: dict):
         children = []
@@ -49,14 +50,19 @@ class APIGraph:
         if "layers" in content.keys():
             for layer in content["layers"]:
                 children.append(str(layer.grad_fn))
-                self.nodes.append(dict(id=str(layer.grad_fn), name=str(layer.grad_fn), children=[]))
+                self.nodes.append(
+                    dict(id=str(layer.grad_fn), name=str(layer.grad_fn), children=[], info=None)
+                )
 
         if "next_scopes" in content.keys():
             for next_module_name, next_module_content in content["next_scopes"].items():
                 children.append(next_module_name)
                 self.rec_add_nodes({next_module_name: next_module_content})
 
-        self.nodes.append(dict(id=id_, name=name, children=children))
+        info = None
+        if id_ in self.module_info.keys():
+            info = self.module_info[id_].info
+        self.nodes.append(dict(id=id_, name=name, children=children, info=info))
 
     def add_connections(self, forward_connections: dict):
         for start, end in forward_connections.items():
@@ -72,7 +78,7 @@ def get_graph():
     net = submodules.Net()
     graph = create(net)
 
-    api_graph = APIGraph()
+    api_graph = APIGraph(graph.module_info)
     api_graph.rec_add_nodes(graph.split_into_modules())
     api_graph.add_connections(graph.connections.forward_connections)
 

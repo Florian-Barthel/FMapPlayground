@@ -10,7 +10,10 @@ class Module:
         self.scope_readable = "/".join([s.split("?!")[0] for s in layer.__name__.split("/")])
         self.name = layer.__class__.__name__
         self.id = (id(self.input_tensor), id(self.layer), id(self.output_tensor))
-        self.equal_io = check_equal(input_tensor, output_tensor) and id(input_tensor) == id(output_tensor)
+        self.equal_io = check_equal(input_tensor, output_tensor) and id(input_tensor) == id(
+            output_tensor
+        )
+        self.info = layer.info
 
 
 class ModuleList:
@@ -26,7 +29,7 @@ class ModuleList:
     def get_input_nodes(self):
         scope_dict = {}
         for module in self.module_list:
-            scope = module.scope.split('/')
+            scope = module.scope.split("/")
             scope_len = len(scope)
             if scope_len not in scope_dict.keys():
                 scope_dict[scope_len] = []
@@ -37,7 +40,7 @@ class ModuleList:
         sorted_keys = sorted(scope_dict.keys())
         for key in sorted_keys:
             for input_output in scope_dict[key]:
-                scope = input_output.scope.split('/')
+                scope = input_output.scope.split("/")
                 for i in range(1, len(scope)):
                     if scope[:-i] in scope_list:
                         scope_list.reverse()
@@ -48,12 +51,12 @@ class ModuleList:
                         input_output_list.insert(insert_index, input_output)
                         break
 
-        return input_output_list[1:] # remove first element, which was used as a placeholder
+        return input_output_list[1:]  # remove first element, which was used as a placeholder
 
     def get_output_nodes(self):
         scope_dict = {}
         for module in self.module_list:
-            scope = module.scope.split('/')
+            scope = module.scope.split("/")
             scope_len = len(scope)
             if scope_len not in scope_dict.keys():
                 scope_dict[scope_len] = []
@@ -64,7 +67,7 @@ class ModuleList:
         sorted_keys = sorted(scope_dict.keys())
         for key in sorted_keys:
             for input_output in scope_dict[key]:
-                scope = input_output.scope.split('/')
+                scope = input_output.scope.split("/")
                 for i in range(1, len(scope)):
                     if scope[:-i] in scope_list:
                         insert_index = scope_list.index(scope[:-i])
@@ -78,5 +81,7 @@ class ModuleList:
 class Placeholder:
     def __init__(self):
         self.scope = "placeholder"
+
+
 def see_scope(mod):
     return [m[1].__name__ for m in mod]
