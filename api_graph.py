@@ -20,7 +20,7 @@ class APIGraph:
             for layer in content["layers"]:
                 children.append(str(layer.grad_fn))
                 self.nodes.append(
-                    dict(id=str(layer.grad_fn), name=str(layer.grad_fn), children=[], info=None)
+                    dict(id=str(layer.grad_fn), name=str(layer.name), children=[], info=None)
                 )
 
         if "next_scopes" in content.keys():
