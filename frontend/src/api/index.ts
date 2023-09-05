@@ -1,6 +1,7 @@
 import { fetchGraph as mockFetchGraph, getFeatureMapUrl as mockGetFeatureMapUrl } from './mock'
 import { fetchGraph as realFetchGraph, getFeatureMapUrl as realGetFeatureMapUrl } from './real'
-import { ApiGraph } from './types'
+import { type ApiGraph } from './types'
+export { type ApiNode } from './types'
 
 const useMock = false
 

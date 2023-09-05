@@ -4,28 +4,50 @@
         <span>{{ data.label }}</span>
         <label for="collapse" style="color: white">Collapse</label>
         <!-- TODO: style the checkbox to make it look like a collapse button -->
-        <input name="collapse" type="checkbox" v-model="isCollapsed" @pointerdown="(evt) => evt.stopPropagation()">
+        <input
+          name="collapse"
+          type="checkbox"
+          v-model="isCollapsed"
+          @change="(evt: any) => data.collapse(evt.currentTarget.checked)"
+          @pointerdown="(evt) => evt.stopPropagation()"
+        >
     </div>
-    <div class="output" v-for="pair in outputPairs()" :key="pair.key">
-      <Ref class="input-socket" :data="{ type: 'socket', side: 'input', key: `internal-${pair.key}`, nodeId: data.id, payload: pair.internal.socket }" :emit="emit" data-testid="input-socket"></Ref>
-      <div class="output-title" data-testid="output-title">{{pair.outside.label}}</div>
-      <Ref class="output-socket" :data="{ type: 'socket', side: 'output', key: pair.key, nodeId: data.id, payload: pair.outside.socket }" :emit="emit" data-testid="output-socket"></Ref>
+    <div v-if="isCollapsed">
+      <div class="output" v-for="[key, output] in outputs()" :key="key">
+        <div class="output-title" data-testid="output-title">{{output.label}}</div>
+        <Ref
+          class="output-socket"
+          :data="{ type: 'socket', side: 'output', key: key, nodeId: data.id, payload: output.socket }"
+          :emit="emit"
+          data-testid="output-socket"
+        ></Ref>
+      </div>
     </div>
 
-    <div class="input" v-for="pair in inputPairs()" :key="pair.key">
-        <Ref class="input-socket" :data="{ type: 'socket', side: 'input', key: pair.key, nodeId: data.id, payload: pair.outside.socket }" :emit="emit" data-testid="input-socket"></Ref>
-        <div class="input-title" v-show="!pair.outside.control || !pair.outside.showControl" data-testid="input-title">{{pair.outside.label}}</div>
-        <Ref class="output-socket" :data="{ type: 'socket', side: 'output', key: `internal-${pair.key}`, nodeId: data.id, payload: pair.internal.socket }" :emit="emit" data-testid="output-socket"></Ref>
+    <div v-if="isCollapsed">
+      <div class="input" v-for="[key, input] in inputs()" :key="key">
+          <Ref
+            class="input-socket"
+            :data="{ type: 'socket', side: 'input', key: key, nodeId: data.id, payload: input.socket }"
+            :emit="emit"
+            data-testid="input-socket"
+          ></Ref>
+          <div
+            class="input-title"
+            v-show="!input.control || !input.showControl"
+            data-testid="input-title"
+          >{{input.label}}</div>
+      </div>
     </div>
 </div>
 </template>
     
     
-<script lang="js">
+<script lang="ts">
   import { defineComponent } from 'vue'
   import { Ref } from 'rete-vue-plugin'
   
-  function sortByIndex(entries) {
+  function sortByIndex<T>(entries: [T, any][]) {
     entries.sort((a, b) => {
       const ai = a[1] && a[1].index || 0
       const bi = b[1] && b[1].index || 0
@@ -52,25 +74,11 @@
       controls() {
         return sortByIndex(Object.entries(this.data.controls))
       },
-      inputPairs() {
-        const preLen = "internal-".length
-        const realInputs = Object.entries(this.data.inputs).filter(([key, skt]) => !key.startsWith("internal-"));
-        const fakeOutputs = Object.entries(this.data.outputs).filter(([key, skt]) => key.startsWith("internal-"));
-        return realInputs.map(([key, skt]) => ({
-          key: key,
-          outside: skt,
-          internal: fakeOutputs.find(([iKey, iSkt]) => iKey.substr(preLen) === key)[1]
-        }))
+      inputs() {
+        return sortByIndex(Object.entries(this.data.inputs))
       },
-      outputPairs() {
-        const preLen = "internal-".length
-        const realOutputs = Object.entries(this.data.outputs).filter(([key, skt]) => !key.startsWith("internal-"));
-        const fakeInputs = Object.entries(this.data.inputs).filter(([key, skt]) => key.startsWith("internal-"));
-        return realOutputs.map(([key, skt]) => ({
-          key: key,
-          outside: skt,
-          internal: fakeInputs.find(([iKey, iSkt]) => iKey.substr(preLen) === key)[1]
-        }))
+      outputs() {
+        return sortByIndex(Object.entries(this.data.outputs))
       },
     },
     components: {

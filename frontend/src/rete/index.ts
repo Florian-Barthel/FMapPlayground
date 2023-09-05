@@ -1,15 +1,15 @@
-import { ClassicPreset as Classic, GetSchemes, NodeEditor } from 'rete'
-import { Area2D, AreaExtensions, AreaPlugin } from 'rete-area-plugin'
+import { ClassicPreset as Classic, type GetSchemes, NodeEditor } from 'rete'
+import { type Area2D, AreaExtensions, AreaPlugin } from 'rete-area-plugin'
 import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-plugin'
-import { VuePlugin, VueArea2D, Presets as VuePresets } from 'rete-vue-plugin'
+import { VuePlugin, type VueArea2D, Presets as VuePresets } from 'rete-vue-plugin'
 import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-plugin'
-import { MinimapExtra, MinimapPlugin } from 'rete-minimap-plugin'
+import { type MinimapExtra, MinimapPlugin } from 'rete-minimap-plugin'
 import { ScopesPlugin, Presets as ScopesPresets } from 'rete-scopes-plugin'
 
 import { fetchGraph } from '../api'
+import { type Node, InputOutputNode, ContainerNode } from './nodes'
 import CustomNode from '../components/CustomNode.vue'
 
-type Node = InputOutputNode | ContainerNode
 type Conn =
   | Connection<InputOutputNode, ContainerNode>
   | Connection<ContainerNode, ContainerNode>
@@ -18,41 +18,49 @@ type Schemes = GetSchemes<Node, Conn>
 
 class Connection<A extends Node, B extends Node> extends Classic.Connection<A, B> {}
 
-class InputOutputNode extends Classic.Node {
-  width = 180
-  height = 180
-  parent?: string
-
-  constructor(name: string, inputSockets: string[], outputSockets: string[], parent?: string) {
-    super(`Module ${name.substring(0, 16)}`)
-    this.parent = parent
-
-    inputSockets.forEach((s) => this.addInput(s, new Classic.Input(socket, s)))
-    outputSockets.forEach((s) => this.addOutput(s, new Classic.Output(socket, s)))
-  }
-}
-
-class ContainerNode extends Classic.Node {
-  width = 300
-  height = 300
-  parent?: string
-  constructor(name: string, inputSockets: string[], outputSockets: string[]) {
-    super(`Container: ${name.substring(0, 16)}`)
-
-    inputSockets.forEach((s) => this.addInput(s, new Classic.Input(socket, s.substring(0, 16))))
-    outputSockets.forEach((s) => this.addOutput(s, new Classic.Output(socket, s.substring(0, 16))))
-    inputSockets.forEach((s) =>
-      this.addOutput(`internal-${s}`, new Classic.Output(socket, `Internal ${s}`))
-    )
-    outputSockets.forEach((s) =>
-      this.addInput(`internal-${s}`, new Classic.Input(socket, `Internal ${s}`))
-    )
-  }
-}
-
 type AreaExtra = Area2D<Schemes> | VueArea2D<Schemes> | MinimapExtra
 
-const socket = new Classic.Socket('socket')
+function unique<T>(array: T[]): T[] {
+  return [...new Set(array)]
+}
+
+async function safeAddNodes(nodes: Node[], editor: NodeEditor<Schemes>) {
+  // ordering matters! Parent nodes must exist when children nodes are added
+  // parent nodes that are independent can be added at the same time, that should improve latency
+  let addNodes = [...nodes]
+  while (addNodes.length > 0) {
+    await Promise.all(addNodes.map(n => editor.addNode(n)))
+    addNodes = addNodes.flatMap(n => ('childNodes' in n ? n.childNodes : null) || [])
+  }
+}
+
+async function removeNodeWithChildren(node: Node, editor: NodeEditor<Schemes>) {
+  let removedConns: {source?:string, target?:string, sourceOutput:string, targetInput:string}[] = []
+  if ('childNodes' in node) {
+    for (const child of node.childNodes) {
+      const x = await removeNodeWithChildren(child, editor)
+      removedConns = [...removedConns, ...x]
+    }
+  }
+  // remove connections
+  const conns = editor.getConnections().filter(c => c.source === node.id || c.target === node.id);
+  const tmp = conns.map(c => {
+    const isSource = c.source === node.id
+    return {
+      source: isSource ? undefined : c.source,
+      sourceOutput: isSource ? `${c.source}-${c.sourceOutput}` : c.sourceOutput,
+      target: !isSource ? undefined : c.target,
+      targetInput: !isSource ? `${c.target}-${c.targetInput}` : c.targetInput,
+    }
+  })
+  removedConns = [...removedConns, ...tmp]
+  for (const c of conns) {
+    await editor.removeConnection(c.id)
+  }
+  node.parent = undefined
+  await editor.removeNode(node.id)
+  return removedConns
+}
 
 export async function createEditor(container: HTMLElement) {
   const editor = new NodeEditor<Schemes>()
@@ -60,11 +68,7 @@ export async function createEditor(container: HTMLElement) {
   const connection = new ConnectionPlugin<Schemes, AreaExtra>()
   const vueRender = new VuePlugin<Schemes, AreaExtra>()
   const minimap = new MinimapPlugin<Schemes>()
-  const scopes = new ScopesPlugin<Schemes>({
-    // default
-    // padding: () => ({ top: 40, left: 20, right: 20, bottom: 20 })
-    padding: () => ({ top: 40, left: 110, right: 110, bottom: 20 })
-  })
+  const scopes = new ScopesPlugin<Schemes>()
 
   editor.use(area)
   area.use(scopes)
@@ -91,45 +95,42 @@ export async function createEditor(container: HTMLElement) {
 
   const graphData = await fetchGraph()
 
-  const children:{[key:string]:string[]} = {}
-  graphData.nodes.forEach(node => {
-    children[node.id] = node.children || []
-  })
   const inputSocketLookup: {[key:string]:any[]} = {}
   const outputSocketLookup: {[key:string]:any[]} = {}
   graphData.edges.forEach(([fromNode, fromSocket, toNode, toSocket]) => {
-    // is child?
-    if (children[fromNode].some(c => c === toNode)) {
-      // to is child of from => input-input
-      inputSocketLookup[fromNode] = [fromSocket, ...(inputSocketLookup[fromNode] || [])]
-      inputSocketLookup[toNode] = [toSocket, ...(inputSocketLookup[toNode] || [])]
-    } else if (children[toNode].some(c => c === fromNode)) {
-      // from is child of to => output-output
-      outputSocketLookup[fromNode] = [fromSocket, ...(outputSocketLookup[fromNode] || [])]
-      outputSocketLookup[toNode] = [toSocket, ...(outputSocketLookup[toNode] || [])]
-    } else {
-      // no child-parent relationship => output-input
-      outputSocketLookup[fromNode] = [fromSocket, ...(outputSocketLookup[fromNode] || [])]
-      inputSocketLookup[toNode] = [toSocket, ...(inputSocketLookup[toNode] || [])]
-    }
+    outputSocketLookup[fromNode] = [fromSocket, ...(outputSocketLookup[fromNode] || [])]
+    inputSocketLookup[toNode] = [toSocket, ...(inputSocketLookup[toNode] || [])]
   })
-  const inputSocketLkp = Object.fromEntries(Object.entries(inputSocketLookup).map(([key, sockets]) => [key, [...new Set(sockets)]]));
-  const outputSocketLkp = Object.fromEntries(Object.entries(outputSocketLookup).map(([key, sockets]) => [key, [...new Set(sockets)]]));
+
+  const onCollapseNode = async (collapse: boolean, childNodes: Node[], theNode: Node) => {
+    if (collapse) {
+      for (const child of childNodes) {
+        // assign new connections
+        const oldConns = await removeNodeWithChildren(child, editor)
+        for (const conn of oldConns) {
+          console.assert(!!conn.source || !!conn.target, 'At least source or target must be st')
+          const src = conn.source ? editor.getNode(conn.source) : theNode
+          const tgt = conn.target ? editor.getNode(conn.target) : theNode
+          if (src && tgt && (src.id !== tgt.id)) {
+            await editor.addConnection(new Connection(src, conn.sourceOutput, tgt, conn.targetInput));
+          }
+        }
+      }
+    } else {
+      // add nodes back
+      await safeAddNodes(childNodes, editor);
+      // delete connections
+      // add old ones back
+    }
+  }
 
   const editorNodes = graphData.nodes.map((n) =>
     n.children
-      ? new ContainerNode(n.name || n.id, inputSocketLkp[n.id] || [], outputSocketLkp[n.id] || [])
-      : new InputOutputNode(n.name || n.id, inputSocketLkp[n.id] || [], outputSocketLkp[n.id] || [])
+      ? new ContainerNode(n.name || n.id, onCollapseNode)
+      : new InputOutputNode(n.name || n.id, unique(inputSocketLookup[n.id]) || [], unique(outputSocketLookup[n.id]) || [])
   )
   // TODO: reference nodes directly instead of index. That should produce cleaner code
-  const apiNodeIdx = graphData.nodes.reduce(
-    (prev, curr, i) => ({
-      ...prev,
-      [curr.id]: i
-    }),
-    {}
-  )
-  const editorNodeIdx = editorNodes.reduce(
+  const apiNodeIdx: {[key:string]: number} = graphData.nodes.reduce(
     (prev, curr, i) => ({
       ...prev,
       [curr.id]: i
@@ -138,40 +139,28 @@ export async function createEditor(container: HTMLElement) {
   )
   // assign parents
   graphData.nodes.map((n, i) => {
+    const en = editorNodes[i]
     n.children?.forEach((c) => {
-      editorNodes[apiNodeIdx[c]].parent = editorNodes[i].id
+      editorNodes[apiNodeIdx[c]].parent = en.id
     })
+    if ('childNodes' in en) {
+      en.setChildren(n.children?.map(c => editorNodes[apiNodeIdx[c]]) || [])
+    }
   })
+  editorNodes.forEach(node => {
+    if (node instanceof ContainerNode) {
+      node.createSockets()
+    }
+  });
 
-  // ordering matters! Parent nodes must exist when children nodes are added
-  // parent nodes that are independent can be added at the same time, that should improve latency
-  let addNodes = editorNodes.filter((n) => !n.parent)
-  while (addNodes.length > 0) {
-    await Promise.all(addNodes.map((n) => editor.addNode(n)))
-    addNodes = addNodes.flatMap(
-      (n) =>
-        graphData.nodes[editorNodeIdx[n.id]].children?.map((c) => editorNodes[apiNodeIdx[c]]) || []
-    )
-  }
+  await safeAddNodes(editorNodes.filter((n) => !n.parent), editor);
 
   // add connections
   await Promise.all(
     graphData.edges.map(([fromNode, fromSocket, toNode, toSocket]) => {
       const srcNode = editorNodes[apiNodeIdx[fromNode]]
       const tgtNode = editorNodes[apiNodeIdx[toNode]]
-      let srcKey: string
-      let tgtKey: string
-      if (srcNode.parent === tgtNode.id) {
-        srcKey = fromSocket
-        tgtKey = `internal-${toSocket}`
-      } else if (tgtNode.parent === srcNode.id) {
-        srcKey = `internal-${fromSocket}`
-        tgtKey = toSocket
-      } else {
-        srcKey = fromSocket
-        tgtKey = toSocket
-      }
-      return editor.addConnection(new Connection(srcNode, srcKey, tgtNode, tgtKey))
+      return editor.addConnection(new Connection(srcNode, fromSocket, tgtNode, toSocket))
     })
   )
 
