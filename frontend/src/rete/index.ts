@@ -10,6 +10,29 @@ import { fetchGraph } from '../api'
 import { type Node, InputOutputNode, ContainerNode } from './nodes'
 import CustomNode from '../components/CustomNode.vue'
 
+import type { SelectorEntity } from 'rete-area-plugin/_types/extensions/selectable'
+
+class MySelector<E extends SelectorEntity> extends AreaExtensions.Selector<E> {
+  private editor: NodeEditor<Schemes>;
+  setCurrentNode: (id: string) => void
+
+  constructor(editor: NodeEditor<Schemes>, setCurrentNode: (id: string) => void) {
+    super();
+    this.editor = editor
+    this.setCurrentNode = setCurrentNode
+  }
+  add(entity: E, accumulate: boolean): void {
+    super.add(entity, accumulate)
+    console.log('added', this.editor.getNode(entity.id))
+    this.setCurrentNode(this.editor.getNode(entity.id).label)
+  }
+  remove(entity: E): void {
+    super.remove(entity)
+    console.log('removed', this.editor.getNode(entity.id))
+  }
+}
+
+type Node = InputOutputNode | ContainerNode
 type Conn =
   | Connection<InputOutputNode, ContainerNode>
   | Connection<ContainerNode, ContainerNode>
@@ -62,13 +85,14 @@ async function removeNodeWithChildren(node: Node, editor: NodeEditor<Schemes>) {
   return removedConns
 }
 
-export async function createEditor(container: HTMLElement) {
+export async function createEditor(container: HTMLElement, setCurrentNode: (id: string) => void) {
   const editor = new NodeEditor<Schemes>()
   const area = new AreaPlugin<Schemes, AreaExtra>(container)
   const connection = new ConnectionPlugin<Schemes, AreaExtra>()
   const vueRender = new VuePlugin<Schemes, AreaExtra>()
   const minimap = new MinimapPlugin<Schemes>()
   const scopes = new ScopesPlugin<Schemes>()
+
 
   editor.use(area)
   area.use(scopes)
@@ -169,7 +193,7 @@ export async function createEditor(container: HTMLElement) {
   area.use(arrange)
   await arrange.layout()
 
-  const selector = AreaExtensions.selector()
+  const selector = new MySelector(editor, setCurrentNode)
   const accumulating = AreaExtensions.accumulateOnCtrl()
 
   AreaExtensions.selectableNodes(area, selector, { accumulating })

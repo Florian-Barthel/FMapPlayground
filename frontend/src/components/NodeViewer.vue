@@ -23,19 +23,21 @@ export default defineComponent({
 </template>
 
 <style lang="scss" scoped>
-  .node-viewer {
-    background-color: wheat;
-    color: black;
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    width: 200px;
+.node-viewer {
+  background-color: wheat;
+  color: black;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  right: 0;
 
-    .featuremap {
-      width: 100%;
-    }
+  .featuremap {
+    width: 200px;
   }
-  .node-viewer.hidden {
-    left: -300px;
-  }
+}
+
+.node-viewer.hidden {
+  left: -300px;
+}
 </style>

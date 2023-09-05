@@ -36,8 +36,8 @@ api_graph: APIGraph = None
 def get_graph():
     global graph
     global api_graph
-    # net = submodules.Net()
-    net = googlenet()
+    net = submodules.Net()
+    # net = googlenet()
     graph = create(net)
 
     api_graph = APIGraph(graph.module_info)
