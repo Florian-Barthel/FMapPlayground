@@ -1,4 +1,4 @@
-import { ApiGraph } from './types'
+import { type ApiGraph } from './types'
 import { graph } from "./the-big-fat-graph"
 
 export async function fetchGraph(): Promise<ApiGraph> {
@@ -53,8 +53,8 @@ export async function fetchGraph(): Promise<ApiGraph> {
       ['multiple_in/add', 'out', 'multiple_out_2/conv2', 'in'],
 
       // multiple_in
-      ['multiple_out_1/conv1', 'out', 'multiple_in/conv1', 'in'],
-      ['multiple_out_1/conv2', 'out', 'multiple_in/conv2', 'in'],
+      ['multiple_out_1/conv1', 'out1', 'multiple_in/conv1', 'in'],
+      ['multiple_out_1/conv2', 'out2', 'multiple_in/conv2', 'in'],
       ['multiple_in/conv1', 'out', 'multiple_in/add', 'left'],
       ['multiple_in/conv2', 'out', 'multiple_in/add', 'right'],
 
