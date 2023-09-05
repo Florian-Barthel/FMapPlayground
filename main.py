@@ -53,7 +53,7 @@ if __name__ == "__main__":
     backGraph.insert_result_nodes(modules)
 
     print("Reduce Nodes")
-    backGraph.reduce_nodes(["AccumulateGrad"])
+    backGraph.reduce_nodes(["AccumulateGrad", "Constant Input"])
 
     print("Update Scopes")
     backGraph.update_scopes()

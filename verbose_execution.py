@@ -84,5 +84,4 @@ class VerboseExecution(torch.nn.Module):
                     current_module = getattr(model, child_name)
                     if hasattr(current_module, "inplace"):
                         if current_module.inplace and verbose:
-                            print(f"setting {child_name}.inplace to false")
                             current_module.inplace = False

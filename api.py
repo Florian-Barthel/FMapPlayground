@@ -36,7 +36,8 @@ api_graph: APIGraph = None
 def get_graph():
     global graph
     global api_graph
-    net = submodules.Net()
+    # net = submodules.Net()
+    net = googlenet()
     graph = create(net)
 
     api_graph = APIGraph(graph.module_info)
@@ -62,11 +63,8 @@ def get_img():
         return jsonify({f"status": f"no fmap for node: {node_id}"})
 
     fmap = torch.mean(api_graph.module_info[node_id].input_tensor, dim=0)
-    # grad = torch.mean(all_layers[node_id].data.grad, dim=0)
     transform = T.ToPILImage()
     fmap = transform(fmap)
-    # grad = transform(grad)
-
     return serve_pil_image(fmap)
 
 
@@ -80,4 +78,3 @@ def after_request(response):
 
 if __name__ == "__main__":
     app.run(debug=True)
-    # app.run(host='0.0.0.0', debug=False)

@@ -22,12 +22,15 @@ class BackwardLayer(Layer):
     def __init__(self, grad_fn, layer_backwards_info):
         super().__init__("")
         if isinstance(grad_fn, str):
+            # constant input
             self.name = layer_backwards_info["name"]
             self.next_functions = None
         else:
+            #
             self.name = str(type(grad_fn).__name__)
             self.next_functions = grad_fn.next_functions
 
+        # grad_fn is handled as an id for BackwardsLayers
         self.grad_fn = grad_fn
         self.weight_nodes = []
         self.layer_backwards_info = layer_backwards_info

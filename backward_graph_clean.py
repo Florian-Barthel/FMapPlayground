@@ -20,6 +20,7 @@ class BackwardGraph:
         self.model_name = name
         self.input_tensor = input_tensor
         self.module_info = {}
+        self.output_layer = loss
 
         # this has to be called after iterate graph
         self.input_layer_grad_fn = None
@@ -44,9 +45,7 @@ class BackwardGraph:
                 self._iterate_graph(next_function)
             else:
                 constant_id = uuid.uuid4().hex
-                self.all_layers[constant_id] = BackwardLayer(
-                    constant_id, {"name": "Constant Input"}
-                )
+                self.all_layers[constant_id] = BackwardLayer(constant_id, {"name": "Constant Input"})
                 self.connections.add_connection(origin=constant_id, target=grad_fn)
 
     def _set_input_layer_grad_fn(self):
@@ -75,9 +74,7 @@ class BackwardGraph:
             if module.equal_io:
                 continue
 
-            input_node = ResultLayer(
-                current_scope, module.input_tensor, module.info, ResultLayerType.INPUT
-            )
+            input_node = ResultLayer(current_scope, module.input_tensor, module.info, ResultLayerType.INPUT)
             self._insert_result_node_after(module.input_tensor.grad_fn, input_node)
             self.input_result_list.append(input_node)
             self.module_info[current_scope.split("/")[-1]] = module
@@ -87,23 +84,15 @@ class BackwardGraph:
             current_scopes = self.all_scopes[module.id]
 
             if module.equal_io:
-                # input_node = ResultLayer(current_scopes, module.input_tensor, ResultLayerType.INTERMEDIATE)
-                # self._insert_result_node_after(module.output_tensor.grad_fn, input_node)
                 continue
 
-            output_node = ResultLayer(
-                current_scopes, module.output_tensor, module.info, ResultLayerType.OUTPUT
-            )
+            output_node = ResultLayer(current_scopes, module.output_tensor, module.info, ResultLayerType.OUTPUT)
             if hasattr(module.output_tensor, "grad_fn"):
-                self._insert_result_node_after(
-                    module.output_tensor.grad_fn, output_node, is_output_node=True
-                )
+                self._insert_result_node_after(module.output_tensor.grad_fn, output_node, is_output_node=True)
 
         self.remove_unused_edges()
 
-    def _insert_result_node_after(
-        self, after_grad_fn, node: ResultLayer, is_output_node: bool = False
-    ):
+    def _insert_result_node_after(self, after_grad_fn, node: ResultLayer, is_output_node: bool = False):
         if after_grad_fn is None and not is_output_node:
             if id(node.data) == id(self.input_tensor):
                 after_grad_fn = self.input_layer_grad_fn
@@ -189,11 +178,10 @@ class BackwardGraph:
 
         This is implemented using a while loop since this function breaks the recursive stack.
         """
-        next_layers = set()
-        next_layers.add((self.input_layer_grad_fn, tuple([self.model_name])))
+        next_layers = {(self.input_layer_grad_fn, (self.model_name))}
 
         # for each layer, find all possible scopes
-        while len(next_layers) > 0:
+        while next_layers:
             new_found_layers = set()
 
             for current_layer_id, current_scope_stack in next_layers:
@@ -202,10 +190,8 @@ class BackwardGraph:
                 new_layers = self.connections.get_next_nodes(current_layer_id)
 
                 if isinstance(current_layer, ResultLayer):
-                    if (
-                        current_layer.layer_type == ResultLayerType.INPUT
-                    ):  # or current_layer.layer_type == ResultLayerType.INTERMEDIATE:
-                        # only keep scopes that are more general than the current scope
+                    # add scope when entering an input result layer
+                    if current_layer.layer_type == ResultLayerType.INPUT:
                         current_scope_stack = [
                             scope
                             for scope in current_scope_stack
@@ -223,18 +209,14 @@ class BackwardGraph:
                             if scope_variation not in current_scope_stack:
                                 current_scope_stack.append(scope_variation)
 
-                    if (
-                        current_layer.layer_type == ResultLayerType.OUTPUT
-                    ):  # or current_layer.layer_type == ResultLayerType.INTERMEDIATE:
+                    # remove scope when exiting a module
+                    if current_layer.layer_type == ResultLayerType.OUTPUT:
                         if current_layer.scope in current_scope_stack:
-                            current_scope_stack = current_scope_stack[
-                                : current_scope_stack.index(current_layer.scope)
-                            ]
+                            current_scope_stack = current_scope_stack[: current_scope_stack.index(current_layer.scope)]
 
                 elif isinstance(current_layer, BackwardLayer):
-                    if current_scope_stack[-1] in current_layer.possible_scopes:
-                        continue
-                    current_layer.possible_scopes.add(current_scope_stack[-1])
+                    if current_scope_stack[-1] not in current_layer.possible_scopes:
+                        current_layer.possible_scopes.add(current_scope_stack[-1])
 
                 if new_layers is not None:
                     for new_layer in new_layers:
@@ -244,6 +226,12 @@ class BackwardGraph:
         for layer_id in self.all_layers.keys():
             layer = self.all_layers[layer_id]
             if isinstance(layer, BackwardLayer):
+                if layer.grad_fn == self.input_layer_grad_fn:
+                    layer.scope = "Input"
+                    continue
+                if layer.grad_fn == self.output_layer.grad_fn:
+                    layer.scope = "Output"
+                    continue
                 layer.set_most_specific_scope()
 
                 # if no scope was found, iterate to the next node that has a scope
@@ -257,7 +245,6 @@ class BackwardGraph:
         """
         Creates a dictionary representation of all modules and submodules.
         """
-
         modules = {}
         for layer_id in self.all_layers.keys():
             layer = self.all_layers[layer_id]
