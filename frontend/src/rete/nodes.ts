@@ -1,6 +1,5 @@
 import { ClassicPreset as Classic } from 'rete'
 
-
 const socket = new Classic.Socket('socket')
 
 export type Node = InputOutputNode | ContainerNode
@@ -17,6 +16,19 @@ export class InputOutputNode extends Classic.Node {
     inputSockets.forEach((s) => this.addInput(s, new Classic.Input(socket, s)))
     outputSockets.forEach((s) => this.addOutput(s, new Classic.Output(socket, s)))
   }
+
+  getInputKeys() {
+    return Object.entries(this.inputs).map(([key, skt]) => ({
+      key: `${this.id}-${key}`,
+      label: `${skt?.label}@${this.label}`
+    }))
+  }
+  getOutputKeys() {
+    return Object.entries(this.outputs).map(([key, skt]) => ({
+      key: `${this.id}-${key}`,
+      label: `${skt?.label}@${this.label}`
+    }))
+  }
 }
 
 export class ContainerNode extends Classic.Node {
@@ -25,7 +37,10 @@ export class ContainerNode extends Classic.Node {
   parent?: string
   onCollapse: (collapse: boolean, real: Node[], me: Node) => Promise<void>
   childNodes: Node[] = []
-  constructor(name: string, onCollapse: (collapse: boolean, real: Node[], me: Node) => Promise<void>) {
+  constructor(
+    name: string,
+    onCollapse: (collapse: boolean, real: Node[], me: Node) => Promise<void>
+  ) {
     super(`Container: ${name}`)
     this.onCollapse = onCollapse
   }
@@ -34,17 +49,27 @@ export class ContainerNode extends Classic.Node {
   }
 
   setChildren(childNodes: Node[]) {
-    childNodes.forEach(child => {
-      Object.entries(child.outputs)
-        .forEach(([key, skt]) => {
-          if (this.label === 'Container: multiple_out_1') {
-          console.log(`${child.id}-${key}`)
-          }
-          this.addOutput(`${child.id}-${key}`, new Classic.Output(socket, `${skt?.label}@${child.label}`))
-        })
-        Object.entries(child.inputs)
-          .forEach(([key, skt]) => this.addInput(`${child.id}-${key}`, new Classic.Input(socket, `${skt?.label}@${child.label}`)))
-    })
     this.childNodes = childNodes
+
+  }
+
+  createSockets() {
+    this.getOutputKeys().forEach(({ key, label }) => {
+      this.addOutput(key, new Classic.Output(socket, label))
+    })
+    this.getInputKeys().forEach(({ key, label }) => {
+      this.addInput(key, new Classic.Input(socket, label))
+    })
+  }
+
+  getOutputKeys(): { key: string; label: string }[] {
+    // todo: only get a list of outputs that are actually leaving this node
+    // there can also be connections inside this node
+    return this.childNodes.flatMap((c) => c.getOutputKeys())
+  }
+  getInputKeys(): { key: string; label: string }[] {
+    // todo: only get a list of inputs that are actually entering this node
+    // there can also be connections inside this node
+    return this.childNodes.flatMap((c) => c.getInputKeys())
   }
 }

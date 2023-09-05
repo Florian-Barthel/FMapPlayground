@@ -12,28 +12,32 @@
           @pointerdown="(evt) => evt.stopPropagation()"
         >
     </div>
-    <div v-if="isCollapsed" class="output" v-for="[key, output] in outputs()" :key="key">
-      <div class="output-title" data-testid="output-title">{{output.label}}</div>
-      <Ref
-        class="output-socket"
-        :data="{ type: 'socket', side: 'output', key: key, nodeId: data.id, payload: output.socket }"
-        :emit="emit"
-        data-testid="output-socket"
-      ></Ref>
+    <div v-if="isCollapsed">
+      <div class="output" v-for="[key, output] in outputs()" :key="key">
+        <div class="output-title" data-testid="output-title">{{output.label}}</div>
+        <Ref
+          class="output-socket"
+          :data="{ type: 'socket', side: 'output', key: key, nodeId: data.id, payload: output.socket }"
+          :emit="emit"
+          data-testid="output-socket"
+        ></Ref>
+      </div>
     </div>
 
-    <div v-if="isCollapsed" class="input" v-for="[key, input] in inputs()" :key="key">
-        <Ref
-          class="input-socket"
-          :data="{ type: 'socket', side: 'input', key: key, nodeId: data.id, payload: input.socket }"
-          :emit="emit"
-          data-testid="input-socket"
-        ></Ref>
-        <div
-          class="input-title"
-          v-show="!input.control || !input.showControl"
-          data-testid="input-title"
-        >{{input.label}}</div>
+    <div v-if="isCollapsed">
+      <div class="input" v-for="[key, input] in inputs()" :key="key">
+          <Ref
+            class="input-socket"
+            :data="{ type: 'socket', side: 'input', key: key, nodeId: data.id, payload: input.socket }"
+            :emit="emit"
+            data-testid="input-socket"
+          ></Ref>
+          <div
+            class="input-title"
+            v-show="!input.control || !input.showControl"
+            data-testid="input-title"
+          >{{input.label}}</div>
+      </div>
     </div>
 </div>
 </template>

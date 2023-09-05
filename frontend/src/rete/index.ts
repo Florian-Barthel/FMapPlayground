@@ -6,7 +6,7 @@ import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-
 import { type MinimapExtra, MinimapPlugin } from 'rete-minimap-plugin'
 import { ScopesPlugin, Presets as ScopesPresets } from 'rete-scopes-plugin'
 
-import { fetchGraph, type ApiNode } from '../api'
+import { fetchGraph } from '../api'
 import { type Node, InputOutputNode, ContainerNode } from './nodes'
 import CustomNode from '../components/CustomNode.vue'
 
@@ -111,7 +111,9 @@ export async function createEditor(container: HTMLElement) {
           console.assert(!!conn.source || !!conn.target, 'At least source or target must be st')
           const src = conn.source ? editor.getNode(conn.source) : theNode
           const tgt = conn.target ? editor.getNode(conn.target) : theNode
-          await editor.addConnection(new Connection(src, conn.sourceOutput, tgt, conn.targetInput));
+          if (src && tgt && (src.id !== tgt.id)) {
+            await editor.addConnection(new Connection(src, conn.sourceOutput, tgt, conn.targetInput));
+          }
         }
       }
     } else {
@@ -145,6 +147,11 @@ export async function createEditor(container: HTMLElement) {
       en.setChildren(n.children?.map(c => editorNodes[apiNodeIdx[c]]) || [])
     }
   })
+  editorNodes.forEach(node => {
+    if (node instanceof ContainerNode) {
+      node.createSockets()
+    }
+  });
 
   await safeAddNodes(editorNodes.filter((n) => !n.parent), editor);
 
