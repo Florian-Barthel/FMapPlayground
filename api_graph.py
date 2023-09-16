@@ -25,7 +25,7 @@ class APIGraph:
                         info["shape"] = layer.layer_backwards_info["_saved_self_sym_sizes"]
                     if "_saved_result" in layer.layer_backwards_info.keys():
                         info["result_shape"] = layer.layer_backwards_info["_saved_result"].shape
-                    self.nodes.append(dict(id=str(layer.grad_fn), name=layer_name, children=[], info=info))
+                    self.nodes.append(dict(id=str(layer.grad_fn), name=layer_name, info=info))
 
             if "next_scopes" in content.keys():
                 for next_module_name, next_module_content in content["next_scopes"].items():
@@ -35,7 +35,11 @@ class APIGraph:
             info = {}
             if id_ in self.module_info.keys():
                 info = self.module_info[id_].info
-            self.nodes.append(dict(id=id_, name=name, children=children, info=info))
+
+            if len(children) > 0:
+                self.nodes.append(dict(id=id_, name=name, children=children, info=info))
+            else:
+                self.nodes.append(dict(id=id_, name=name, info=info))
 
     def add_connections(self, forward_connections: dict):
         for start, end in forward_connections.items():
