@@ -1,4 +1,5 @@
 import { ClassicPreset as Classic } from 'rete'
+import {node} from "rete-area-3d-plugin/_types/extensions/forms";
 
 const socket = new Classic.Socket('socket')
 
@@ -8,10 +9,12 @@ export class InputOutputNode extends Classic.Node {
   width = 180
   height = 180
   parent?: string
+  node_id: string
 
-  constructor(name: string, inputSockets: string[], outputSockets: string[], parent?: string) {
+  constructor(name: string, node_id: string, inputSockets: string[], outputSockets: string[], parent?: string) {
     super(`Module ${name}`)
     this.parent = parent
+    this.node_id = node_id
 
     inputSockets.forEach((s) => this.addInput(s, new Classic.Input(socket, s)))
     outputSockets.forEach((s) => this.addOutput(s, new Classic.Output(socket, s)))
@@ -37,12 +40,16 @@ export class ContainerNode extends Classic.Node {
   parent?: string
   onCollapse: (collapse: boolean, real: Node[], me: Node) => Promise<void>
   childNodes: Node[] = []
+  node_id: string
+
   constructor(
     name: string,
+    node_id: string,
     onCollapse: (collapse: boolean, real: Node[], me: Node) => Promise<void>
   ) {
     super(`Container: ${name}`)
     this.onCollapse = onCollapse
+    this.node_id = node_id
   }
   public collapse(collapse: boolean) {
     this.onCollapse(collapse, this.childNodes, this)
@@ -50,7 +57,6 @@ export class ContainerNode extends Classic.Node {
 
   setChildren(childNodes: Node[]) {
     this.childNodes = childNodes
-
   }
 
   createSockets() {

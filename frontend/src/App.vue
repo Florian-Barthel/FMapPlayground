@@ -7,12 +7,14 @@ export default defineComponent({
   components: {NodeViewer},
   data() {
     return {
-      currentNode: "currentNode"
+      currentNode: "currentNode",
+      featureMap: "featureMap"
     }
   },
   methods: {
-    setCurrentNode(label: string) {
+    setCurrentNode(label: string, featureMap: any) {
       this.currentNode = label
+      this.featureMap = featureMap
     }
   },
   async mounted() {
@@ -23,7 +25,7 @@ export default defineComponent({
 
 <template>
   <main class="rete" ref="rete"></main>
-  <NodeViewer :node="{ id: currentNode }"/>
+  <NodeViewer :node="{ id: currentNode }" :fmap="{src: featureMap}"/>
 </template>
 
 <style scoped>

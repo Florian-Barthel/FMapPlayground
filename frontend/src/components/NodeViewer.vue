@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 export default defineComponent({
-  props: ['node'],
+  props: ['node', 'fmap'],
   computed: {
     topLevelClasses() {
       if (this.node) {
@@ -18,7 +18,7 @@ export default defineComponent({
     <button>Close</button>
     <h2>{{ node?.id }}</h2>
     <h3>Feature Map</h3>
-    <img class="featuremap" src="/seehorse.jpg">
+    <img :src="fmap.src" class="featuremap">
   </div>
 </template>
 
