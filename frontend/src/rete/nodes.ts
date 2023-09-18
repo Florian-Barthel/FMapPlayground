@@ -1,13 +1,15 @@
 import { ClassicPreset as Classic } from 'rete'
 
 const socket = new Classic.Socket('socket')
+export class BaseNode extends Classic.Node {
+  parent?: string
+}
 
 export type Node = InputOutputNode | ContainerNode
 
-export class InputOutputNode extends Classic.Node {
+export class InputOutputNode extends BaseNode {
   width = 180
   height = 180
-  parent?: string
 
   constructor(name: string, inputSockets: string[], outputSockets: string[], parent?: string) {
     super(`Module ${name}`)
@@ -31,45 +33,38 @@ export class InputOutputNode extends Classic.Node {
   }
 }
 
-export class ContainerNode extends Classic.Node {
+export class ContainerNode extends BaseNode {
   width = 300
   height = 300
-  parent?: string
-  onCollapse: (collapse: boolean, real: Node[], me: Node) => Promise<void>
-  childNodes: Node[] = []
-  constructor(
-    name: string,
-    onCollapse: (collapse: boolean, real: Node[], me: Node) => Promise<void>
-  ) {
+  onCollapse: (collapse: boolean, me: ContainerNode) => Promise<void>
+  relativeChildPositions?: { [key: string]: { x: number; y: number } }[]
+  constructor(name: string, onCollapse: (collapse: boolean, me: ContainerNode) => Promise<void>) {
     super(`Container: ${name}`)
     this.onCollapse = onCollapse
   }
   public collapse(collapse: boolean) {
-    this.onCollapse(collapse, this.childNodes, this)
+    this.onCollapse(collapse, this)
   }
 
-  setChildren(childNodes: Node[]) {
-    this.childNodes = childNodes
-
-  }
-
-  createSockets() {
-    this.getOutputKeys().forEach(({ key, label }) => {
+  createSockets(graph) {
+    this.getOutputKeys(graph).forEach(({ key, label }) => {
       this.addOutput(key, new Classic.Output(socket, label))
     })
-    this.getInputKeys().forEach(({ key, label }) => {
+    this.getInputKeys(graph).forEach(({ key, label }) => {
       this.addInput(key, new Classic.Input(socket, label))
     })
   }
 
-  getOutputKeys(): { key: string; label: string }[] {
+  getOutputKeys(graph): { key: string; label: string }[] {
     // todo: only get a list of outputs that are actually leaving this node
     // there can also be connections inside this node
-    return this.childNodes.flatMap((c) => c.getOutputKeys())
+    const childNodes = graph.children((n) => n.id === this.id).nodes()
+    return childNodes.flatMap((c) => c.getOutputKeys())
   }
-  getInputKeys(): { key: string; label: string }[] {
+  getInputKeys(graph): { key: string; label: string }[] {
     // todo: only get a list of inputs that are actually entering this node
     // there can also be connections inside this node
-    return this.childNodes.flatMap((c) => c.getInputKeys())
+    const childNodes = graph.children((n) => n.id === this.id).nodes()
+    return childNodes.flatMap((c) => c.getInputKeys())
   }
 }

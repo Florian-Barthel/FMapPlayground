@@ -5,7 +5,6 @@ export async function fetchGraph(): Promise<ApiGraph> {
   return {
     nodes: [
       {
-        children: [],
         id: '<SumBackward0 object at 0x00000164CF2F7BE0>'
       },
       {
@@ -13,15 +12,12 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'Output'
       },
       {
-        children: [],
         id: '<AddBackward0 object at 0x00000164CF2F7D00>'
       },
       {
-        children: [],
         id: '<AddBackward0 object at 0x00000164CF2F7CD0>'
       },
       {
-        children: [],
         id: '<ConvolutionBackward0 object at 0x00000164CF2F7EE0>'
       },
       {
@@ -29,7 +25,6 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'conv1(Conv2d)?!module_id:9e2a2bd291ef47b88c05d177cbf5cbac_leaffa2e023635e543d397e7ab0438fe0a5b'
       },
       {
-        children: [],
         id: '<ConvolutionBackward0 object at 0x00000164CF2F7EB0>'
       },
       {
@@ -45,7 +40,6 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'multiple(MultipleIn)?!module_id:aa73a133bc8d4c79a3426836b039c9f3'
       },
       {
-        children: [],
         id: '<ConvolutionBackward0 object at 0x00000164CF2F79A0>'
       },
       {
@@ -61,7 +55,6 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'triple_in(TripleIn)?!module_id:c9b13d2bb77642fab3486d9cd46c6dd2'
       },
       {
-        children: [],
         id: '<ConvolutionBackward0 object at 0x00000164CF2F7DC0>'
       },
       {
@@ -69,7 +62,6 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'conv1(Conv2d)?!module_id:6b7275dc6f82441fa146fede7183d76c_leafc7c481abd1fa4369b2717f066fad096c'
       },
       {
-        children: [],
         id: '<ConvolutionBackward0 object at 0x00000164D0331D20>'
       },
       {
@@ -84,11 +76,9 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'multiple_out_2(MultipleOut)?!module_id:2b0091d263c14ab4bc5db6dfd4025400'
       },
       {
-        children: [],
         id: '<AddBackward0 object at 0x00000164CF2F7E80>'
       },
       {
-        children: [],
         id: '<ConvolutionBackward0 object at 0x00000164D0331090>'
       },
       {
@@ -96,7 +86,6 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'conv1(Conv2d)?!module_id:6658d44a2bf94ac689694c85e060648f_leafa192cf054147479783cdefcac029ce2c'
       },
       {
-        children: [],
         id: '<ConvolutionBackward0 object at 0x00000164D0331060>'
       },
       {
@@ -112,7 +101,6 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'multiple_in(MultipleIn)?!module_id:c8fad795bc38487aac6f9de37c2b0c2d'
       },
       {
-        children: [],
         id: '<ConvolutionBackward0 object at 0x00000164D03306D0>'
       },
       {
@@ -120,7 +108,6 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'conv1(Conv2d)?!module_id:f33c2ba8524f48d4bedf51f3d68640c3_leaf07dba204dabe476a9f56c5e797e8cafc'
       },
       {
-        children: [],
         id: '<ConvolutionBackward0 object at 0x00000164D0331F60>'
       },
       {
@@ -135,7 +122,6 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'multiple_out_1(MultipleOut)?!module_id:591d5cb92405483880a962e50b59ef20'
       },
       {
-        children: [],
         id: '<ConvolutionBackward0 object at 0x00000164D0330430>'
       },
       {
@@ -149,7 +135,6 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'subsub(SubSub)?!module_id:ac822f07a4ce410ba585653ce5248de7'
       },
       {
-        children: [],
         id: '<ConvolutionBackward0 object at 0x00000164D0330070>'
       },
       {
@@ -174,7 +159,6 @@ export async function fetchGraph(): Promise<ApiGraph> {
         id: 'Net'
       },
       {
-        children: [],
         id: '<AccumulateGrad object at 0x00000164D0330040>',
         name: 'AccumulateGrad'
       },

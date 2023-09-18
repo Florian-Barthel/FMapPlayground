@@ -5,19 +5,22 @@ import { VuePlugin, type VueArea2D, Presets as VuePresets } from 'rete-vue-plugi
 import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-plugin'
 import { type MinimapExtra, MinimapPlugin } from 'rete-minimap-plugin'
 import { ScopesPlugin, Presets as ScopesPresets } from 'rete-scopes-plugin'
+import { structures } from 'rete-structures'
 
 import { fetchGraph } from '../api'
+import { safeAddNodes, removeNodeWithChildren } from './child-utils'
 import { type Node, InputOutputNode, ContainerNode } from './nodes'
 import CustomNode from '../components/CustomNode.vue'
 
 import type { SelectorEntity } from 'rete-area-plugin/_types/extensions/selectable'
+import { prepareData } from './prepare-data'
 
 class MySelector<E extends SelectorEntity> extends AreaExtensions.Selector<E> {
-  private editor: NodeEditor<Schemes>;
+  private editor: NodeEditor<Schemes>
   setCurrentNode: (id: string) => void
 
   constructor(editor: NodeEditor<Schemes>, setCurrentNode: (id: string) => void) {
-    super();
+    super()
     this.editor = editor
     this.setCurrentNode = setCurrentNode
   }
@@ -32,7 +35,6 @@ class MySelector<E extends SelectorEntity> extends AreaExtensions.Selector<E> {
   }
 }
 
-type Node = InputOutputNode | ContainerNode
 type Conn =
   | Connection<InputOutputNode, ContainerNode>
   | Connection<ContainerNode, ContainerNode>
@@ -47,44 +49,6 @@ function unique<T>(array: T[]): T[] {
   return [...new Set(array)]
 }
 
-async function safeAddNodes(nodes: Node[], editor: NodeEditor<Schemes>) {
-  // ordering matters! Parent nodes must exist when children nodes are added
-  // parent nodes that are independent can be added at the same time, that should improve latency
-  let addNodes = [...nodes]
-  while (addNodes.length > 0) {
-    await Promise.all(addNodes.map(n => editor.addNode(n)))
-    addNodes = addNodes.flatMap(n => ('childNodes' in n ? n.childNodes : null) || [])
-  }
-}
-
-async function removeNodeWithChildren(node: Node, editor: NodeEditor<Schemes>) {
-  let removedConns: {source?:string, target?:string, sourceOutput:string, targetInput:string}[] = []
-  if ('childNodes' in node) {
-    for (const child of node.childNodes) {
-      const x = await removeNodeWithChildren(child, editor)
-      removedConns = [...removedConns, ...x]
-    }
-  }
-  // remove connections
-  const conns = editor.getConnections().filter(c => c.source === node.id || c.target === node.id);
-  const tmp = conns.map(c => {
-    const isSource = c.source === node.id
-    return {
-      source: isSource ? undefined : c.source,
-      sourceOutput: isSource ? `${c.source}-${c.sourceOutput}` : c.sourceOutput,
-      target: !isSource ? undefined : c.target,
-      targetInput: !isSource ? `${c.target}-${c.targetInput}` : c.targetInput,
-    }
-  })
-  removedConns = [...removedConns, ...tmp]
-  for (const c of conns) {
-    await editor.removeConnection(c.id)
-  }
-  node.parent = undefined
-  await editor.removeNode(node.id)
-  return removedConns
-}
-
 export async function createEditor(container: HTMLElement, setCurrentNode: (id: string) => void) {
   const editor = new NodeEditor<Schemes>()
   const area = new AreaPlugin<Schemes, AreaExtra>(container)
@@ -92,7 +56,6 @@ export async function createEditor(container: HTMLElement, setCurrentNode: (id: 
   const vueRender = new VuePlugin<Schemes, AreaExtra>()
   const minimap = new MinimapPlugin<Schemes>()
   const scopes = new ScopesPlugin<Schemes>()
-
 
   editor.use(area)
   area.use(scopes)
@@ -117,76 +80,7 @@ export async function createEditor(container: HTMLElement, setCurrentNode: (id: 
   vueRender.addPreset(VuePresets.minimap.setup())
   scopes.addPreset(ScopesPresets.classic.setup())
 
-  const graphData = await fetchGraph()
-
-  const inputSocketLookup: {[key:string]:any[]} = {}
-  const outputSocketLookup: {[key:string]:any[]} = {}
-  graphData.edges.forEach(([fromNode, fromSocket, toNode, toSocket]) => {
-    outputSocketLookup[fromNode] = [fromSocket, ...(outputSocketLookup[fromNode] || [])]
-    inputSocketLookup[toNode] = [toSocket, ...(inputSocketLookup[toNode] || [])]
-  })
-
-  const onCollapseNode = async (collapse: boolean, childNodes: Node[], theNode: Node) => {
-    if (collapse) {
-      for (const child of childNodes) {
-        // assign new connections
-        const oldConns = await removeNodeWithChildren(child, editor)
-        for (const conn of oldConns) {
-          console.assert(!!conn.source || !!conn.target, 'At least source or target must be st')
-          const src = conn.source ? editor.getNode(conn.source) : theNode
-          const tgt = conn.target ? editor.getNode(conn.target) : theNode
-          if (src && tgt && (src.id !== tgt.id)) {
-            await editor.addConnection(new Connection(src, conn.sourceOutput, tgt, conn.targetInput));
-          }
-        }
-      }
-    } else {
-      // add nodes back
-      await safeAddNodes(childNodes, editor);
-      // delete connections
-      // add old ones back
-    }
-  }
-
-  const editorNodes = graphData.nodes.map((n) =>
-    n.children
-      ? new ContainerNode(n.name || n.id, onCollapseNode)
-      : new InputOutputNode(n.name || n.id, unique(inputSocketLookup[n.id]) || [], unique(outputSocketLookup[n.id]) || [])
-  )
-  // TODO: reference nodes directly instead of index. That should produce cleaner code
-  const apiNodeIdx: {[key:string]: number} = graphData.nodes.reduce(
-    (prev, curr, i) => ({
-      ...prev,
-      [curr.id]: i
-    }),
-    {}
-  )
-  // assign parents
-  graphData.nodes.map((n, i) => {
-    const en = editorNodes[i]
-    n.children?.forEach((c) => {
-      editorNodes[apiNodeIdx[c]].parent = en.id
-    })
-    if ('childNodes' in en) {
-      en.setChildren(n.children?.map(c => editorNodes[apiNodeIdx[c]]) || [])
-    }
-  })
-  editorNodes.forEach(node => {
-    if (node instanceof ContainerNode) {
-      node.createSockets()
-    }
-  });
-
-  await safeAddNodes(editorNodes.filter((n) => !n.parent), editor);
-
-  // add connections
-  await Promise.all(
-    graphData.edges.map(([fromNode, fromSocket, toNode, toSocket]) => {
-      const srcNode = editorNodes[apiNodeIdx[fromNode]]
-      const tgtNode = editorNodes[apiNodeIdx[toNode]]
-      return editor.addConnection(new Connection(srcNode, fromSocket, tgtNode, toSocket))
-    })
-  )
+  await populateEditor(editor)
 
   const arrange = new AutoArrangePlugin<Schemes>()
   arrange.addPreset(ArrangePresets.classic.setup())
@@ -201,4 +95,88 @@ export async function createEditor(container: HTMLElement, setCurrentNode: (id: 
   return {
     destroy: () => area.destroy()
   }
+}
+
+async function populateEditor(editor: NodeEditor<Schemes>) {
+  const graph = structures(editor)
+
+  const graphData2 = prepareData(await fetchGraph())
+
+  const onCollapseNode = async (collapse: boolean, theNode: ContainerNode) => {
+    return
+    // TODO: needs refactoring
+    const childNodes = graph.children((n) => n.id === theNode.id)
+    if (collapse) {
+      theNode.relativeChildPositions = childNodes.reduce(
+        (pos, child) => ({
+          ...pos,
+          [child.id]: { x: 0, y: 0 }
+        }),
+        {}
+      )
+      // save relative positions of all child nodes here
+      const targetNodes = childNodes.nodes().flatMap((child) => graph.outgoers(child.id))
+      const sourceNodes = childNodes.flatMap((child) => graph.incomers(child.id))
+      const foreignTargetNodes = graph.difference(targetNodes, childNodes) // TODO: usage
+      const foreignSourceNodes = graph.difference(sourceNodes, childNodes) // TODO: usage
+      // can we do difference on connections even?
+      // find all connections that connect a child node with a foreign node
+      // repeat the same for incoming nodes
+      for (const child of childNodes.nodes()) {
+        // assign new connections
+        const oldConns = await removeNodeWithChildren(child, editor, graph)
+        // assign new connections for connections that leave the parent node (one of source or target is not in chidren)
+        for (const conn of oldConns) {
+          console.assert(!!conn.source || !!conn.target, 'At least source or target must be st')
+          const src = conn.source ? editor.getNode(conn.source) : theNode
+          const tgt = conn.target ? editor.getNode(conn.target) : theNode
+          if (src && tgt && src.id !== tgt.id) {
+            await editor.addConnection(
+              new Connection(src, conn.sourceOutput, tgt, conn.targetInput)
+            )
+          }
+        }
+      }
+    } else {
+      // add nodes back
+      // TODO: use previously cached relative positions
+      await safeAddNodes(childNodes, editor, graph)
+      // delete connections
+      // add old ones back
+    }
+  }
+
+  const editorNodes = graphData2.nodes.map((n) =>
+    n.hasChildren
+      ? new ContainerNode(n.name, onCollapseNode)
+      : new InputOutputNode(n.name, n.inputSockets, n.outputSockets)
+  )
+  // assign parents
+  graphData2.nodes.forEach((n, i) => {
+    if (n.parent !== null) editorNodes[i].parent = editorNodes[n.parent].id
+  })
+
+  editorNodes.forEach((node) => {
+    if (node instanceof ContainerNode) {
+      node.createSockets(graph)
+    }
+  })
+
+  const tmpGraph = structures({ nodes: editorNodes, connections: [] })
+  await safeAddNodes(
+    editorNodes.filter((n) => !n.parent),
+    editor,
+    tmpGraph
+  )
+
+  // add connections
+  await Promise.all(
+    graphData2.connections.map((conn) => {
+      const srcNode = editorNodes[conn.sourceNode]
+      const tgtNode = editorNodes[conn.targetNode]
+      return editor.addConnection(
+        new Connection(srcNode, conn.sourceSocket, tgtNode, conn.targetSocket)
+      )
+    })
+  )
 }
