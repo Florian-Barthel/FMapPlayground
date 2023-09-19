@@ -10,11 +10,13 @@ export class InputOutputNode extends Classic.Node {
   height = 180
   parent?: string
   node_id: string
+  node_info?: any
 
-  constructor(name: string, node_id: string, inputSockets: string[], outputSockets: string[], parent?: string) {
+  constructor(name: string, node_id: string, node_info: any, inputSockets: string[], outputSockets: string[], parent?: string) {
     super(`Module ${name}`)
     this.parent = parent
     this.node_id = node_id
+    this.node_info = node_info
 
     inputSockets.forEach((s) => this.addInput(s, new Classic.Input(socket, s)))
     outputSockets.forEach((s) => this.addOutput(s, new Classic.Output(socket, s)))
@@ -41,15 +43,18 @@ export class ContainerNode extends Classic.Node {
   onCollapse: (collapse: boolean, real: Node[], me: Node) => Promise<void>
   childNodes: Node[] = []
   node_id: string
+  node_info?: any
 
   constructor(
     name: string,
     node_id: string,
+    node_info: any,
     onCollapse: (collapse: boolean, real: Node[], me: Node) => Promise<void>
   ) {
     super(`Container: ${name}`)
     this.onCollapse = onCollapse
     this.node_id = node_id
+    this.node_info = node_info
   }
   public collapse(collapse: boolean) {
     this.onCollapse(collapse, this.childNodes, this)

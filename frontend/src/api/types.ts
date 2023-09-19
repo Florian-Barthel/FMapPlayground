@@ -9,4 +9,5 @@ export type ApiEdge = [string, string, string, string]
 export interface ApiGraph {
   nodes: ApiNode[]
   edges: ApiEdge[]
+  network_name: string
 }

@@ -2,42 +2,6 @@
   <div class="node fmap-node" :class="{ selected: data.selected }" :style="nodeStyles()" data-testid="node">
     <div class="title" data-testid="title">
         <span>{{ data.label }}</span>
-        <label for="collapse" style="color: white">Collapse</label>
-        <!-- TODO: style the checkbox to make it look like a collapse button -->
-        <input
-          name="collapse"
-          type="checkbox"
-          v-model="isCollapsed"
-          @change="(evt: any) => data.collapse(evt.currentTarget.checked)"
-          @pointerdown="(evt) => evt.stopPropagation()"
-        >
-    </div>
-    <div v-if="isCollapsed">
-      <div class="output" v-for="[key, output] in outputs()" :key="key">
-        <div class="output-title" data-testid="output-title">{{output.label}}</div>
-        <Ref
-          class="output-socket"
-          :data="{ type: 'socket', side: 'output', key: key, nodeId: data.id, payload: output.socket }"
-          :emit="emit"
-          data-testid="output-socket"
-        ></Ref>
-      </div>
-    </div>
-
-    <div v-if="isCollapsed">
-      <div class="input" v-for="[key, input] in inputs()" :key="key">
-          <Ref
-            class="input-socket"
-            :data="{ type: 'socket', side: 'input', key: key, nodeId: data.id, payload: input.socket }"
-            :emit="emit"
-            data-testid="input-socket"
-          ></Ref>
-          <div
-            class="input-title"
-            v-show="!input.control || !input.showControl"
-            data-testid="input-title"
-          >{{input.label}}</div>
-      </div>
     </div>
 </div>
 </template>
@@ -46,16 +10,6 @@
 <script lang="ts">
   import { defineComponent } from 'vue'
   import { Ref } from 'rete-vue-plugin'
-  
-  function sortByIndex<T>(entries: [T, any][]) {
-    entries.sort((a, b) => {
-      const ai = a[1] && a[1].index || 0
-      const bi = b[1] && b[1].index || 0
-  
-      return ai - bi
-    })
-    return entries
-  }
   
   export default defineComponent({
     props: ['data', 'emit', 'seed'],
@@ -70,16 +24,7 @@
           width: Number.isFinite(this.data.width) ? `${this.data.width}px` : '',
           height: Number.isFinite(this.data.height) ? `${this.data.height}px` : ''
         }
-      },
-      controls() {
-        return sortByIndex(Object.entries(this.data.controls))
-      },
-      inputs() {
-        return sortByIndex(Object.entries(this.data.inputs))
-      },
-      outputs() {
-        return sortByIndex(Object.entries(this.data.outputs))
-      },
+      }
     },
     components: {
       Ref
@@ -92,8 +37,8 @@
   @import "./custom-node-vars";
   
   .node {
-    background: $node-color;
-    border: 2px solid #4e58bf;
+    background: rgb(255,0, 0);
+    //border: 2px solid #4e58bf;
     border-radius: 10px;
     cursor: pointer;
     box-sizing: border-box;
@@ -123,10 +68,12 @@
   
     .output {
       text-align: right;
+      float:left;
     }
-  
+
     .input {
       text-align: left;
+      float:left;
     }
   
     .output-socket {

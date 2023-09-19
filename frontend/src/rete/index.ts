@@ -5,18 +5,20 @@ import {VuePlugin, type VueArea2D, Presets as VuePresets} from 'rete-vue-plugin'
 import {AutoArrangePlugin, Presets as ArrangePresets} from 'rete-auto-arrange-plugin'
 import {type MinimapExtra, MinimapPlugin} from 'rete-minimap-plugin'
 import {ScopesPlugin, Presets as ScopesPresets} from 'rete-scopes-plugin'
+import {addCustomBackground} from "./custom-background";
 
 import {fetchGraph, getFeatureMapUrl} from '../api'
 import {type Node, InputOutputNode, ContainerNode} from './nodes'
-import CustomNode from '../components/CustomNode.vue'
+import CustomContainerNode from '../components/ContainerNode.vue'
+import CustomModuleNode from '../components/ModuleNode.vue'
 
 import type {SelectorEntity} from 'rete-area-plugin/_types/extensions/selectable'
 
 class MySelector<E extends SelectorEntity> extends AreaExtensions.Selector<E> {
     private editor: NodeEditor<Schemes>
-    setCurrentNode: (id: string, featureMap: any) => void
+    setCurrentNode: (id: Node) => void
 
-    constructor(editor: NodeEditor<Schemes>, setCurrentNode: (id: string, featureMap: any) => void) {
+    constructor(editor: NodeEditor<Schemes>, setCurrentNode: (id: Node) => void) {
         super()
         this.editor = editor
         this.setCurrentNode = setCurrentNode
@@ -26,7 +28,7 @@ class MySelector<E extends SelectorEntity> extends AreaExtensions.Selector<E> {
         super.add(entity, accumulate)
         console.log('added', this.editor.getNode(entity.id))
         console.log(getFeatureMapUrl(this.editor.getNode(entity.id).node_id))
-        this.setCurrentNode(this.editor.getNode(entity.id).label, getFeatureMapUrl(this.editor.getNode(entity.id).node_id))
+        this.setCurrentNode(this.editor.getNode(entity.id))
     }
 
     remove(entity: E): void {
@@ -94,7 +96,7 @@ async function removeNodeWithChildren(node: Node, editor: NodeEditor<Schemes>) {
     return removedConns
 }
 
-export async function createEditor(container: HTMLElement, setCurrentNode: (id: string, featureMap: any) => void) {
+export async function createEditor(container: HTMLElement, setCurrentNode: (id: Node) => void) {
     const editor = new NodeEditor<Schemes>()
     const area = new AreaPlugin<Schemes, AreaExtra>(container)
     const connection = new ConnectionPlugin<Schemes, AreaExtra>()
@@ -102,6 +104,7 @@ export async function createEditor(container: HTMLElement, setCurrentNode: (id: 
     const minimap = new MinimapPlugin<Schemes>()
     const scopes = new ScopesPlugin<Schemes>()
 
+    addCustomBackground(area)
     editor.use(area)
     area.use(scopes)
     area.use(vueRender)
@@ -113,9 +116,13 @@ export async function createEditor(container: HTMLElement, setCurrentNode: (id: 
             customize: {
                 node(context) {
                     if (context.payload.label.startsWith('Container')) {
-                        return CustomNode
+                        return CustomContainerNode
                     }
+                    // else if (context.payload.label.startsWith('Module')) {
+                    //     return CustomModuleNode
+                    // }
                     return VuePresets.classic.Node
+
                 }
             }
         })
@@ -126,6 +133,7 @@ export async function createEditor(container: HTMLElement, setCurrentNode: (id: 
     scopes.addPreset(ScopesPresets.classic.setup())
 
     const graphData = await fetchGraph()
+    const network_name = graphData.network_name
 
     const inputSocketLookup: { [key: string]: any[] } = {}
     const outputSocketLookup: { [key: string]: any[] } = {}
@@ -160,10 +168,11 @@ export async function createEditor(container: HTMLElement, setCurrentNode: (id: 
 
     const editorNodes = graphData.nodes.map((n) =>
         n.children
-            ? new ContainerNode(n.name || n.id, n.id, onCollapseNode)
+            ? new ContainerNode(n.name || n.id, n.id, n.info, onCollapseNode)
             : new InputOutputNode(
                 n.name || n.id,
                 n.id,
+                n.info,
                 unique(inputSocketLookup[n.id]) || [],
                 unique(outputSocketLookup[n.id]) || []
             )
