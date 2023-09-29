@@ -14,6 +14,7 @@ import CustomNode from '../components/CustomNode.vue'
 
 import type { SelectorEntity } from 'rete-area-plugin/_types/extensions/selectable'
 import { prepareData } from './prepare-data'
+import { getOutgoingConnections, getIncomingConnections } from './more-structures'
 
 class MySelector<E extends SelectorEntity> extends AreaExtensions.Selector<E> {
   private editor: NodeEditor<Schemes>
@@ -44,10 +45,6 @@ type Schemes = GetSchemes<Node, Conn>
 class Connection<A extends Node, B extends Node> extends Classic.Connection<A, B> {}
 
 type AreaExtra = Area2D<Schemes> | VueArea2D<Schemes> | MinimapExtra
-
-function unique<T>(array: T[]): T[] {
-  return [...new Set(array)]
-}
 
 export async function createEditor(container: HTMLElement, setCurrentNode: (id: string) => void) {
   const editor = new NodeEditor<Schemes>()
@@ -100,65 +97,65 @@ export async function createEditor(container: HTMLElement, setCurrentNode: (id: 
 async function populateEditor(editor: NodeEditor<Schemes>) {
   const graph = structures(editor)
 
-  const graphData2 = prepareData(await fetchGraph())
+  const graphData = prepareData(await fetchGraph())
 
   const onCollapseNode = async (collapse: boolean, theNode: ContainerNode) => {
-    return
-    // TODO: needs refactoring
     const childNodes = graph.children((n) => n.id === theNode.id)
     if (collapse) {
-      theNode.relativeChildPositions = childNodes.reduce(
-        (pos, child) => ({
-          ...pos,
-          [child.id]: { x: 0, y: 0 }
-        }),
-        {}
+      const oldOutgoingConnections = getOutgoingConnections(
+        graph,
+        childNodes.nodes().map((n) => n.id)
       )
-      // save relative positions of all child nodes here
-      const targetNodes = childNodes.nodes().flatMap((child) => graph.outgoers(child.id))
-      const sourceNodes = childNodes.flatMap((child) => graph.incomers(child.id))
-      const foreignTargetNodes = graph.difference(targetNodes, childNodes) // TODO: usage
-      const foreignSourceNodes = graph.difference(sourceNodes, childNodes) // TODO: usage
-      // can we do difference on connections even?
-      // find all connections that connect a child node with a foreign node
-      // repeat the same for incoming nodes
+      for (const conn of oldOutgoingConnections) {
+        await editor.addConnection(
+          new Connection(
+            theNode,
+            `${conn.source}-${conn.sourceOutput}`,
+            editor.getNode(conn.target),
+            conn.targetInput
+          )
+        )
+      }
+      const oldIncomingConnections = getIncomingConnections(
+        graph,
+        childNodes.nodes().map((n) => n.id)
+      )
+      for (const conn of oldIncomingConnections) {
+        await editor.addConnection(
+          new Connection(
+            editor.getNode(conn.source),
+            conn.sourceOutput,
+            theNode,
+            `${conn.target}-${conn.targetInput}`
+          )
+        )
+      }
+
       for (const child of childNodes.nodes()) {
-        // assign new connections
-        const oldConns = await removeNodeWithChildren(child, editor, graph)
-        // assign new connections for connections that leave the parent node (one of source or target is not in chidren)
-        for (const conn of oldConns) {
-          console.assert(!!conn.source || !!conn.target, 'At least source or target must be st')
-          const src = conn.source ? editor.getNode(conn.source) : theNode
-          const tgt = conn.target ? editor.getNode(conn.target) : theNode
-          if (src && tgt && src.id !== tgt.id) {
-            await editor.addConnection(
-              new Connection(src, conn.sourceOutput, tgt, conn.targetInput)
-            )
-          }
-        }
+        await removeNodeWithChildren(child, editor, graph)
       }
     } else {
       // add nodes back
       // TODO: use previously cached relative positions
-      await safeAddNodes(childNodes, editor, graph)
+      // await safeAddNodes(childNodes, editor, graph)
       // delete connections
       // add old ones back
     }
   }
 
-  const editorNodes = graphData2.nodes.map((n) =>
+  const editorNodes = graphData.nodes.map((n) =>
     n.hasChildren
       ? new ContainerNode(n.name, onCollapseNode)
       : new InputOutputNode(n.name, n.inputSockets, n.outputSockets)
   )
   // assign parents
-  graphData2.nodes.forEach((n, i) => {
+  graphData.nodes.forEach((n, i) => {
     if (n.parent !== null) editorNodes[i].parent = editorNodes[n.parent].id
   })
 
   editorNodes.forEach((node) => {
     if (node instanceof ContainerNode) {
-      node.createSockets(graph)
+      node.createSockets(editorNodes)
     }
   })
 
@@ -171,7 +168,7 @@ async function populateEditor(editor: NodeEditor<Schemes>) {
 
   // add connections
   await Promise.all(
-    graphData2.connections.map((conn) => {
+    graphData.connections.map((conn) => {
       const srcNode = editorNodes[conn.sourceNode]
       const tgtNode = editorNodes[conn.targetNode]
       return editor.addConnection(

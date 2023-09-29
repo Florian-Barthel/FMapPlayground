@@ -1,4 +1,5 @@
 import { ClassicPreset as Classic } from 'rete'
+import { getChildren } from './more-structures'
 
 const socket = new Classic.Socket('socket')
 export class BaseNode extends Classic.Node {
@@ -19,13 +20,13 @@ export class InputOutputNode extends BaseNode {
     outputSockets.forEach((s) => this.addOutput(s, new Classic.Output(socket, s)))
   }
 
-  getInputKeys() {
+  getInputKeys(graph) {
     return Object.entries(this.inputs).map(([key, skt]) => ({
       key: `${this.id}-${key}`,
       label: `${skt?.label}@${this.label}`
     }))
   }
-  getOutputKeys() {
+  getOutputKeys(graph) {
     return Object.entries(this.outputs).map(([key, skt]) => ({
       key: `${this.id}-${key}`,
       label: `${skt?.label}@${this.label}`
@@ -46,25 +47,26 @@ export class ContainerNode extends BaseNode {
     this.onCollapse(collapse, this)
   }
 
-  createSockets(graph) {
-    this.getOutputKeys(graph).forEach(({ key, label }) => {
+  createSockets(nodes: Node[]) {
+    const children = getChildren(nodes, this.id)
+    this.getOutputKeys(children).forEach(({ key, label }) => {
       this.addOutput(key, new Classic.Output(socket, label))
     })
-    this.getInputKeys(graph).forEach(({ key, label }) => {
+    this.getInputKeys(children).forEach(({ key, label }) => {
       this.addInput(key, new Classic.Input(socket, label))
     })
   }
 
-  getOutputKeys(graph): { key: string; label: string }[] {
+  getOutputKeys(nodes: Node[]): { key: string; label: string }[] {
     // todo: only get a list of outputs that are actually leaving this node
     // there can also be connections inside this node
-    const childNodes = graph.children((n) => n.id === this.id).nodes()
-    return childNodes.flatMap((c) => c.getOutputKeys())
+    const childNodes = getChildren(nodes, this.id)
+    return childNodes.flatMap((c) => c.getOutputKeys(childNodes))
   }
-  getInputKeys(graph): { key: string; label: string }[] {
+  getInputKeys(nodes: Node[]): { key: string; label: string }[] {
     // todo: only get a list of inputs that are actually entering this node
     // there can also be connections inside this node
-    const childNodes = graph.children((n) => n.id === this.id).nodes()
-    return childNodes.flatMap((c) => c.getInputKeys())
+    const childNodes = getChildren(nodes, this.id)
+    return childNodes.flatMap((c) => c.getInputKeys(childNodes))
   }
 }

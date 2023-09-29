@@ -12,6 +12,14 @@ interface OutNode {
 function unique<T>(array: T[]): T[] {
   return [...new Set(array)]
 }
+function shortName(longName: string) {
+  if (longName.length > 10) {
+    const first = longName.substring(0, 4);
+    const last = longName.substring(longName.length - 4)
+    return `${first}..${last}`
+  }
+  return longName;
+}
 export function prepareData(graphData: ApiGraph) {
   const inputSocketLookup: { [key: string]: any[] } = {}
   const outputSocketLookup: { [key: string]: any[] } = {}
@@ -20,7 +28,7 @@ export function prepareData(graphData: ApiGraph) {
     inputSocketLookup[toNode] = [toSocket, ...(inputSocketLookup[toNode] || [])]
   })
 
-  let name2Idx: { [key: string]: number } = {}
+  const name2Idx: { [key: string]: number } = {}
   graphData.nodes.forEach((n, i) => {
     name2Idx[n.id] = i
   })
@@ -34,9 +42,9 @@ export function prepareData(graphData: ApiGraph) {
     })
   )
 
-  let nodes: OutNode[] = graphData.nodes.map((n, i) => ({
+  const nodes: OutNode[] = graphData.nodes.map((n) => ({
     id: n.id,
-    name: n.name || n.id,
+    name: n.name || shortName(n.id),
     parent: null,
     hasChildren: !!n.children,
     inputSockets: unique(inputSocketLookup[n.id]) || [],
