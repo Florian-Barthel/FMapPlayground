@@ -1,4 +1,4 @@
-import { ApiGraph } from "./types"
+import { type ApiGraph } from "./types"
 
 export const graph: ApiGraph = {
     "edges": [

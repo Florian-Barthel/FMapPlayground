@@ -1,6 +1,6 @@
 // prepare data from API for rete format
 // this file should be minimal and most of this should be handled in the backend
-import { ApiGraph } from '../api/types'
+import { type ApiGraph } from '../api/types'
 interface OutNode {
   id: string
   name: string

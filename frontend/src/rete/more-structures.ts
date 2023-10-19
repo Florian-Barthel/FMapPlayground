@@ -1,28 +1,32 @@
 // extensions to rete-structures
-import { ConnectionBase } from 'rete'
-import { BaseN, BaseC, Structures } from 'rete-structures/_types/types'
+import { type BaseSchemes, type NodeId } from 'rete'
 
-export function unionAll<Node extends BaseN, Conn extends ConnectionBase>(
-  parts: Structures<Node, Conn>[]
+type BaseN = BaseSchemes['Node'] & {
+  parent?: NodeId;
+};
+type BaseC = BaseSchemes['Connection'];
+
+export function unionAll(
+  parts: any[]
 ) {
   return parts.reduce((prev, part) => prev.union(toContext(part)))
 }
 
-export function toContext<Node extends BaseN, Conn extends ConnectionBase>(
-  structures: Structures<Node, Conn>
+export function toContext(
+  structures: any
 ) {
   return { nodes: structures.nodes(), connections: structures.connections() }
 }
 
-export function allOutgoers<Node extends BaseN, Conn extends ConnectionBase>(
-  graph: Structures<Node, Conn>,
+export function allOutgoers<Node extends BaseN>(
+  graph: any,
   subset: Node[]
 ) {
   return unionAll(subset.flatMap((child) => graph.outgoers(child.id)))
 }
 
-export function allIncomers<Node extends BaseN, Conn extends ConnectionBase>(
-  graph: Structures<Node, Conn>,
+export function allIncomers<Node extends BaseN>(
+  graph: any,
   subset: Node[]
 ) {
   return unionAll(subset.flatMap((child) => graph.incomers(child.id)))
@@ -42,8 +46,8 @@ function getConnectionsForIds<C extends BaseC>(nodeIds: string[], allConnections
 
 export function getConnectedChildren() {}
 
-export function getOutgoingConnections<Node extends BaseN, Conn extends BaseC>(
-  graph: Structures<Node, Conn>,
+export function getOutgoingConnections(
+  graph: any,
   nodeIds: string[]
 ) {
   const allOutgoers = nodeIds
@@ -53,8 +57,8 @@ export function getOutgoingConnections<Node extends BaseN, Conn extends BaseC>(
   return getConnectionsForIds([...nodeIds, ...allOutgoers.map((n) => n.id)], graph.connections())
 }
 
-export function getIncomingConnections<Node extends BaseN, Conn extends BaseC>(
-  graph: Structures<Node, Conn>,
+export function getIncomingConnections(
+  graph: any,
   nodeIds: string[]
 ) {
   const allIncomers = nodeIds

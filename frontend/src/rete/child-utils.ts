@@ -1,12 +1,10 @@
-import { BaseSchemes, ConnectionBase, NodeBase, NodeEditor } from 'rete'
-import { ClassicPreset as Classic } from 'rete'
-import { Structures } from 'rete-structures/_types/types'
-import { Node } from './nodes'
+import { type BaseSchemes, NodeEditor } from 'rete'
+import { type Node } from './nodes'
 
-export async function safeAddNodes<C extends ConnectionBase, S extends BaseSchemes>(
+export async function safeAddNodes<S extends BaseSchemes>(
   nodes: Node[],
   editor: NodeEditor<S>,
-  graph: Structures<Node, C>
+  graph: any
 ) {
   // ordering matters! Parent nodes must exist when children nodes are added
   // parent nodes that are independent can be added at the same time, that should improve latency
@@ -18,9 +16,8 @@ export async function safeAddNodes<C extends ConnectionBase, S extends BaseSchem
 }
 
 export async function removeNodeWithChildren<
-  C extends Classic.Connection<Node, Node>,
   S extends BaseSchemes
->(node: Node, editor: NodeEditor<S>, graph: Structures<Node, C>) {
+>(node: Node, editor: NodeEditor<S>, graph: any) {
   let removedConns: {
     source?: string
     target?: string

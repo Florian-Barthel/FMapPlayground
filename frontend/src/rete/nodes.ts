@@ -20,13 +20,13 @@ export class InputOutputNode extends BaseNode {
     outputSockets.forEach((s) => this.addOutput(s, new Classic.Output(socket, s)))
   }
 
-  getInputKeys(graph) {
+  getInputKeys() {
     return Object.entries(this.inputs).map(([key, skt]) => ({
       key: `${this.id}-${key}`,
       label: `${skt?.label}@${this.label}`
     }))
   }
-  getOutputKeys(graph) {
+  getOutputKeys() {
     return Object.entries(this.outputs).map(([key, skt]) => ({
       key: `${this.id}-${key}`,
       label: `${skt?.label}@${this.label}`
