@@ -9,15 +9,6 @@ from fmap_viz import create
 from test_networks import submodules
 from api_graph import APIGraph
 
-from torchvision.models import (
-    efficientnet_b4,
-    mobilenet_v2,
-    vgg16,
-    inception_v3,
-    Inception_V3_Weights,
-    googlenet,
-    squeezenet,
-)
 
 
 def serve_pil_image(pil_img):
@@ -31,13 +22,14 @@ app = Flask(__name__)
 CORS(app)
 graph: BackwardGraph = None
 api_graph: APIGraph = None
+net = None
 
 
 @app.route("/api/graph", methods=["GET", "POST"])
 def get_graph():
     global graph
     global api_graph
-    net = submodules.Net()
+    global net
     # net = inception_v3(weights=Inception_V3_Weights.IMAGENET1K_V1)
     graph = create(net)
 
@@ -71,6 +63,7 @@ def get_output_fmap():
         return jsonify({f"status": f"no fmap for node: {node_id}"})
 
     print(api_graph.module_info[node_id].input_tensor.shape)
+    # todo handle flatten vectors and add a slider for multichannel
     fmap = torch.mean(api_graph.module_info[node_id].input_tensor[0], dim=0)
     transform = T.ToPILImage()
     fmap = transform(fmap)
@@ -105,6 +98,11 @@ def after_request(response):
     response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE")
     return response
 
+
+def start_api(network):
+    global net
+    net = network
+    app.run(debug=False)
 
 if __name__ == "__main__":
     app.run(debug=False)
