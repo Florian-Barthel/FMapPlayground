@@ -3,6 +3,7 @@ import { graph } from "./the-big-fat-graph"
 
 export async function fetchGraph(): Promise<ApiGraph> {
   return {
+    network_name: "mock net",
     nodes: [
       { id: 'input' },
       // Sub

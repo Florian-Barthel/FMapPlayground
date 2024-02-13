@@ -1,6 +1,7 @@
 import { type ApiGraph } from "./types"
 
 export const graph: ApiGraph = {
+    "network_name": "big fat mock",
     "edges": [
         [
             "Net/triple_in(TripleIn)?!module_id:3d3386a0af144cf9880824407f6ba124",

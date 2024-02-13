@@ -1,6 +1,7 @@
 import uuid
 import torch
 import inspect
+from docutils.core import publish_string
 
 
 class VerboseExecution(torch.nn.Module):
@@ -13,7 +14,9 @@ class VerboseExecution(torch.nn.Module):
         self.model = model
         self.input_layer_output_list = []
         self.original_name: str = self.model._get_name()
-        self.param_map = {str(id(v)): k for k, v in dict(self.model.named_parameters()).items()}
+        self.param_map = {
+            str(id(v)): k for k, v in dict(self.model.named_parameters()).items()
+        }
 
         self.recursively_remove_inplace(model)
         self.recursively_register_hooks(model)
@@ -25,9 +28,15 @@ class VerboseExecution(torch.nn.Module):
         else:
             module.__name__ = module._get_name()
 
+        doc = module.__doc__
+        if doc is not None:
+            doc = publish_string(
+                doc, writer_name="html", settings_overrides={"report_level": 5}
+            ).decode("utf-8")
+
         info = dict(
             file=inspect.getfile(module.__class__),
-            doc=module.__doc__,
+            doc=doc,
             description=str(module),
         )
         setattr(module, "info", info)
@@ -68,11 +77,13 @@ class VerboseExecution(torch.nn.Module):
         return self.model(x, *args, **kwargs)
 
     @staticmethod
-    def recursively_remove_inplace(model, verbose=True):
+    def recursively_remove_inplace(model):
         inplace_classes = set()
         watch_members = []
         watch_members += inspect.getmembers(torch.nn.modules.activation)
         watch_members += inspect.getmembers(torch.nn.modules.dropout)
+        while ("Module", torch.nn.modules.module.Module) in watch_members:
+            watch_members.remove(("Module", torch.nn.modules.module.Module))
         for name, obj in watch_members:
             if inspect.isclass(obj):
                 inplace_classes.add(obj)
@@ -83,5 +94,6 @@ class VerboseExecution(torch.nn.Module):
                 if isinstance(child, inplace_class):
                     current_module = getattr(model, child_name)
                     if hasattr(current_module, "inplace"):
-                        if current_module.inplace and verbose:
+                        if current_module.inplace:
                             current_module.inplace = False
+                            print("remove inplace", current_module)

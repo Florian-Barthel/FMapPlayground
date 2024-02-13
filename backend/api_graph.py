@@ -6,8 +6,14 @@ class APIGraph:
         self.nodes: List[dict] = []
         self.edges = []
         self.module_info = module_info
+        self.network_name = ""
 
     def rec_add_nodes(self, module: dict):
+        if self.network_name == "":
+            in_net_out = list(module.keys())
+            in_net_out.remove("Input")
+            in_net_out.remove("Output")
+            self.network_name = in_net_out[0]
         for id_, content in module.items():
             children = []
             name = id_
@@ -22,20 +28,32 @@ class APIGraph:
                         layer_name = layer_name[: layer_name.index("Backward0")]
                     info = {}
                     if "_saved_self_sym_sizes" in layer.layer_backwards_info.keys():
-                        info["shape"] = layer.layer_backwards_info["_saved_self_sym_sizes"]
+                        info["shape"] = layer.layer_backwards_info[
+                            "_saved_self_sym_sizes"
+                        ]
                     if "_saved_result" in layer.layer_backwards_info.keys():
-                        info["result_shape"] = layer.layer_backwards_info["_saved_result"].shape
-                    self.nodes.append(dict(id=str(layer.grad_fn), name=layer_name, children=[], info=info))
+                        info["result_shape"] = layer.layer_backwards_info[
+                            "_saved_result"
+                        ].shape
+                    self.nodes.append(
+                        dict(id=str(layer.grad_fn), name=layer_name, info=info)
+                    )
 
             if "next_scopes" in content.keys():
-                for next_module_name, next_module_content in content["next_scopes"].items():
+                for next_module_name, next_module_content in content[
+                    "next_scopes"
+                ].items():
                     children.append(next_module_name)
                     self.rec_add_nodes({next_module_name: next_module_content})
 
             info = {}
             if id_ in self.module_info.keys():
                 info = self.module_info[id_].info
-            self.nodes.append(dict(id=id_, name=name, children=children, info=info))
+
+            if len(children) > 0:
+                self.nodes.append(dict(id=id_, name=name, children=children, info=info))
+            else:
+                self.nodes.append(dict(id=id_, name=name, info=info))
 
     def add_connections(self, forward_connections: dict):
         for start, end in forward_connections.items():

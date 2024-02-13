@@ -1,8 +1,8 @@
-import { type ApiGraph } from './types'
-import { graph } from './the-big-fat-graph'
+import {type ApiGraph} from './types'
 
 export async function fetchGraph(): Promise<ApiGraph> {
   return {
+    network_name: "mock net",
     nodes: [
       {
         id: '<SumBackward0 object at 0x00000164CF2F7BE0>'
@@ -281,5 +281,5 @@ export async function fetchGraph(): Promise<ApiGraph> {
 }
 
 export function getFeatureMapUrl() {
-  return '/seehorse.jpg'
+    return '/seehorse.jpg'
 }

@@ -4,6 +4,7 @@ import { type ApiGraph } from '../api/types'
 interface OutNode {
   id: string
   name: string
+  info: any
   parent: number | null
   hasChildren: boolean
   inputSockets: string[]
@@ -42,9 +43,11 @@ export function prepareData(graphData: ApiGraph) {
     })
   )
 
+  console.log(graphData.nodes.map(n => n.info))
   const nodes: OutNode[] = graphData.nodes.map((n) => ({
     id: n.id,
     name: n.name || shortName(n.id),
+    info: {text:n.info},
     parent: null,
     hasChildren: !!n.children,
     inputSockets: unique(inputSocketLookup[n.id]) || [],

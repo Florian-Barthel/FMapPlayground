@@ -8,7 +8,7 @@ from module_list import ModuleList
 
 
 def create(net) -> BackwardGraph:
-    img_pil = Image.open("images/elefant.jpg").convert("RGB").resize((224, 224))
+    img_pil = Image.open("backend/images/elefant.jpg").convert("RGB").resize((224, 224))
     img = transforms.ToTensor()(img_pil)[None, ...]
     net.eval()
 

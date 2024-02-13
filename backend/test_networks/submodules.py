@@ -2,6 +2,9 @@ import torch
 
 
 class Net(torch.nn.Module):
+    """
+    My test network
+    """
     def __init__(self):
         super().__init__()
         self.sub_net1 = Sub()
@@ -22,6 +25,9 @@ class Net(torch.nn.Module):
 
 
 class Sub(torch.nn.Module):
+    """
+     My test suv network
+     """
     def __init__(self):
         super().__init__()
         self.conv1 = torch.nn.Conv2d(3, 3, kernel_size=1)
